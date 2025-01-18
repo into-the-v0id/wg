@@ -3,7 +3,7 @@ pub mod application;
 
 use std::{any::Any, sync::Arc};
 use axum::{
-    http::{HeaderName, Request, StatusCode}, response::{IntoResponse, Response}, routing::{get, post}, Router
+    http::{HeaderName, HeaderValue, Request, StatusCode}, response::{IntoResponse, Response}, routing::{get, post}, Router
 };
 use sqlx::migrate::MigrateDatabase;
 use tower_http::{catch_panic::CatchPanicLayer, request_id, trace::TraceLayer};
@@ -33,7 +33,6 @@ async fn main() {
         .route("/users/{id}/update", get(application::user::view_update_form).post(application::user::update))
         .route("/users/{id}/delete", post(application::user::delete))
         .route("/users/{id}/restore", post(application::user::restore))
-        // TODO: /users/{id}/chore-activites
         .route("/chore-lists", get(application::chore_list::view_list))
         .route("/chore-lists/create", get(application::chore_list::view_create_form).post(application::chore_list::create))
         .route("/chore-lists/{id}", get(application::chore_list::view_detail))
@@ -57,19 +56,19 @@ async fn main() {
         .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
         .layer(
             TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
-                // Log the request id as generated.
-                let request_id = request.headers().get("x-request-id");
+                let request_id = request.headers().get("x-request-id")
+                    .map(|v| v.clone())
+                    .unwrap_or(HeaderValue::from_static("None"));
 
-                match request_id {
-                    Some(request_id) => tracing::info_span!(
-                        "http_request",
-                        request_id = ?request_id,
-                    ),
-                    None => {
-                        tracing::error!("could not extract request_id");
-                        tracing::info_span!("http_request")
-                    }
-                }
+                let user_agent = request.headers().get("user-agent")
+                    .map(|v| v.clone())
+                    .unwrap_or(HeaderValue::from_static("None"));
+
+                tracing::info_span!(
+                    "http_request",
+                    request_id = ?request_id,
+                    user_agent = ?user_agent,
+                )
             })
         )
         .layer(request_id::SetRequestIdLayer::new(

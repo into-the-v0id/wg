@@ -36,6 +36,8 @@ pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActivity) -> Result<(), sqlx::Error> {
+    tracing::info!("Created chore activity with ID {}", chore_activity.id);
+
     sqlx::query("INSERT INTO chore_activities (id, chore_id, user_id, date, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
         .bind(&chore_activity.id)
         .bind(&chore_activity.chore_id)
@@ -49,6 +51,8 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
 }
 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActivity) -> Result<(), sqlx::Error> {
+    tracing::info!("Updated chore activity with ID {}", chore_activity.id);
+
     sqlx::query("UPDATE chore_activities SET chore_id = ?, user_id = ?, date = ?, date_deleted = ? WHERE id = ?")
         .bind(&chore_activity.chore_id)
         .bind(&chore_activity.user_id)
@@ -61,8 +65,10 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
 }
 
 pub async fn delete(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<(), sqlx::Error> {
+    tracing::info!("Deleted chore activity with ID {}", id);
+
     sqlx::query("DELETE FROM chore_activities WHERE ID = ?")
-        .bind(&id)
+        .bind(id)
         .execute(pool)
         .await
         .map(|_| ())
