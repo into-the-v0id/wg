@@ -1,9 +1,9 @@
 pub mod domain;
 pub mod application;
 
-use std::sync::Arc;
+use std::{any::Any, sync::Arc};
 use axum::{
-    http::{HeaderName, Request}, routing::{get, post}, Router
+    http::{HeaderName, Request, StatusCode}, response::{IntoResponse, Response}, routing::{get, post}, Router
 };
 use sqlx::migrate::MigrateDatabase;
 use tower_http::{catch_panic::CatchPanicLayer, request_id, trace::TraceLayer};
@@ -54,7 +54,17 @@ async fn main() {
             HeaderName::from_static("x-request-id"),
             request_id::MakeRequestUuid,
         ))
-        .layer(CatchPanicLayer::new());
+        .layer(CatchPanicLayer::custom(|err: Box<dyn Any + Send + 'static>| {
+            if let Some(s) = err.downcast_ref::<String>() {
+                tracing::error!("Service panicked: {}", s);
+            } else if let Some(s) = err.downcast_ref::<&str>() {
+                tracing::error!("Service panicked: {}", s);
+            } else {
+                tracing::error!("Service panicked but `CatchPanic` was unable to downcast the panic info");
+            };
+
+            handle_error(StatusCode::INTERNAL_SERVER_ERROR)
+        }));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     tracing::debug!("Listening on {}", listener.local_addr().unwrap());
@@ -71,4 +81,8 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
     }
 
     sqlx::sqlite::SqlitePool::connect(db_url).await.unwrap()
+}
+
+fn handle_error(status: StatusCode) -> Response {
+    (status, status.canonical_reason().unwrap_or("Unknown Error")).into_response()
 }
