@@ -35,7 +35,7 @@
             {% for chore in chores %}
                 {% if !chore.is_deleted() %}
                     <li>
-                        <a href="/chores/{{ chore.id }}">{{ chore.name }}</a>
+                        <a href="/chores/{{ chore.id }}">{{ chore.name }}</a> ({{ chore.points }} PT)
                     </li>
                 {% endif %}
             {% endfor %}
