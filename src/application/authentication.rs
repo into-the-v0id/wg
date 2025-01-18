@@ -62,6 +62,9 @@ pub async fn login(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
         Err(err) => panic!("{}", err),
     };
+    if user.is_deleted() {
+        return Err(StatusCode::UNAUTHORIZED);
+    }
 
     let auth_session = AuthSession {
         id: Uuid::now_v7(),
