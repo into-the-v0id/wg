@@ -1,0 +1,32 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Create Activity{% endblock %}
+
+{% block back_link %}
+    <a href="/chore-lists/{{ chore_list.id }}/activities" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="chore_id">Chore</label>
+        <select id="chore_id" name="chore_id" required>
+            <option selected disabled value=""></option>
+            {% for chore in chores %}
+                <option value="{{ chore.id }}">{{ chore.name }} ({{ chore.points}} PT)</option>
+            {% endfor %}
+        </select>
+
+        <label for="user_id">User</label>
+        <select id="user_id" name="user_id" required>
+            <option selected disabled value=""></option>
+            {% for user in users %}
+                <option value="{{ user.id }}">{{ user.first_name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="date">Date</label>
+        <input id="date" name="date" type="date" value="{{ now.format("%Y-%m-%d") }}" />
+
+        <button type="submit">Create</button>
+    </form>
+{% endblock %}

@@ -45,6 +45,8 @@ async fn main() {
         .route("/chores/{id}/update", get(application::chore::view_update_form).post(application::chore::update))
         .route("/chores/{id}/delete", post(application::chore::delete))
         .route("/chores/{id}/restore", post(application::chore::restore))
+        .route("/chore-lists/{id}/activities", get(application::chore_list::view_activity_list))
+        .route("/chore-lists/{id}/activities/create", get(application::chore_list::view_create_activity_form).post(application::chore_list::create_activity))
         .with_state(app_state)
         .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
         .layer(

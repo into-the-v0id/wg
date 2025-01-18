@@ -1,0 +1,38 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Activities of List: {{ chore_list.name }}{% endblock %}
+
+{% block back_link %}
+    <a href="/chore-lists/{{ chore_list.id }}" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    <div>
+        <ul>
+            {% for activity in activities %}
+                {% if !activity.is_deleted() %}
+                    <li>
+                        <a href="/activities/{{ activity.id }}">{{ activity.id }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <a href="/chore-lists/{{ chore_list.id }}/activities/create" role="button">Create</a>
+    </div>
+
+    <br>
+    <br>
+
+    <div>
+        <h4>Past Activities</h4>
+        <ul>
+            {% for activity in activities %}
+                {% if activity.is_deleted() %}
+                    <li>
+                        <a href="/activities/{{ activity.id }}">{{ activity.id }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
