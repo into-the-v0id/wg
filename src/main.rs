@@ -2,8 +2,9 @@ pub mod domain;
 pub mod application;
 
 use std::{any::Any, sync::Arc};
+use askama::Template;
 use axum::{
-    extract::State, http::{HeaderName, StatusCode}, middleware::Next, response::{IntoResponse, Response}, routing::{get, post}, RequestExt, Router
+    body::Body, extract::State, http::{header, HeaderName, HeaderValue, StatusCode}, middleware::Next, response::{IntoResponse, Response}, routing::{get, post}, RequestExt, Router
 };
 use sqlx::migrate::MigrateDatabase;
 use tokio::sync::Mutex;
@@ -59,6 +60,24 @@ async fn main() {
         .route("/chore-activities/{id}/update", get(application::chore_activity::view_update_form).post(application::chore_activity::update))
         .route("/chore-activities/{id}/delete", post(application::chore_activity::delete))
         .route("/chore-activities/{id}/restore", post(application::chore_activity::restore))
+        .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
+            let response = next.run(request).await;
+
+            let status_code = response.status();
+            if status_code.is_client_error() || status_code.is_server_error() {
+                let (mut response_parts, _body) = response.into_parts();
+
+                response_parts.headers.insert(
+                    header::CONTENT_TYPE,
+                    HeaderValue::from_static(mime::TEXT_HTML_UTF_8.as_ref())
+                );
+                let body = Body::from(ErrorTemplate {status_code}.render().unwrap());
+
+                return Response::from_parts(response_parts, body);
+            }
+
+            return response;
+        }))
         .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
         .layer(TraceLayer::new_for_http().make_span_with(DefaultMakeSpan::new().level(Level::ERROR)))
         .layer(axum::middleware::from_fn_with_state(
@@ -103,7 +122,10 @@ async fn main() {
                 tracing::error!("Service panicked but `CatchPanic` was unable to downcast the panic info");
             };
 
-            handle_error(StatusCode::INTERNAL_SERVER_ERROR)
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::INTERNAL_SERVER_ERROR.canonical_reason().unwrap_or("Unknown Error")
+            ).into_response()
         }))
         .with_state(app_state);
 
@@ -124,6 +146,8 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
     sqlx::sqlite::SqlitePool::connect(db_url).await.unwrap()
 }
 
-fn handle_error(status: StatusCode) -> Response {
-    (status, status.canonical_reason().unwrap_or("Unknown Error")).into_response()
+#[derive(Template)]
+#[template(path = "page/error.jinja")]
+struct ErrorTemplate {
+    status_code: StatusCode,
 }

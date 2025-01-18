@@ -2915,6 +2915,7 @@ dependencies = [
  "axum",
  "axum-extra",
  "chrono",
+ "mime",
  "serde",
  "sqlx",
  "sqlx-cli",

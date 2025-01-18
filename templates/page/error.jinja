@@ -1,0 +1,11 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}{{ status_code.canonical_reason().unwrap_or("Unknown Error") }}{% endblock %}
+
+{% block back_link %}
+    <a href="/" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    ERROR {{ status_code.as_u16() }}
+{% endblock %}
