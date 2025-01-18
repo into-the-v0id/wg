@@ -11,24 +11,23 @@ const COOKIE_NAME: &str = "authentication";
 
 #[derive(Debug)]
 pub struct AuthSession {
-    id: Uuid,
-    auth_token: String,
-    user_id: Uuid,
+    pub id: Uuid,
+    pub auth_token: String,
+    pub user_id: Uuid,
 }
 
 #[derive(Debug)]
 pub struct AuthSessionExtractor {
-    auth_session_id: Uuid,
-    user_id: Uuid,
+    pub auth_session_id: Uuid,
+    pub user_id: Uuid,
 }
 
-impl FromRequestParts<AppState> for AuthSessionExtractor
+impl FromRequestParts<Arc<AppState>> for AuthSessionExtractor
 {
     type Rejection = StatusCode;
 
-    async fn from_request_parts(parts: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, state: &Arc<AppState>) -> Result<Self, Self::Rejection> {
         let cookie_jar = parts.extract::<CookieJar>().await.unwrap();
-        // let cookies = CookieJar::from_request_parts(parts, ctx).await.unwrap();
 
         let auth_token = match cookie_jar.get(COOKIE_NAME) {
             Some(auth_token) => auth_token.value(),

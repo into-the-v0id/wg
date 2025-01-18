@@ -3,11 +3,13 @@ pub mod application;
 
 use std::{any::Any, sync::Arc};
 use axum::{
-    http::{HeaderName, HeaderValue, Request, StatusCode}, response::{IntoResponse, Response}, routing::{get, post}, Router
+    extract::State, http::{HeaderName, StatusCode}, middleware::Next, response::{IntoResponse, Response}, routing::{get, post}, RequestExt, Router
 };
 use sqlx::migrate::MigrateDatabase;
 use tokio::sync::Mutex;
-use tower_http::{catch_panic::CatchPanicLayer, request_id, trace::TraceLayer};
+use tower_http::{catch_panic::CatchPanicLayer, request_id, trace::{DefaultMakeSpan, TraceLayer}};
+use tracing::Level;
+use tracing::Instrument;
 
 pub struct AppState {
     pub pool: sqlx::sqlite::SqlitePool,
@@ -57,25 +59,37 @@ async fn main() {
         .route("/chore-activities/{id}/update", get(application::chore_activity::view_update_form).post(application::chore_activity::update))
         .route("/chore-activities/{id}/delete", post(application::chore_activity::delete))
         .route("/chore-activities/{id}/restore", post(application::chore_activity::restore))
-        .with_state(app_state)
+        .layer(axum::middleware::from_fn_with_state(
+            app_state.clone(),
+            async |State(state): State<Arc<AppState>>, mut request: axum::extract::Request, next: Next| -> Response {
+                let user_id = match request.extract_parts_with_state::<application::authentication::AuthSessionExtractor, _>(&state).await {
+                    Ok(application::authentication::AuthSessionExtractor {user_id, ..}) => user_id,
+                    Err(_) => return next.run(request).await,
+                };
+
+                let span = tracing::error_span!(
+                    "auth_session",
+                    user_id = ?user_id,
+                );
+
+                next.run(request).instrument(span).await
+            }
+        ))
         .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
-        .layer(
-            TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
-                let request_id = request.headers().get("x-request-id")
-                    .map(|v| v.clone())
-                    .unwrap_or(HeaderValue::from_static("None"));
+        .layer(TraceLayer::new_for_http().make_span_with(DefaultMakeSpan::new().level(Level::ERROR)))
+        .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
+            let request_id = match request.headers().get("x-request-id") {
+                Some(request_id) => request_id,
+                None => return next.run(request).await,
+            };
 
-                let user_agent = request.headers().get("user-agent")
-                    .map(|v| v.clone())
-                    .unwrap_or(HeaderValue::from_static("None"));
+            let span = tracing::error_span!(
+                "request_id",
+                request_id = ?request_id,
+            );
 
-                tracing::info_span!(
-                    "http_request",
-                    request_id = ?request_id,
-                    user_agent = ?user_agent,
-                )
-            })
-        )
+            next.run(request).instrument(span).await
+        }))
         .layer(request_id::SetRequestIdLayer::new(
             HeaderName::from_static("x-request-id"),
             request_id::MakeRequestUuid,
@@ -90,7 +104,8 @@ async fn main() {
             };
 
             handle_error(StatusCode::INTERNAL_SERVER_ERROR)
-        }));
+        }))
+        .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     tracing::debug!("Listening on {}", listener.local_addr().unwrap());
