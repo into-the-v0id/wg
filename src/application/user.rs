@@ -81,7 +81,7 @@ struct UpdateTemplate {
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -89,6 +89,10 @@ pub async fn view_update_form(
         Err(err) => panic!("{}", err),
     };
     if user.is_deleted() {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    if user.id != auth_session.user_id {
         return Err(StatusCode::FORBIDDEN);
     }
 
@@ -104,7 +108,7 @@ pub struct UpdatePayload {
 pub async fn update(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
     let mut user = match user::get_by_id(&state.pool, &id).await {
@@ -113,6 +117,10 @@ pub async fn update(
         Err(err) => panic!("{}", err),
     };
     if user.is_deleted() {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    if user.id != auth_session.user_id {
         return Err(StatusCode::FORBIDDEN);
     }
 
