@@ -6,7 +6,7 @@ use crate::AppState;
 use crate::domain::user;
 
 #[derive(Template)]
-#[template(path = "user/list.jinja")]
+#[template(path = "page/user/list.jinja")]
 struct ListTemplate {
     users: Vec<user::User>,
 }
@@ -20,7 +20,7 @@ pub async fn view_list(
 }
 
 #[derive(Template)]
-#[template(path = "user/detail.jinja")]
+#[template(path = "page/user/detail.jinja")]
 struct DetailTemplate {
     user: user::User,
 }
@@ -39,7 +39,7 @@ pub async fn view_detail(
 }
 
 #[derive(Template)]
-#[template(path = "user/create.jinja")]
+#[template(path = "page/user/create.jinja")]
 struct CreateTemplate();
 
 pub async fn view_create_form() -> Html<String> {
