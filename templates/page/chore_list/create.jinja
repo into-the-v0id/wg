@@ -1,0 +1,16 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Create Chore List{% endblock %}
+
+{% block back_link %}
+    <a href="/chore_lists" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" required />
+
+        <button type="submit">Create</button>
+    </form>
+{% endblock %}
