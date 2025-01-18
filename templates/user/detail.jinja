@@ -1,0 +1,7 @@
+<a href="/users">&lt; back</a>
+
+<h1>{{ user.first_name }}</h1>
+
+<form method="post" action="/users/{{ user.id }}/delete">
+    <button type="submit">Delete</button>
+</form>

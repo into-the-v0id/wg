@@ -5,36 +5,36 @@ use uuid::Uuid;
 use crate::AppState;
 
 #[derive(Template)]
-#[template(path = "person/list.jinja")]
+#[template(path = "user/list.jinja")]
 struct ListTemplate {
-    people: Vec<crate::domain::person::Person>,
+    users: Vec<crate::domain::user::User>,
 }
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
 ) -> Html<String> {
-    let people = crate::domain::person::get_all(&state.pool).await.unwrap();
+    let users = crate::domain::user::get_all(&state.pool).await.unwrap();
 
-    Html(ListTemplate {people}.render().unwrap())
+    Html(ListTemplate {users}.render().unwrap())
 }
 
 #[derive(Template)]
-#[template(path = "person/detail.jinja")]
+#[template(path = "user/detail.jinja")]
 struct DetailTemplate {
-    person: crate::domain::person::Person,
+    user: crate::domain::user::User,
 }
 
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Html<String> {
-    let person = crate::domain::person::get_by_id(&state.pool, &id).await.unwrap();
+    let user = crate::domain::user::get_by_id(&state.pool, &id).await.unwrap();
 
-    Html(DetailTemplate {person}.render().unwrap())
+    Html(DetailTemplate {user}.render().unwrap())
 }
 
 #[derive(Template)]
-#[template(path = "person/create.jinja")]
+#[template(path = "user/create.jinja")]
 struct CreateTemplate();
 
 pub async fn view_create_form() -> Html<String> {
@@ -51,23 +51,23 @@ pub async fn create(
     State(state): State<Arc<AppState>>,
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
-    let person = crate::domain::person::Person {
+    let user = crate::domain::user::User {
         id: Uuid::now_v7(),
         first_name: payload.first_name,
     };
 
-    crate::domain::person::create(&state.pool, &person).await.unwrap();
+    crate::domain::user::create(&state.pool, &user).await.unwrap();
 
-    Redirect::to(&format!("/people/{}", person.id))
+    Redirect::to(&format!("/users/{}", user.id))
 }
 
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Redirect {
-    let person = crate::domain::person::get_by_id(&state.pool, &id).await.unwrap();
+    let user = crate::domain::user::get_by_id(&state.pool, &id).await.unwrap();
 
-    crate::domain::person::delete(&state.pool, &person.id).await.unwrap();
+    crate::domain::user::delete(&state.pool, &user.id).await.unwrap();
 
-    Redirect::to("/people")
+    Redirect::to("/users")
 }

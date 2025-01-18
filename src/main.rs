@@ -26,10 +26,10 @@ async fn main() {
         .unwrap();
 
     let router = Router::new()
-        .route("/people", get(application::person::view_list))
-        .route("/people/create", get(application::person::view_create_form).post(application::person::create))
-        .route("/people/{id}", get(application::person::view_detail))
-        .route("/people/{id}/delete", post(application::person::delete))
+        .route("/users", get(application::user::view_list))
+        .route("/users/create", get(application::user::view_create_form).post(application::user::create))
+        .route("/users/{id}", get(application::user::view_detail))
+        .route("/users/{id}/delete", post(application::user::delete))
         .with_state(app_state)
         .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
         .layer(
