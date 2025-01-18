@@ -4,8 +4,11 @@
 
 {% block content %}
     <form method="post">
-        <label for="name">Name</label>
-        <input id="name" name="name" type="text" required autocomplete="username" />
+        <label for="handle">Handle</label>
+        <input id="handle" name="handle" type="text" required autocomplete="username" />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password" />
 
         <button type="submit">Login</button>
     </form>

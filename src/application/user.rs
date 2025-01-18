@@ -1,5 +1,9 @@
 use std::sync::Arc;
 use askama::Template;
+use argon2::{
+    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
+    Argon2
+};
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
 use uuid::Uuid;
 use crate::AppState;
@@ -53,6 +57,8 @@ pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
 #[allow(dead_code)]
 pub struct CreatePayload {
     name: String,
+    handle: String,
+    password: String,
 }
 
 pub async fn create(
@@ -60,9 +66,16 @@ pub async fn create(
     _auth_session: AuthSession,
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
+    let password_hash = Argon2::default().hash_password(
+        payload.password.as_bytes(),
+        &SaltString::generate(&mut OsRng),
+    ).unwrap().to_string();
+
     let user = user::User {
         id: Uuid::now_v7(),
         name: payload.name,
+        handle: payload.handle,
+        password_hash,
         date_created: chrono::offset::Utc::now(),
         date_deleted: None,
     };
@@ -103,6 +116,8 @@ pub async fn view_update_form(
 #[allow(dead_code)]
 pub struct UpdatePayload {
     name: String,
+    handle: String,
+    password: String,
 }
 
 pub async fn update(
@@ -125,6 +140,15 @@ pub async fn update(
     }
 
     user.name = payload.name;
+    user.handle = payload.handle;
+
+    if ! payload.password.is_empty() {
+        let password_hash = Argon2::default().hash_password(
+            payload.password.as_bytes(),
+            &SaltString::generate(&mut OsRng),
+        ).unwrap().to_string();
+        user.password_hash = password_hash;
+    }
 
     user::update(&state.pool, &user).await.unwrap();
 

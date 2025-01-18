@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use askama::Template;
+use argon2::{password_hash::{PasswordHash, PasswordVerifier}, Argon2};
 use axum::{extract::{FromRequestParts, State}, http::{request::Parts, StatusCode}, response::{Html, Redirect}, Form, RequestPartsExt};
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use uuid::Uuid;
@@ -49,7 +50,8 @@ pub async fn view_login_form() -> Html<String> {
 #[derive(serde::Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct LoginPayload {
-    name: String,
+    handle: String,
+    password: String,
 }
 
 pub async fn login(
@@ -57,12 +59,22 @@ pub async fn login(
     cookie_jar: CookieJar,
     Form(payload): Form<LoginPayload>,
 ) -> Result<(CookieJar, Redirect), StatusCode> {
-    let user = match user::get_by_name(&state.pool, &payload.name).await {
+    let user = match user::get_by_handle(&state.pool, &payload.handle).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
         Err(err) => panic!("{}", err),
     };
     if user.is_deleted() {
+        return Err(StatusCode::UNAUTHORIZED);
+    }
+
+    let is_valid_password = Argon2::default()
+        .verify_password(
+            payload.password.as_bytes(),
+            &PasswordHash::new(&user.password_hash).unwrap(),
+        )
+        .is_ok();
+    if ! is_valid_password {
         return Err(StatusCode::UNAUTHORIZED);
     }
 
