@@ -1,6 +1,6 @@
 {% extends "layout/default.jinja" %}
 
-{% block title %}Update Chore List{% endblock %}
+{% block title %}Create Chore{% endblock %}
 
 {% block back_link %}
     <a href="/chore-lists/{{ chore_list.id }}" class="secondary">&larr; Back</a>
@@ -9,8 +9,11 @@
 {% block content %}
     <form method="post">
         <label for="name">Name</label>
-        <input id="name" name="name" type="text" required value="{{ chore_list.name }}" />
+        <input id="name" name="name" type="text" required />
 
-        <button type="submit">Update</button>
+        <label for="points">Points</label>
+        <input id="points" name="points" type="number" required />
+
+        <button type="submit">Create</button>
     </form>
 {% endblock %}

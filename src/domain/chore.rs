@@ -24,6 +24,10 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<Chore>, sqlx
     sqlx::query_as("SELECT * FROM chores").fetch_all(pool).await
 }
 
+pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<Vec<Chore>, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM chores WHERE chore_list_id = ?").bind(chore_list_id).fetch_all(pool).await
+}
+
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore: &Chore) -> Result<(), sqlx::Error> {
     sqlx::query("INSERT INTO chores (id, chore_list_id, name, points, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
         .bind(&chore.id)

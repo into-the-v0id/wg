@@ -39,6 +39,11 @@ async fn main() {
         .route("/chore-lists/{id}/update", get(application::chore_list::view_update_form).post(application::chore_list::update))
         .route("/chore-lists/{id}/delete", post(application::chore_list::delete))
         .route("/chore-lists/{id}/restore", post(application::chore_list::restore))
+        .route("/chore-lists/{id}/create-chore", get(application::chore_list::view_create_chore_form).post(application::chore_list::create_chore))
+        .route("/chores/{id}", get(application::chore::view_detail))
+        .route("/chores/{id}/update", get(application::chore::view_update_form).post(application::chore::update))
+        .route("/chores/{id}/delete", post(application::chore::delete))
+        .route("/chores/{id}/restore", post(application::chore::restore))
         .with_state(app_state)
         .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
         .layer(

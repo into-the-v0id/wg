@@ -1,0 +1,31 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}{{ chore.name }}{% endblock %}
+
+{% block back_link %}
+    <a href="/chore-lists/{{ chore_list.id }}" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    {% if chore.is_deleted() || chore_list.is_deleted() %}
+        <div>
+            <div>
+                <em>This chore has been deleted</em>
+            </div>
+
+            {% if !chore_list.is_deleted() %}
+                <br>
+
+                <button type="submit" form="chore_restore" style="width: auto;">Restore</button>
+                <form id="chore_restore" method="post" action="/chores/{{ chore.id }}/restore"></form>
+            {% endif %}
+        </div>
+    {% else %}
+        <div>
+            <a href="/chores/{{ chore.id }}/update" role="button">Edit</a>
+            <button type="submit" form="chore_delete" class="outline secondary" style="width: auto;">Delete</button>
+
+            <form id="chore_delete" method="post" action="/chores/{{ chore.id }}/delete"></form>
+        </div>
+    {% endif %}
+{% endblock %}
