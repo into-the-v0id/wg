@@ -6,6 +6,7 @@ use crate::{domain::user, AppState};
 use crate::domain::chore_list;
 use crate::domain::chore;
 use crate::domain::chore_activity;
+use super::authentication::AuthSession;
 
 #[derive(Template)]
 #[template(path = "page/chore_list/list.jinja")]
@@ -15,6 +16,7 @@ struct ListTemplate {
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Html<String> {
     let chore_lists = chore_list::get_all(&state.pool).await.unwrap();
 
@@ -30,6 +32,7 @@ struct DetailTemplate {
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -44,7 +47,7 @@ pub async fn view_detail(
 #[template(path = "page/chore_list/create.jinja")]
 struct CreateTemplate();
 
-pub async fn view_create_form() -> Html<String> {
+pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
     Html(CreateTemplate().render().unwrap())
 }
 
@@ -56,6 +59,7 @@ pub struct CreatePayload {
 
 pub async fn create(
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
     let chore_list = chore_list::ChoreList {
@@ -79,6 +83,7 @@ struct UpdateTemplate {
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -101,6 +106,7 @@ pub struct UpdatePayload {
 pub async fn update(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
@@ -122,6 +128,7 @@ pub async fn update(
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -142,6 +149,7 @@ pub async fn delete(
 pub async fn restore(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -169,6 +177,7 @@ struct ChoreListTemplate {
 pub async fn view_chore_list(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -190,6 +199,7 @@ struct CreateChoreTemplate {
 pub async fn view_create_chore_form(
     Path(chore_list_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
         Ok(chore_list) => chore_list,
@@ -213,6 +223,7 @@ pub struct CreateChorePayload {
 pub async fn create_chore(
     Path(chore_list_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
     Form(payload): Form<CreateChorePayload>,
 ) -> Result<Redirect, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
@@ -250,6 +261,7 @@ struct ActivityListTemplate {
 pub async fn view_activity_list(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -276,6 +288,7 @@ struct CreateActivityTemplate {
 pub async fn view_create_activity_form(
     Path(chore_list_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
         Ok(chore_list) => chore_list,
@@ -304,6 +317,7 @@ pub struct CreateActivityPayload {
 pub async fn create_activity(
     Path(chore_list_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
     Form(payload): Form<CreateActivityPayload>,
 ) -> Result<Redirect, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
@@ -356,6 +370,7 @@ struct UserListTemplate {
 pub async fn view_users_list(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,

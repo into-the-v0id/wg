@@ -7,6 +7,7 @@ use crate::domain::chore_activity;
 use crate::domain::chore;
 use crate::domain::chore_list;
 use crate::domain::user;
+use super::authentication::AuthSession;
 
 #[derive(Template)]
 #[template(path = "page/chore_activity/detail.jinja")]
@@ -20,6 +21,7 @@ struct DetailTemplate {
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let activity = match chore_activity::get_by_id(&state.pool, &id).await {
         Ok(chore_activity) => chore_activity,
@@ -45,6 +47,7 @@ struct UpdateTemplate {
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let activity = match chore_activity::get_by_id(&state.pool, &id).await {
         Ok(chore_activity) => chore_activity,
@@ -82,6 +85,7 @@ pub struct UpdatePayload {
 pub async fn update(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_activity = match chore_activity::get_by_id(&state.pool, &id).await {
@@ -115,6 +119,7 @@ pub async fn update(
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_activity = match chore_activity::get_by_id(&state.pool, &id).await {
         Ok(chore_activity) => chore_activity,
@@ -145,6 +150,7 @@ pub async fn delete(
 pub async fn restore(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_activity = match chore_activity::get_by_id(&state.pool, &id).await {
         Ok(chore_activity) => chore_activity,

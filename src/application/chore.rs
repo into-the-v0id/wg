@@ -7,6 +7,7 @@ use crate::domain::chore;
 use crate::domain::chore_list;
 use crate::domain::chore_activity;
 use crate::domain::user;
+use super::authentication::AuthSession;
 
 #[derive(Template)]
 #[template(path = "page/chore/detail.jinja")]
@@ -18,6 +19,7 @@ struct DetailTemplate {
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
@@ -39,6 +41,7 @@ struct UpdateTemplate {
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
@@ -67,6 +70,7 @@ pub struct UpdatePayload {
 pub async fn update(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
     let mut chore = match chore::get_by_id(&state.pool, &id).await {
@@ -94,6 +98,7 @@ pub async fn update(
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
     let mut chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
@@ -119,6 +124,7 @@ pub async fn delete(
 pub async fn restore(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
     let mut chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
@@ -153,6 +159,7 @@ struct ActivityListTemplate {
 pub async fn view_activity_list(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,

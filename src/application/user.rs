@@ -4,6 +4,7 @@ use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect},
 use uuid::Uuid;
 use crate::AppState;
 use crate::domain::user;
+use super::authentication::AuthSession;
 
 #[derive(Template)]
 #[template(path = "page/user/list.jinja")]
@@ -13,6 +14,7 @@ struct ListTemplate {
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Html<String> {
     let users = user::get_all(&state.pool).await.unwrap();
 
@@ -28,6 +30,7 @@ struct DetailTemplate {
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -42,7 +45,7 @@ pub async fn view_detail(
 #[template(path = "page/user/create.jinja")]
 struct CreateTemplate();
 
-pub async fn view_create_form() -> Html<String> {
+pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
     Html(CreateTemplate().render().unwrap())
 }
 
@@ -54,6 +57,7 @@ pub struct CreatePayload {
 
 pub async fn create(
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
     let user = user::User {
@@ -77,6 +81,7 @@ struct UpdateTemplate {
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -99,6 +104,7 @@ pub struct UpdatePayload {
 pub async fn update(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
     let mut user = match user::get_by_id(&state.pool, &id).await {
@@ -120,6 +126,7 @@ pub async fn update(
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
     let mut user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -140,6 +147,7 @@ pub async fn delete(
 pub async fn restore(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
+    _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
     let mut user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
