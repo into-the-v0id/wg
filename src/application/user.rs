@@ -29,7 +29,7 @@ pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Html<String> {
-    let user = user::get_by_id(&state.pool, &id).await.unwrap();
+    let user = user::get_by_id(&state.pool, &id).await.unwrap(); // TODO: respond with 404 if not found
 
     Html(DetailTemplate {user}.render().unwrap())
 }
@@ -59,6 +59,7 @@ pub async fn create(
         date_deleted: None,
     };
 
+    // TODO: gracefully handle error
     user::create(&state.pool, &user).await.unwrap();
 
     Redirect::to(&format!("/users/{}", user.id))
@@ -68,7 +69,7 @@ pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Redirect {
-    let mut user = user::get_by_id(&state.pool, &id).await.unwrap();
+    let mut user = user::get_by_id(&state.pool, &id).await.unwrap(); // TODO: respond with 404 if not found
     assert!(!user.is_deleted());
 
     user.date_deleted = Some(chrono::offset::Utc::now());
@@ -82,7 +83,7 @@ pub async fn restore(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Redirect {
-    let mut user = user::get_by_id(&state.pool, &id).await.unwrap();
+    let mut user = user::get_by_id(&state.pool, &id).await.unwrap(); // TODO: respond with 404 if not found
     assert!(user.is_deleted());
 
     user.date_deleted = None;
