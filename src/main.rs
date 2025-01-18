@@ -6,10 +6,12 @@ use axum::{
     http::{HeaderName, HeaderValue, Request, StatusCode}, response::{IntoResponse, Response}, routing::{get, post}, Router
 };
 use sqlx::migrate::MigrateDatabase;
+use tokio::sync::Mutex;
 use tower_http::{catch_panic::CatchPanicLayer, request_id, trace::TraceLayer};
 
 pub struct AppState {
-    pub pool: sqlx::sqlite::SqlitePool
+    pub pool: sqlx::sqlite::SqlitePool,
+    pub auth_sessions: Mutex<Vec<application::authentication::AuthSession>>,
 }
 
 #[tokio::main]
@@ -18,6 +20,7 @@ async fn main() {
 
     let app_state = Arc::new(AppState {
         pool: create_db_pool().await,
+        auth_sessions: Mutex::new(Vec::new()),
     });
 
     sqlx::migrate!()
@@ -26,6 +29,7 @@ async fn main() {
         .unwrap();
 
     let router = Router::new()
+        .route("/login", get(application::authentication::view_login_form).post(application::authentication::login))
         .route("/", get(application::dashboard::view))
         .route("/users", get(application::user::view_list))
         .route("/users/create", get(application::user::view_create_form).post(application::user::create))

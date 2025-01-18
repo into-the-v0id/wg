@@ -1,0 +1,12 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" required autocomplete="username" />
+
+        <button type="submit">Login</button>
+    </form>
+{% endblock %}
