@@ -68,6 +68,57 @@ pub async fn create(
     Redirect::to(&format!("/users/{}", user.id))
 }
 
+#[derive(Template)]
+#[template(path = "page/user/update.jinja")]
+struct UpdateTemplate {
+    user: user::User,
+}
+
+pub async fn view_update_form(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+) -> Result<Html<String>, StatusCode> {
+    let user = match user::get_by_id(&state.pool, &id).await {
+        Ok(user) => user,
+        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+        Err(err) => panic!("{}", err),
+    };
+
+    if user.is_deleted() {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    Ok(Html(UpdateTemplate {user}.render().unwrap()))
+}
+
+#[derive(serde::Deserialize, Debug)]
+#[allow(dead_code)]
+pub struct UpdatePayload {
+    first_name: String,
+}
+
+pub async fn update(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+    Form(payload): Form<UpdatePayload>,
+) -> Result<Redirect, StatusCode> {
+    let mut user = match user::get_by_id(&state.pool, &id).await {
+        Ok(user) => user,
+        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+        Err(err) => panic!("{}", err),
+    };
+
+    if user.is_deleted() {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    user.first_name = payload.first_name;
+
+    user::update(&state.pool, &user).await.unwrap();
+
+    Ok(Redirect::to(&format!("/users/{}", user.id)))
+}
+
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,

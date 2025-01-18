@@ -30,6 +30,7 @@ async fn main() {
         .route("/users", get(application::user::view_list))
         .route("/users/create", get(application::user::view_create_form).post(application::user::create))
         .route("/users/{id}", get(application::user::view_detail))
+        .route("/users/{id}/update", get(application::user::view_update_form).post(application::user::update))
         .route("/users/{id}/delete", post(application::user::delete))
         .route("/users/{id}/restore", post(application::user::restore))
         .with_state(app_state)

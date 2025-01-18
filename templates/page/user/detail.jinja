@@ -14,12 +14,12 @@
 
         <br>
 
-        <form method="post" action="/users/{{ user.id }}/restore ">
-            <button type="submit" style="width: auto;">Restore</button>
-        </form>
+        <button type="submit" form="user_restore" style="width: auto;">Restore</button>
+        <form id="user_restore" method="post" action="/users/{{ user.id }}/restore"></form>
     {% else %}
-        <form method="post" action="/users/{{ user.id }}/delete">
-            <button type="submit" class="outline secondary" style="width: auto;">Delete</button>
-        </form>
+        <a href="/users/{{ user.id }}/update" role="button">Edit</a>
+        <button type="submit" form="user_delete" class="outline secondary" style="width: auto;">Delete</button>
+
+        <form id="user_delete" method="post" action="/users/{{ user.id }}/delete"></form>
     {% endif %}
 {% endblock %}

@@ -1,0 +1,16 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Update User{% endblock %}
+
+{% block back_link %}
+    <a href="/users/{{ user.id }}" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="first_name">First Name</label>
+        <input id="first_name" name="first_name" type="text" required autocomplete="given-name" value="{{ user.first_name }}" />
+
+        <button type="submit">Create</button>
+    </form>
+{% endblock %}
