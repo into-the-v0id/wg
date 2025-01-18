@@ -78,9 +78,13 @@ pub async fn login(
         return Err(StatusCode::UNAUTHORIZED);
     }
 
+    let mut auth_token_buf = [0u8; 64];
+    getrandom::getrandom(&mut auth_token_buf).unwrap();
+    let auth_token = const_hex::encode(auth_token_buf);
+
     let auth_session = AuthSession {
         id: Uuid::now_v7(),
-        auth_token: Uuid::new_v4().to_string(), // TODO: make more secure
+        auth_token,
         user_id: user.id,
     };
 
