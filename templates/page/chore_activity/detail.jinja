@@ -22,15 +22,15 @@
         </tr>
         <tr>
             <th scope="row">User</th>
-            <td><a href="/users/{{ user.id }}">{{ user.first_name }}</a></td>
+            <td><a href="/users/{{ user.id }}" class="secondary">{{ user.first_name }}</a></td>
         </tr>
         <tr>
             <th scope="row">Chore</th>
-            <td><a href="/chores/{{ chore.id }}">{{ chore.name }}</a> ({{ chore.points }} PT)</td>
+            <td><a href="/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }} PT)</td>
         </tr>
         <tr>
             <th scope="row">Chore List</th>
-            <td><a href="/chore-lists/{{ chore_list.id }}">{{ chore_list.name }}</a></td>
+            <td><a href="/chore-lists/{{ chore_list.id }}" class="secondary">{{ chore_list.name }}</a></td>
         </tr>
     </table>
 

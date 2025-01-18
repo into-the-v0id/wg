@@ -244,6 +244,7 @@ struct ActivityListTemplate {
     chore_list: chore_list::ChoreList,
     activities: Vec<chore_activity::ChoreActivity>,
     chores: Vec<chore::Chore>,
+    users: Vec<user::User>,
 }
 
 pub async fn view_activity_list(
@@ -258,8 +259,9 @@ pub async fn view_activity_list(
 
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
     let activities = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+    let users = user::get_all(&state.pool).await.unwrap();
 
-    Ok(Html(ActivityListTemplate {chore_list, activities, chores}.render().unwrap()))
+    Ok(Html(ActivityListTemplate {chore_list, activities, chores, users}.render().unwrap()))
 }
 
 #[derive(Template)]
