@@ -3,17 +3,18 @@ use askama::Template;
 use axum::{extract::{Path, State}, response::{Html, Redirect}, Form};
 use uuid::Uuid;
 use crate::AppState;
+use crate::domain::user;
 
 #[derive(Template)]
 #[template(path = "user/list.jinja")]
 struct ListTemplate {
-    users: Vec<crate::domain::user::User>,
+    users: Vec<user::User>,
 }
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
 ) -> Html<String> {
-    let users = crate::domain::user::get_all(&state.pool).await.unwrap();
+    let users = user::get_all(&state.pool).await.unwrap();
 
     Html(ListTemplate {users}.render().unwrap())
 }
@@ -21,14 +22,14 @@ pub async fn view_list(
 #[derive(Template)]
 #[template(path = "user/detail.jinja")]
 struct DetailTemplate {
-    user: crate::domain::user::User,
+    user: user::User,
 }
 
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Html<String> {
-    let user = crate::domain::user::get_by_id(&state.pool, &id).await.unwrap();
+    let user = user::get_by_id(&state.pool, &id).await.unwrap();
 
     Html(DetailTemplate {user}.render().unwrap())
 }
@@ -51,12 +52,14 @@ pub async fn create(
     State(state): State<Arc<AppState>>,
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
-    let user = crate::domain::user::User {
+    let user = user::User {
         id: Uuid::now_v7(),
         first_name: payload.first_name,
+        date_created: chrono::offset::Utc::now(),
+        date_deleted: None,
     };
 
-    crate::domain::user::create(&state.pool, &user).await.unwrap();
+    user::create(&state.pool, &user).await.unwrap();
 
     Redirect::to(&format!("/users/{}", user.id))
 }
@@ -65,9 +68,28 @@ pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Redirect {
-    let user = crate::domain::user::get_by_id(&state.pool, &id).await.unwrap();
+    let mut user = user::get_by_id(&state.pool, &id).await.unwrap();
 
-    crate::domain::user::delete(&state.pool, &user.id).await.unwrap();
+    assert!(!user.is_deleted());
+
+    user.date_deleted = Some(chrono::offset::Utc::now());
+
+    user::update(&state.pool, &user).await.unwrap();
+
+    Redirect::to("/users")
+}
+
+pub async fn restore(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+) -> Redirect {
+    let mut user = user::get_by_id(&state.pool, &id).await.unwrap();
+
+    assert!(user.is_deleted());
+
+    user.date_deleted = None;
+
+    user::update(&state.pool, &user).await.unwrap();
 
     Redirect::to("/users")
 }
