@@ -23,7 +23,7 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreList>, 
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
-    tracing::info!("Created chore list with ID {}", chore_list.id);
+    tracing::info!("Created {:?}", chore_list);
 
     sqlx::query("INSERT INTO chore_lists (id, name, date_created, date_deleted) VALUES (?, ?, ?, ?)")
         .bind(&chore_list.id)
@@ -36,7 +36,7 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
 }
 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
-    tracing::info!("Updated chore list with ID {}", chore_list.id);
+    tracing::info!("Updated {:?}", chore_list);
 
     sqlx::query("UPDATE chore_lists SET name = ?, date_deleted = ? WHERE id = ?")
         .bind(&chore_list.name)
@@ -47,11 +47,11 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
         .map(|_| ())
 }
 
-pub async fn delete(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<(), sqlx::Error> {
-    tracing::info!("Deleted chore list with ID {}", id);
+pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
+    tracing::info!("Deleted {:?}", chore_list);
 
     sqlx::query("DELETE FROM chore_lists WHERE ID = ?")
-        .bind(id)
+        .bind(&chore_list.id)
         .execute(pool)
         .await
         .map(|_| ())
