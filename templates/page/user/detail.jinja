@@ -16,7 +16,7 @@
 
         <button type="submit" form="user_restore" style="width: auto;">Restore</button>
         <form id="user_restore" method="post" action="/users/{{ user.id }}/restore"></form>
-    {% else %}
+    {% else if user.id == auth_session.user_id %}
         <a href="/users/{{ user.id }}/update" role="button">Edit</a>
         <button type="submit" form="user_delete" class="outline secondary" style="width: auto;">Delete</button>
 

@@ -29,12 +29,13 @@ pub async fn view_list(
 #[template(path = "page/user/detail.jinja")]
 struct DetailTemplate {
     user: user::User,
+    auth_session: AuthSession,
 }
 
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -42,7 +43,7 @@ pub async fn view_detail(
         Err(err) => panic!("{}", err),
     };
 
-    Ok(Html(DetailTemplate {user}.render().unwrap()))
+    Ok(Html(DetailTemplate {user, auth_session}.render().unwrap()))
 }
 
 #[derive(Template)]
