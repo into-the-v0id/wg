@@ -20,6 +20,10 @@
             <th scope="row">Points</th>
             <td>{{ chore.points }}</td>
         </tr>
+        <tr>
+            <th scope="row">Chore List</th>
+            <td><a href="/chore-lists/{{ chore_list.id }}" class="secondary">{{ chore_list.name }}</a></td>
+        </tr>
     </table>
 
     <br>
