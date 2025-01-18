@@ -59,6 +59,8 @@ async fn main() {
         .route("/chore-activities/{id}/update", get(application::chore_activity::view_update_form).post(application::chore_activity::update))
         .route("/chore-activities/{id}/delete", post(application::chore_activity::delete))
         .route("/chore-activities/{id}/restore", post(application::chore_activity::restore))
+        .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
+        .layer(TraceLayer::new_for_http().make_span_with(DefaultMakeSpan::new().level(Level::ERROR)))
         .layer(axum::middleware::from_fn_with_state(
             app_state.clone(),
             async |State(state): State<Arc<AppState>>, mut request: axum::extract::Request, next: Next| -> Response {
@@ -75,8 +77,6 @@ async fn main() {
                 next.run(request).instrument(span).await
             }
         ))
-        .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
-        .layer(TraceLayer::new_for_http().make_span_with(DefaultMakeSpan::new().level(Level::ERROR)))
         .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
             let request_id = match request.headers().get("x-request-id") {
                 Some(request_id) => request_id,
