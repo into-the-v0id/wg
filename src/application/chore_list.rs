@@ -24,7 +24,6 @@ pub async fn view_list(
 #[template(path = "page/chore_list/detail.jinja")]
 struct DetailTemplate {
     chore_list: chore_list::ChoreList,
-    chores: Vec<chore::Chore>,
 }
 
 pub async fn view_detail(
@@ -37,9 +36,7 @@ pub async fn view_detail(
         Err(err) => panic!("{}", err),
     };
 
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
-
-    Ok(Html(DetailTemplate {chore_list, chores}.render().unwrap()))
+    Ok(Html(DetailTemplate {chore_list}.render().unwrap()))
 }
 
 #[derive(Template)]
@@ -163,6 +160,28 @@ pub async fn restore(
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
     Ok(Redirect::to("/chore-lists"))
+}
+
+#[derive(Template)]
+#[template(path = "page/chore_list/list_chores.jinja")]
+struct ChoreListTemplate {
+    chore_list: chore_list::ChoreList,
+    chores: Vec<chore::Chore>,
+}
+
+pub async fn view_chore_list(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+) -> Result<Html<String>, StatusCode> {
+    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
+        Ok(chore_list) => chore_list,
+        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+        Err(err) => panic!("{}", err),
+    };
+
+    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+
+    Ok(Html(ChoreListTemplate {chore_list, chores}.render().unwrap()))
 }
 
 #[derive(Template)]

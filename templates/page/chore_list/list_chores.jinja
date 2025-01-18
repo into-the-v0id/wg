@@ -1,0 +1,38 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Chores of List: {{ chore_list.name }}{% endblock %}
+
+{% block back_link %}
+    <a href="/chore-lists/{{ chore_list.id }}" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    <div>
+        <ul>
+            {% for chore in chores %}
+                {% if !chore.is_deleted() %}
+                    <li>
+                        <a href="/chores/{{ chore.id }}">{{ chore.name }}</a> ({{ chore.points }} PT)
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <a href="/chore-lists/{{ chore_list.id }}/chores/create" role="button">Create</a>
+    </div>
+
+    <br>
+    <br>
+
+    <div>
+        <h4>Past Chores</h4>
+        <ul>
+            {% for chore in chores %}
+                {% if chore.is_deleted() %}
+                    <li>
+                        <a href="/chores/{{ chore.id }}">{{ chore.name }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
