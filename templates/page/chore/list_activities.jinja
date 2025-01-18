@@ -1,0 +1,48 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Activities for Chore: {{ chore.name }}{% endblock %}
+
+{% block back_link %}
+    <a href="/chores/{{ chore.id }}" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    <div>
+        <ul>
+            {% for activity in activities %}
+                {% if !activity.is_deleted() %}
+                    <li>
+                        {% for user in users %}
+                            {% if user.id == activity.user_id %}
+                                <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        at <a href="/chore-activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <a href="/chore-lists/{{ chore_list.id }}/activities/create" role="button">Create</a>
+    </div>
+
+    <br>
+    <br>
+
+    <div>
+        <h4>Past Activities</h4>
+        <ul>
+            {% for activity in activities %}
+                {% if activity.is_deleted() %}
+                    <li>
+                        {% for user in users %}
+                            {% if user.id == activity.user_id %}
+                                <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        at <a href="/chore-activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

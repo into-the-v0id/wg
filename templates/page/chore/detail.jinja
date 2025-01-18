@@ -43,4 +43,12 @@
             <form id="chore_delete" method="post" action="/chores/{{ chore.id }}/delete"></form>
         </div>
     {% endif %}
+
+    <aside>
+        <nav>
+            <ul>
+                <li><a href="/chores/{{ chore.id }}/activities">Activities</a></li>
+            </ul>
+        </nav>
+    </aside>
 {% endblock %}

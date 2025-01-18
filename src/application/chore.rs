@@ -5,6 +5,8 @@ use uuid::Uuid;
 use crate::AppState;
 use crate::domain::chore;
 use crate::domain::chore_list;
+use crate::domain::chore_activity;
+use crate::domain::user;
 
 #[derive(Template)]
 #[template(path = "page/chore/detail.jinja")]
@@ -137,4 +139,30 @@ pub async fn restore(
     chore::update(&state.pool, &chore).await.unwrap();
 
     Ok(Redirect::to("/chores"))
+}
+
+#[derive(Template)]
+#[template(path = "page/chore/list_activities.jinja")]
+struct ActivityListTemplate {
+    chore: chore::Chore,
+    chore_list: chore_list::ChoreList,
+    activities: Vec<chore_activity::ChoreActivity>,
+    users: Vec<user::User>,
+}
+
+pub async fn view_activity_list(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+) -> Result<Html<String>, StatusCode> {
+    let chore = match chore::get_by_id(&state.pool, &id).await {
+        Ok(chore) => chore,
+        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+        Err(err) => panic!("{}", err),
+    };
+
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let activities = chore_activity::get_all_for_chore(&state.pool, &chore.id).await.unwrap();
+    let users = user::get_all(&state.pool).await.unwrap();
+
+    Ok(Html(ActivityListTemplate {chore, chore_list, activities, users}.render().unwrap()))
 }
