@@ -69,7 +69,6 @@ pub async fn delete(
     State(state): State<Arc<AppState>>,
 ) -> Redirect {
     let mut user = user::get_by_id(&state.pool, &id).await.unwrap();
-
     assert!(!user.is_deleted());
 
     user.date_deleted = Some(chrono::offset::Utc::now());
@@ -84,7 +83,6 @@ pub async fn restore(
     State(state): State<Arc<AppState>>,
 ) -> Redirect {
     let mut user = user::get_by_id(&state.pool, &id).await.unwrap();
-
     assert!(user.is_deleted());
 
     user.date_deleted = None;
