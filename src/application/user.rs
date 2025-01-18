@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use askama::Template;
-use axum::{extract::{Path, State}, response::{Html, Redirect}, Form};
+use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
 use uuid::Uuid;
 use crate::AppState;
 use crate::domain::user;
@@ -28,10 +28,14 @@ struct DetailTemplate {
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-) -> Html<String> {
-    let user = user::get_by_id(&state.pool, &id).await.unwrap(); // TODO: respond with 404 if not found
+) -> Result<Html<String>, StatusCode> {
+    let user = match user::get_by_id(&state.pool, &id).await {
+        Ok(user) => user,
+        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+        Err(err) => panic!("{}", err),
+    };
 
-    Html(DetailTemplate {user}.render().unwrap())
+    Ok(Html(DetailTemplate {user}.render().unwrap()))
 }
 
 #[derive(Template)]
@@ -59,7 +63,6 @@ pub async fn create(
         date_deleted: None,
     };
 
-    // TODO: gracefully handle error
     user::create(&state.pool, &user).await.unwrap();
 
     Redirect::to(&format!("/users/{}", user.id))
@@ -68,27 +71,41 @@ pub async fn create(
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-) -> Redirect {
-    let mut user = user::get_by_id(&state.pool, &id).await.unwrap(); // TODO: respond with 404 if not found
-    assert!(!user.is_deleted());
+) -> Result<Redirect, StatusCode> {
+    let mut user = match user::get_by_id(&state.pool, &id).await {
+        Ok(user) => user,
+        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+        Err(err) => panic!("{}", err),
+    };
+
+    if user.is_deleted() {
+        return Err(StatusCode::FORBIDDEN);
+    }
 
     user.date_deleted = Some(chrono::offset::Utc::now());
 
     user::update(&state.pool, &user).await.unwrap();
 
-    Redirect::to("/users")
+    Ok(Redirect::to("/users"))
 }
 
 pub async fn restore(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-) -> Redirect {
-    let mut user = user::get_by_id(&state.pool, &id).await.unwrap(); // TODO: respond with 404 if not found
-    assert!(user.is_deleted());
+) -> Result<Redirect, StatusCode> {
+    let mut user = match user::get_by_id(&state.pool, &id).await {
+        Ok(user) => user,
+        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+        Err(err) => panic!("{}", err),
+    };
+
+    if !user.is_deleted() {
+        return Err(StatusCode::FORBIDDEN);
+    }
 
     user.date_deleted = None;
 
     user::update(&state.pool, &user).await.unwrap();
 
-    Redirect::to("/users")
+    Ok(Redirect::to("/users"))
 }
