@@ -1,0 +1,5 @@
+create table people
+(
+    id text not null primary key,
+    first_name text not null
+);
