@@ -16,14 +16,6 @@
             {% endfor %}
         </select>
 
-        <label for="user_id">User</label>
-        <select id="user_id" name="user_id" required>
-            <option disabled value=""></option>
-            {% for user in users %}
-                <option value="{{ user.id }}" {% if user.id == activity.user_id %}selected{% endif %}>{{ user.name }}</option>
-            {% endfor %}
-        </select>
-
         <label for="date">Date</label>
         <input id="date" name="date" type="date" value="{{ activity.date.format("%Y-%m-%d") }}" />
 

@@ -16,14 +16,6 @@
             {% endfor %}
         </select>
 
-        <label for="user_id">User</label>
-        <select id="user_id" name="user_id" required>
-            <option selected disabled value=""></option>
-            {% for user in users %}
-                <option value="{{ user.id }}">{{ user.name }}</option>
-            {% endfor %}
-        </select>
-
         <label for="date">Date</label>
         <input id="date" name="date" type="date" value="{{ now.format("%Y-%m-%d") }}" />
 

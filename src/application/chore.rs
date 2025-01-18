@@ -144,7 +144,7 @@ pub async fn restore(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to("/chores"))
+    Ok(Redirect::to(&format!("/chore-lists/{}", chore_list.id)))
 }
 
 #[derive(Template)]

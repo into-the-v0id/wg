@@ -281,7 +281,6 @@ pub async fn view_activity_list(
 struct CreateActivityTemplate {
     chore_list: chore_list::ChoreList,
     chores: Vec<chore::Chore>,
-    users: Vec<user::User>,
     now: chrono::DateTime<chrono::Utc>
 }
 
@@ -300,24 +299,22 @@ pub async fn view_create_activity_form(
     }
 
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
-    let users = user::get_all(&state.pool).await.unwrap();
     let now = chrono::offset::Utc::now();
 
-    Ok(Html(CreateActivityTemplate {chore_list, chores, users, now}.render().unwrap()))
+    Ok(Html(CreateActivityTemplate {chore_list, chores, now}.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct CreateActivityPayload {
     chore_id: Uuid,
-    user_id: Uuid,
     date: chrono::NaiveDate,
 }
 
 pub async fn create_activity(
     Path(chore_list_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    auth_session: AuthSession,
     Form(payload): Form<CreateActivityPayload>,
 ) -> Result<Redirect, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
@@ -339,16 +336,10 @@ pub async fn create_activity(
         return Err(StatusCode::UNPROCESSABLE_ENTITY);
     }
 
-    let user = match user::get_by_id(&state.pool, &payload.user_id).await {
-        Ok(user) => user,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNPROCESSABLE_ENTITY),
-        Err(err) => panic!("{}", err),
-    };
-
     let activity = chore_activity::ChoreActivity {
         id: Uuid::now_v7(),
         chore_id: chore.id,
-        user_id: user.id,
+        user_id: auth_session.user_id,
         date: payload.date,
         date_created: chrono::offset::Utc::now(),
         date_deleted: None,

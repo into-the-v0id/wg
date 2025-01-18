@@ -43,7 +43,7 @@
                 <form id="activity_restore" method="post" action="/chore-activities/{{ activity.id }}/restore"></form>
             </div>
         {% endif %}
-    {% else %}
+    {% else if activity.user_id == auth_session.user_id %}
         <div>
             <a href="/chore-activities/{{ activity.id }}/update" role="button">Edit</a>
             <button type="submit" form="activity_delete" class="outline secondary" style="width: auto;">Delete</button>
