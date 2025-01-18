@@ -141,7 +141,7 @@ pub async fn delete(
 
     user::update(&state.pool, &user).await.unwrap();
 
-    Ok(Redirect::to("/users"))
+    Ok(Redirect::to(&format!("/users/{}", user.id)))
 }
 
 pub async fn restore(
@@ -162,5 +162,5 @@ pub async fn restore(
 
     user::update(&state.pool, &user).await.unwrap();
 
-    Ok(Redirect::to("/users"))
+    Ok(Redirect::to(&format!("/users/{}", user.id)))
 }

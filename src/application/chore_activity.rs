@@ -153,7 +153,7 @@ pub async fn delete(
 
     chore_activity::update(&state.pool, &activity).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/activities", chore_list.id)))
+    Ok(Redirect::to(&format!("/chore-activities/{}", activity.id)))
 }
 
 pub async fn restore(
@@ -161,16 +161,16 @@ pub async fn restore(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore_activity = match chore_activity::get_by_id(&state.pool, &id).await {
+    let mut activity = match chore_activity::get_by_id(&state.pool, &id).await {
         Ok(chore_activity) => chore_activity,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-    if !chore_activity.is_deleted() {
+    if !activity.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chore = chore::get_by_id(&state.pool, &chore_activity.chore_id).await.unwrap();
+    let chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -180,9 +180,9 @@ pub async fn restore(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    chore_activity.date_deleted = None;
+    activity.date_deleted = None;
 
-    chore_activity::update(&state.pool, &chore_activity).await.unwrap();
+    chore_activity::update(&state.pool, &activity).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/activities", chore_list.id)))
+    Ok(Redirect::to(&format!("/chore-activities/{}", activity.id)))
 }

@@ -118,7 +118,7 @@ pub async fn delete(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}", chore_list.id)))
+    Ok(Redirect::to(&format!("/chores/{}", chore.id)))
 }
 
 pub async fn restore(
@@ -144,7 +144,7 @@ pub async fn restore(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}", chore_list.id)))
+    Ok(Redirect::to(&format!("/chores/{}", chore.id)))
 }
 
 #[derive(Template)]
