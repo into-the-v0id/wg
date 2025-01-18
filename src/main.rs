@@ -6,7 +6,7 @@ use axum::{
     http::{HeaderName, Request}, routing::{get, post}, Router
 };
 use sqlx::migrate::MigrateDatabase;
-use tower_http::{request_id, trace::TraceLayer};
+use tower_http::{catch_panic::CatchPanicLayer, request_id, trace::TraceLayer};
 
 pub struct AppState {
     pub pool: sqlx::sqlite::SqlitePool
@@ -53,7 +53,8 @@ async fn main() {
         .layer(request_id::SetRequestIdLayer::new(
             HeaderName::from_static("x-request-id"),
             request_id::MakeRequestUuid,
-        ));
+        ))
+        .layer(CatchPanicLayer::new());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     tracing::debug!("Listening on {}", listener.local_addr().unwrap());
