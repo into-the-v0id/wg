@@ -9,17 +9,28 @@
 {% block content %}
     {% if chore.is_deleted() || chore_list.is_deleted() %}
         <div>
+            <em>This chore has been deleted</em>
+        </div>
+
+        <br>
+    {% endif %}
+
+    <table>
+        <tr>
+            <th scope="row">Points</th>
+            <td>{{ chore.points }}</td>
+        </tr>
+    </table>
+
+    <br>
+
+    {% if chore.is_deleted() || chore_list.is_deleted() %}
+        {% if !chore_list.is_deleted() %}
             <div>
-                <em>This chore has been deleted</em>
-            </div>
-
-            {% if !chore_list.is_deleted() %}
-                <br>
-
                 <button type="submit" form="chore_restore" style="width: auto;">Restore</button>
                 <form id="chore_restore" method="post" action="/chores/{{ chore.id }}/restore"></form>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     {% else %}
         <div>
             <a href="/chores/{{ chore.id }}/update" role="button">Edit</a>
