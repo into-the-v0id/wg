@@ -43,6 +43,7 @@ async fn main() {
         .route("/chore-lists/{id}/chores/create", get(application::chore_list::view_create_chore_form).post(application::chore_list::create_chore))
         .route("/chore-lists/{id}/activities", get(application::chore_list::view_activity_list))
         .route("/chore-lists/{id}/activities/create", get(application::chore_list::view_create_activity_form).post(application::chore_list::create_activity))
+        .route("/chore-lists/{id}/users", get(application::chore_list::view_users_list))
         .route("/chores/{id}", get(application::chore::view_detail))
         .route("/chores/{id}/update", get(application::chore::view_update_form).post(application::chore::update))
         .route("/chores/{id}/delete", post(application::chore::delete))

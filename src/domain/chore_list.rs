@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use uuid::Uuid;
 
 #[derive(Debug, sqlx::FromRow)]
@@ -20,6 +22,17 @@ pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<Cho
 
 pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreList>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_lists").fetch_all(pool).await
+}
+
+pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<HashMap<Uuid, i32>, sqlx::Error> {
+    sqlx::query_as::<_, (Uuid, i32)>("
+        SELECT users.id as user_id, SUM(chores.points) as score FROM chore_activities
+        INNER JOIN chores ON chore_activities.chore_id = chores.id
+        INNER JOIN chore_lists ON chores.chore_list_id = chore_lists.id
+        INNER JOIN users ON chore_activities.user_id = users.id
+        WHERE chore_lists.id = ?
+        GROUP BY users.id
+    ").bind(chore_list_id).fetch_all(pool).await.map(|r| r.into_iter().collect())
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {

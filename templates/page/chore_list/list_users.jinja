@@ -1,0 +1,48 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Users of List: {{ chore_list.name }}{% endblock %}
+
+{% block back_link %}
+    <a href="/chore-lists/{{ chore_list.id }}" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    <div>
+        <ul>
+            {% for user in users %}
+                {% if !user.is_deleted() %}
+                    <li>
+                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
+                        {% for (user_id, score) in scores_by_user %}
+                            {% if user_id.clone() == user.id %}
+                                (Score: {{ score }})
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <a href="/users/create" role="button">Create</a>
+    </div>
+
+    <br>
+    <br>
+
+    <div>
+        <h4>Past Users</h4>
+        <ul>
+            {% for user in users %}
+                {% if user.is_deleted() %}
+                    <li>
+                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
+                        {% for (user_id, score) in scores_by_user %}
+                            {% if user_id.clone() == user.id %}
+                                (Score: {{ score }})
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
