@@ -8,8 +8,8 @@
 
 {% block content %}
     <form method="post">
-        <label for="first_name">First Name</label>
-        <input id="first_name" name="first_name" type="text" required autocomplete="given-name" value="{{ user.first_name }}" />
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" required autocomplete="given-name" value="{{ user.name }}" />
 
         <button type="submit">Update</button>
     </form>

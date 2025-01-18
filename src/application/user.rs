@@ -49,7 +49,7 @@ pub async fn view_create_form() -> Html<String> {
 #[derive(serde::Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct CreatePayload {
-    first_name: String,
+    name: String,
 }
 
 pub async fn create(
@@ -58,7 +58,7 @@ pub async fn create(
 ) -> Redirect {
     let user = user::User {
         id: Uuid::now_v7(),
-        first_name: payload.first_name,
+        name: payload.name,
         date_created: chrono::offset::Utc::now(),
         date_deleted: None,
     };
@@ -83,7 +83,6 @@ pub async fn view_update_form(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if user.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -94,7 +93,7 @@ pub async fn view_update_form(
 #[derive(serde::Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct UpdatePayload {
-    first_name: String,
+    name: String,
 }
 
 pub async fn update(
@@ -107,12 +106,11 @@ pub async fn update(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if user.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
-    user.first_name = payload.first_name;
+    user.name = payload.name;
 
     user::update(&state.pool, &user).await.unwrap();
 
@@ -128,7 +126,6 @@ pub async fn delete(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if user.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -149,7 +146,6 @@ pub async fn restore(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if !user.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }

@@ -19,7 +19,7 @@
                         {% endfor %}
                         {% for user in users %}
                             {% if user.id == activity.user_id %}
-                                by <a href="/users/{{ user.id }}" class="secondary">{{ user.first_name }}</a>
+                                by <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
                             {% endif %}
                         {% endfor %}
                         at <a href="/chore-activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
@@ -46,7 +46,7 @@
                         {% endfor %}
                         {% for user in users %}
                             {% if user.id == activity.user_id %}
-                                by <a href="/users/{{ user.id }}" class="secondary">{{ user.first_name }}</a>
+                                by <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
                             {% endif %}
                         {% endfor %}
                         at <a href="/chore-activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>

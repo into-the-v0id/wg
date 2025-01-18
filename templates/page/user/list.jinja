@@ -12,7 +12,7 @@
             {% for user in users %}
                 {% if !user.is_deleted() %}
                     <li>
-                        <a href="/users/{{ user.id }}">{{ user.first_name }}</a>
+                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -29,7 +29,7 @@
             {% for user in users %}
                 {% if user.is_deleted() %}
                     <li>
-                        <a href="/users/{{ user.id }}">{{ user.first_name }}</a>
+                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
                     </li>
                 {% endif %}
             {% endfor %}

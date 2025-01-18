@@ -20,7 +20,7 @@
         <select id="user_id" name="user_id" required>
             <option disabled value=""></option>
             {% for user in users %}
-                <option value="{{ user.id }}" {% if user.id == activity.user_id %}selected{% endif %}>{{ user.first_name }}</option>
+                <option value="{{ user.id }}" {% if user.id == activity.user_id %}selected{% endif %}>{{ user.name }}</option>
             {% endfor %}
         </select>
 

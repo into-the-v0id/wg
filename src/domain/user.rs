@@ -3,7 +3,7 @@ use uuid::Uuid;
 #[derive(Debug, sqlx::FromRow)]
 pub struct User {
     pub id: Uuid,
-    pub first_name: String,
+    pub name: String,
     pub date_created: chrono::DateTime<chrono::Utc>,
     pub date_deleted: Option<chrono::DateTime<chrono::Utc>>,
 }
@@ -23,9 +23,9 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<User>, sqlx:
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
-    sqlx::query("INSERT INTO users (id, first_name, date_created, date_deleted) VALUES (?, ?, ?, ?)")
+    sqlx::query("INSERT INTO users (id, name, date_created, date_deleted) VALUES (?, ?, ?, ?)")
         .bind(&user.id)
-        .bind(&user.first_name)
+        .bind(&user.name)
         .bind(&user.date_created)
         .bind(&user.date_deleted)
         .execute(pool)
@@ -34,8 +34,8 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
 }
 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
-    sqlx::query("UPDATE users SET first_name = ?, date_deleted = ? WHERE id = ?")
-        .bind(&user.first_name)
+    sqlx::query("UPDATE users SET name = ?, date_deleted = ? WHERE id = ?")
+        .bind(&user.name)
         .bind(&user.date_deleted)
         .bind(&user.id)
         .execute(pool)
