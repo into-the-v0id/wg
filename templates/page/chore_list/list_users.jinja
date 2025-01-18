@@ -1,6 +1,6 @@
 {% extends "layout/default.jinja" %}
 
-{% block title %}Users of List: {{ chore_list.name }}{% endblock %}
+{% block title %}👤&nbsp;Users of 📋&nbsp;{{ chore_list.name }}{% endblock %}
 
 {% block back_link %}
     <a href="/chore-lists/{{ chore_list.id }}" class="secondary">&larr; Back</a>
@@ -29,7 +29,7 @@
     <br>
 
     <div>
-        <h4>Past Users</h4>
+        <h4>Past 👤&nbsp;Users</h4>
         <ul>
             {% for user in users %}
                 {% if user.is_deleted() %}

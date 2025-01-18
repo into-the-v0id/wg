@@ -1,6 +1,6 @@
 {% extends "layout/default.jinja" %}
 
-{% block title %}Chore List: {{ chore_list.name }}{% endblock %}
+{% block title %}📋&nbsp;{{ chore_list.name }}{% endblock %}
 
 {% block back_link %}
     <a href="/chore-lists" class="secondary">&larr; Back</a>
@@ -32,9 +32,9 @@
     <aside>
         <nav>
             <ul>
-                <li><a href="/chore-lists/{{ chore_list.id }}/users">Users</a></li>
-                <li><a href="/chore-lists/{{ chore_list.id }}/activities">Activities</a></li>
-                <li><a href="/chore-lists/{{ chore_list.id }}/chores">Chores</a></li>
+                <li><a href="/chore-lists/{{ chore_list.id }}/users">👤&nbsp;Users</a></li>
+                <li><a href="/chore-lists/{{ chore_list.id }}/activities">✅&nbsp;Activities</a></li>
+                <li><a href="/chore-lists/{{ chore_list.id }}/chores">🧹&nbsp;Chores</a></li>
             </ul>
         </nav>
     </aside>

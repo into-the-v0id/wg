@@ -1,6 +1,6 @@
 {% extends "layout/default.jinja" %}
 
-{% block title %}Activity{% endblock %}
+{% block title %}✅&nbsp;Activity{% endblock %}
 
 {% block back_link %}
     <a href="/chore-lists/{{ chore_list.id }}/activities" class="secondary">&larr; Back</a>
@@ -22,15 +22,15 @@
         </tr>
         <tr>
             <th scope="row">User</th>
-            <td><a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a></td>
+            <td><a href="/users/{{ user.id }}" class="secondary">👤&nbsp;{{ user.name }}</a></td>
         </tr>
         <tr>
             <th scope="row">Chore</th>
-            <td><a href="/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }} PT)</td>
+            <td><a href="/chores/{{ chore.id }}" class="secondary">🧹&nbsp;{{ chore.name }}</a> ({{ chore.points }} PT)</td>
         </tr>
         <tr>
             <th scope="row">Chore List</th>
-            <td><a href="/chore-lists/{{ chore_list.id }}" class="secondary">{{ chore_list.name }}</a></td>
+            <td><a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a></td>
         </tr>
     </table>
 

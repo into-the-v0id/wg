@@ -1,6 +1,6 @@
 {% extends "layout/default.jinja" %}
 
-{% block title %}Activities for Chore: {{ chore.name }}{% endblock %}
+{% block title %}✅&nbsp;Activities for 🧹&nbsp;{{ chore.name }}{% endblock %}
 
 {% block back_link %}
     <a href="/chores/{{ chore.id }}" class="secondary">&larr; Back</a>
@@ -29,7 +29,7 @@
     <br>
 
     <div>
-        <h4>Past Activities</h4>
+        <h4>Past ✅&nbsp;Activities</h4>
         <ul>
             {% for activity in activities %}
                 {% if activity.is_deleted() %}
