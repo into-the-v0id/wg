@@ -26,6 +26,7 @@ async fn main() {
         .unwrap();
 
     let router = Router::new()
+        .route("/", get(application::dashboard::view))
         .route("/users", get(application::user::view_list))
         .route("/users/create", get(application::user::view_create_form).post(application::user::create))
         .route("/users/{id}", get(application::user::view_detail))
