@@ -62,8 +62,8 @@ async fn main() {
         .layer(axum::middleware::from_fn_with_state(
             app_state.clone(),
             async |State(state): State<Arc<AppState>>, mut request: axum::extract::Request, next: Next| -> Response {
-                let user_id = match request.extract_parts_with_state::<application::authentication::AuthSessionExtractor, _>(&state).await {
-                    Ok(application::authentication::AuthSessionExtractor {user_id, ..}) => user_id,
+                let user_id = match request.extract_parts_with_state::<application::authentication::AuthSession, _>(&state).await {
+                    Ok(application::authentication::AuthSession {user_id, ..}) => user_id,
                     Err(_) => return next.run(request).await,
                 };
 

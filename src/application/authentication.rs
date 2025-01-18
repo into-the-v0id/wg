@@ -9,20 +9,14 @@ use crate::domain::user;
 
 const COOKIE_NAME: &str = "authentication";
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AuthSession {
     pub id: Uuid,
     pub auth_token: String,
     pub user_id: Uuid,
 }
 
-#[derive(Debug)]
-pub struct AuthSessionExtractor {
-    pub auth_session_id: Uuid,
-    pub user_id: Uuid,
-}
-
-impl FromRequestParts<Arc<AppState>> for AuthSessionExtractor
+impl FromRequestParts<Arc<AppState>> for AuthSession
 {
     type Rejection = StatusCode;
 
@@ -40,7 +34,7 @@ impl FromRequestParts<Arc<AppState>> for AuthSessionExtractor
             None => return Err(StatusCode::UNAUTHORIZED)
         };
 
-        Ok(AuthSessionExtractor {auth_session_id: auth_session.id, user_id: auth_session.user_id})
+        Ok(auth_session.clone())
     }
 }
 
