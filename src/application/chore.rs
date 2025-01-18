@@ -43,13 +43,11 @@ pub async fn view_update_form(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -74,13 +72,11 @@ pub async fn update(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -102,13 +98,11 @@ pub async fn delete(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -129,13 +123,11 @@ pub async fn restore(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if !chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }

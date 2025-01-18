@@ -1,0 +1,54 @@
+{% extends "layout/default.jinja" %}
+
+{% block title %}Activity{% endblock %}
+
+{% block back_link %}
+    <a href="/chore-lists/{{ chore_list.id }}/activities" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block content %}
+    {% if activity.is_deleted() || chore.is_deleted() || chore_list.is_deleted() %}
+        <div>
+            <em>This activity has been deleted</em>
+        </div>
+
+        <br>
+    {% endif %}
+
+    <table>
+        <tr>
+            <th scope="row">Date</th>
+            <td>{{ activity.date.format("%Y-%m-%d") }}</td>
+        </tr>
+        <tr>
+            <th scope="row">User</th>
+            <td><a href="/users/{{ user.id }}">{{ user.first_name }}</a></td>
+        </tr>
+        <tr>
+            <th scope="row">Chore</th>
+            <td><a href="/chores/{{ chore.id }}">{{ chore.name }}</a> ({{ chore.points }} PT)</td>
+        </tr>
+        <tr>
+            <th scope="row">Chore List</th>
+            <td><a href="/chore-lists/{{ chore_list.id }}">{{ chore_list.name }}</a></td>
+        </tr>
+    </table>
+
+    <br>
+
+    {% if activity.is_deleted() || chore.is_deleted() || chore_list.is_deleted() %}
+        {% if ! chore.is_deleted() && !chore_list.is_deleted() %}
+            <div>
+                <button type="submit" form="activity_restore" style="width: auto;">Restore</button>
+                <form id="activity_restore" method="post" action="/chore-activities/{{ activity.id }}/restore"></form>
+            </div>
+        {% endif %}
+    {% else %}
+        <div>
+            <a href="/chore-activities/{{ activity.id }}/update" role="button">Edit</a>
+            <button type="submit" form="activity_delete" class="outline secondary" style="width: auto;">Delete</button>
+
+            <form id="activity_delete" method="post" action="/chore-activities/{{ activity.id }}/delete"></form>
+        </div>
+    {% endif %}
+{% endblock %}

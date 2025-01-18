@@ -85,7 +85,6 @@ pub async fn view_update_form(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -109,7 +108,6 @@ pub async fn update(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -130,7 +128,6 @@ pub async fn delete(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -151,7 +148,6 @@ pub async fn restore(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if !chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -200,7 +196,6 @@ pub async fn view_create_chore_form(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -225,7 +220,6 @@ pub async fn create_chore(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -286,7 +280,6 @@ pub async fn view_create_activity_form(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -316,7 +309,6 @@ pub async fn create_activity(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
