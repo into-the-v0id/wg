@@ -17,7 +17,7 @@
         </select>
 
         <label for="date">Date</label>
-        <input id="date" name="date" type="date" value="{{ now.format("%Y-%m-%d") }}" />
+        <input id="date" name="date" type="date" max="{{ now.format("%Y-%m-%d") }}" value="{{ now.format("%Y-%m-%d") }}" />
 
         <button type="submit">Create</button>
     </form>

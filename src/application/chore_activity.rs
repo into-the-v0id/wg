@@ -47,6 +47,7 @@ struct UpdateTemplate {
     activity: chore_activity::ChoreActivity,
     chores: Vec<chore::Chore>,
     chore_list: chore_list::ChoreList,
+    now: chrono::DateTime<chrono::Utc>
 }
 
 pub async fn view_update_form(
@@ -81,8 +82,9 @@ pub async fn view_update_form(
     }
 
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+    let now = chrono::offset::Utc::now();
 
-    Ok(Html(UpdateTemplate {activity, chores, chore_list}.render().unwrap()))
+    Ok(Html(UpdateTemplate {activity, chores, chore_list, now}.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
