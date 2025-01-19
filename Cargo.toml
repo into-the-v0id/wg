@@ -16,6 +16,7 @@ mime = "0.3.17"
 serde = { version = "1.0.217", features = ["derive"] }
 sqlx = { version = "0.8.3", features = ["runtime-tokio", "tls-native-tls", "sqlite", "derive", "uuid", "chrono", "time"] }
 sqlx-cli = "0.8.3"
+strum = { version = "0.26.3", features = ["derive"] }
 tokio = { version = "1.43.0", features = ["full"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.2", features = ["request-id", "trace", "catch-panic", "set-header"] }

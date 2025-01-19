@@ -1,6 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 use askama::Template;
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
+use strum::IntoEnumIterator;
 use uuid::Uuid;
 use crate::{domain::user, AppState};
 use crate::domain::chore_list;
@@ -43,10 +44,14 @@ pub async fn view_detail(
 
 #[derive(Template)]
 #[template(path = "page/chore_list/create.jinja")]
-struct CreateTemplate();
+struct CreateTemplate {
+    score_reset_intervals: Vec<chore_list::ScoreResetInterval>,
+}
 
 pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
-    Html(CreateTemplate().render().unwrap())
+    let score_reset_intervals = chore_list::ScoreResetInterval::iter().collect();
+
+    Html(CreateTemplate{score_reset_intervals}.render().unwrap())
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -54,6 +59,7 @@ pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
 pub struct CreatePayload {
     name: String,
     description: Option<String>,
+    score_reset_interval: chore_list::ScoreResetInterval,
 }
 
 pub async fn create(
@@ -65,6 +71,7 @@ pub async fn create(
         id: Uuid::now_v7(),
         name: payload.name,
         description: payload.description,
+        score_reset_interval: payload.score_reset_interval,
         date_created: chrono::offset::Utc::now(),
         date_deleted: None,
     };
@@ -78,6 +85,7 @@ pub async fn create(
 #[template(path = "page/chore_list/update.jinja")]
 struct UpdateTemplate {
     chore_list: chore_list::ChoreList,
+    score_reset_intervals: Vec<chore_list::ScoreResetInterval>,
 }
 
 pub async fn view_update_form(
@@ -94,7 +102,9 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    Ok(Html(UpdateTemplate {chore_list}.render().unwrap()))
+    let score_reset_intervals = chore_list::ScoreResetInterval::iter().collect();
+
+    Ok(Html(UpdateTemplate {chore_list, score_reset_intervals}.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -102,6 +112,7 @@ pub async fn view_update_form(
 pub struct UpdatePayload {
     name: String,
     description: Option<String>,
+    score_reset_interval: chore_list::ScoreResetInterval,
 }
 
 pub async fn update(
@@ -121,6 +132,7 @@ pub async fn update(
 
     chore_list.name = payload.name;
     chore_list.description = payload.description;
+    chore_list.score_reset_interval = payload.score_reset_interval;
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
@@ -189,7 +201,7 @@ pub async fn view_users_list(
     };
 
     let users = user::get_all(&state.pool).await.unwrap();
-    let scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list.id).await.unwrap();
+    let scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list).await.unwrap();
 
     Ok(Html(UserListTemplate {chore_list, users, scores_by_user}.render().unwrap()))
 }

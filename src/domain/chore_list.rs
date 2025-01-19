@@ -1,12 +1,34 @@
 use std::collections::HashMap;
-
+use chrono::Datelike;
 use uuid::Uuid;
+
+#[derive(Debug, Copy, Clone, PartialEq, strum::EnumString, strum::Display, strum::AsRefStr, strum::IntoStaticStr, strum::EnumIter, serde::Serialize, serde::Deserialize, sqlx::Type)]
+pub enum ScoreResetInterval {
+    Monthly,
+    Quaterly,
+    HalfYearly,
+    Yearly,
+    Never,
+}
+
+impl ScoreResetInterval {
+    pub fn as_months(&self) -> Option<u32> {
+        match *self {
+            ScoreResetInterval::Monthly => Some(1),
+            ScoreResetInterval::Quaterly => Some(3),
+            ScoreResetInterval::HalfYearly => Some(6),
+            ScoreResetInterval::Yearly => Some(12),
+            ScoreResetInterval::Never => None,
+        }
+    }
+}
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct ChoreList {
     pub id: Uuid,
     pub name: String,
     pub description: Option<String>,
+    pub score_reset_interval: ScoreResetInterval,
     pub date_created: chrono::DateTime<chrono::Utc>,
     pub date_deleted: Option<chrono::DateTime<chrono::Utc>>,
 }
@@ -25,24 +47,43 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreList>, 
     sqlx::query_as("SELECT * FROM chore_lists").fetch_all(pool).await
 }
 
-pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<HashMap<Uuid, i32>, sqlx::Error> {
+pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<HashMap<Uuid, i32>, sqlx::Error> {
+    let mut interval_start_date = chrono::NaiveDate::MIN;
+    let mut interval_end_date = chrono::NaiveDate::MAX;
+
+    if let Some(interval_duration_months) = chore_list.score_reset_interval.as_months() {
+        let now = chrono::offset::Utc::now();
+        let current_month = now.month();
+
+        let elapsed_months = (current_month - 1) % interval_duration_months;
+
+        let interval_start_month = current_month - elapsed_months;
+
+        interval_start_date = chrono::NaiveDate::from_ymd_opt(now.year(), interval_start_month, 1).unwrap();
+        interval_end_date = interval_start_date
+            .checked_add_months(chrono::Months::new(interval_duration_months)).unwrap()
+            .checked_sub_days(chrono::Days::new(1)).unwrap();
+    }
+
     sqlx::query_as::<_, (Uuid, i32)>("
         SELECT users.id as user_id, SUM(chores.points) as score FROM chore_activities
         INNER JOIN chores ON chore_activities.chore_id = chores.id
         INNER JOIN chore_lists ON chores.chore_list_id = chore_lists.id
         INNER JOIN users ON chore_activities.user_id = users.id
         WHERE chore_lists.id = ? AND chore_activities.date_deleted IS NULL
+            AND chore_activities.date >= ? AND chore_activities.date <= ?
         GROUP BY users.id
-    ").bind(chore_list_id).fetch_all(pool).await.map(|r| r.into_iter().collect())
+    ").bind(chore_list.id).bind(interval_start_date).bind(interval_end_date).fetch_all(pool).await.map(|r| r.into_iter().collect())
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
     tracing::info!("Created {:?}", chore_list);
 
-    sqlx::query("INSERT INTO chore_lists (id, name, description, date_created, date_deleted) VALUES (?, ?, ?, ?, ?)")
+    sqlx::query("INSERT INTO chore_lists (id, name, description, score_reset_interval, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
         .bind(&chore_list.id)
         .bind(&chore_list.name)
         .bind(&chore_list.description)
+        .bind(&chore_list.score_reset_interval)
         .bind(&chore_list.date_created)
         .bind(&chore_list.date_deleted)
         .execute(pool)
@@ -53,9 +94,10 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
     tracing::info!("Updated {:?}", chore_list);
 
-    sqlx::query("UPDATE chore_lists SET name = ?, description = ?, date_deleted = ? WHERE id = ?")
+    sqlx::query("UPDATE chore_lists SET name = ?, description = ?, score_reset_interval = ?, date_deleted = ? WHERE id = ?")
         .bind(&chore_list.name)
         .bind(&chore_list.description)
+        .bind(&chore_list.score_reset_interval)
         .bind(&chore_list.date_deleted)
         .bind(&chore_list.id)
         .execute(pool)
