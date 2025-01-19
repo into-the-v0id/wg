@@ -19,7 +19,7 @@
 
         <label for="score_reset_interval">Score Reset Interval</label>
         <select id="score_reset_interval" name="score_reset_interval" required>
-            <option selected disabled value=""></option>
+            <option disabled hidden value=""></option>
             {% for score_reset_interval in score_reset_intervals %}
                 <option value="{{ score_reset_interval }}" {% if score_reset_interval.clone() == chore_list.score_reset_interval %}selected{% endif %}>{{ score_reset_interval }}</option>
             {% endfor %}

@@ -10,7 +10,7 @@
     <form method="post">
         <label for="chore_id">Chore</label>
         <select id="chore_id" name="chore_id" required>
-            <option selected disabled value=""></option>
+            <option selected disabled hidden value=""></option>
             {% for chore in chores %}
                 <option value="{{ chore.id }}">{{ chore.name }} ({{ chore.points}}P)</option>
             {% endfor %}
