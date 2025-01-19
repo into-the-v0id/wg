@@ -2,15 +2,22 @@
 <html lang="en" data-theme="dark">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <meta name="color-scheme" content="light dark">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="robots" content="noindex, nofollow">
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css"
+            integrity="sha256-3V/VWRr9ge4h3MEXrYXAFNw/HxncLXt9EB6grMKSdMI=" crossorigin="anonymous">
         <style>
             td, th {
                 padding: calc(var(--pico-spacing)/ 2);
             }
         </style>
+
         {% block head %}{% endblock %}
     </head>
     <body>

@@ -8,7 +8,7 @@ use axum::{
 };
 use sqlx::migrate::MigrateDatabase;
 use tokio::sync::Mutex;
-use tower_http::{catch_panic::CatchPanicLayer, request_id, trace::{DefaultMakeSpan, TraceLayer}};
+use tower_http::{catch_panic::CatchPanicLayer, request_id, set_header::SetResponseHeaderLayer, trace::{DefaultMakeSpan, TraceLayer}};
 use tracing::Level;
 use tracing::Instrument;
 
@@ -78,6 +78,42 @@ async fn main() {
 
             return response;
         }))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static("private, max-age=0, must-revalidate"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::X_CONTENT_TYPE_OPTIONS,
+            HeaderValue::from_static("nosniff"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            HeaderName::from_static("cross-origin-resource-policy"),
+            HeaderValue::from_static("same-origin"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::CONTENT_SECURITY_POLICY,
+            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' 'self' https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css; frame-ancestors 'none'; form-action 'self';"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::X_FRAME_OPTIONS,
+            HeaderValue::from_static("DENY"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::X_XSS_PROTECTION,
+            HeaderValue::from_static("1; mode=block"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::REFERRER_POLICY,
+            HeaderValue::from_static("strict-origin-when-cross-origin"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            HeaderName::from_static("permissions-policy"),
+            HeaderValue::from_static("interest-cohort=()"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            HeaderName::from_static("x-robots-tag"),
+            HeaderValue::from_static("noindex, nofollow"),
+        ))
         .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
         .layer(TraceLayer::new_for_http().make_span_with(DefaultMakeSpan::new().level(Level::ERROR)))
         .layer(axum::middleware::from_fn_with_state(
