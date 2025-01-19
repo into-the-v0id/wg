@@ -92,7 +92,7 @@ async fn main() {
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::CONTENT_SECURITY_POLICY,
-            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' 'self' https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css; frame-ancestors 'none'; form-action 'self';"),
+            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css; img-src data:; frame-ancestors 'none'; form-action 'self';"),
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::X_FRAME_OPTIONS,
