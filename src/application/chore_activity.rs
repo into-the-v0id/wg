@@ -10,7 +10,7 @@ use crate::domain::user;
 use super::authentication::AuthSession;
 
 #[derive(Template)]
-#[template(path = "page/chore_activity/detail.jinja")]
+#[template(path = "page/chore_list/activity/detail.jinja")]
 struct DetailTemplate {
     activity: chore_activity::ChoreActivity,
     chore: chore::Chore,
@@ -42,7 +42,7 @@ pub async fn view_detail(
 }
 
 #[derive(Template)]
-#[template(path = "page/chore_activity/update.jinja")]
+#[template(path = "page/chore_list/activity/update.jinja")]
 struct UpdateTemplate {
     activity: chore_activity::ChoreActivity,
     chores: Vec<chore::Chore>,

@@ -168,7 +168,7 @@ pub async fn restore(
 }
 
 #[derive(Template)]
-#[template(path = "page/chore_list/list_chores.jinja")]
+#[template(path = "page/chore_list/chore/list.jinja")]
 struct ChoreListTemplate {
     chore_list: chore_list::ChoreList,
     chores: Vec<chore::Chore>,
@@ -191,7 +191,7 @@ pub async fn view_chore_list(
 }
 
 #[derive(Template)]
-#[template(path = "page/chore_list/create_chore.jinja")]
+#[template(path = "page/chore_list/chore/create.jinja")]
 struct CreateChoreTemplate {
     chore_list: chore_list::ChoreList,
 }
@@ -250,7 +250,7 @@ pub async fn create_chore(
 }
 
 #[derive(Template)]
-#[template(path = "page/chore_list/list_activities.jinja")]
+#[template(path = "page/chore_list/activity/list.jinja")]
 struct ActivityListTemplate {
     chore_list: chore_list::ChoreList,
     activities: Vec<chore_activity::ChoreActivity>,
@@ -277,7 +277,7 @@ pub async fn view_activity_list(
 }
 
 #[derive(Template)]
-#[template(path = "page/chore_list/create_activity.jinja")]
+#[template(path = "page/chore_list/activity/create.jinja")]
 struct CreateActivityTemplate {
     chore_list: chore_list::ChoreList,
     chores: Vec<chore::Chore>,
