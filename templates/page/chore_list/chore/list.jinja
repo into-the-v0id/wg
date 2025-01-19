@@ -8,17 +8,20 @@
 
 {% block content %}
     <div>
-        <ul>
-            {% for chore in chores %}
-                {% if !chore.is_deleted() %}
-                    <li>
-                        <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a> ({{ chore.points }}P)
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
         <a href="/chore-lists/{{ chore_list.id }}/chores/create" role="button">Create Chore</a>
     </div>
+
+    <br>
+
+    <ul>
+        {% for chore in chores %}
+            {% if !chore.is_deleted() %}
+                <li>
+                    <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a> ({{ chore.points }}P)
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
 
     <br>
     <br>

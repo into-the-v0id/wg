@@ -8,22 +8,25 @@
 
 {% block content %}
     <div>
-        <ul>
-            {% for user in users %}
-                {% if !user.is_deleted() %}
-                    <li>
-                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
-                        {% for (user_id, score) in scores_by_user %}
-                            {% if user_id.clone() == user.id %}
-                                (Score: {{ score }})
-                            {% endif %}
-                        {% endfor %}
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
         <a href="/users/create" role="button">Add User</a>
     </div>
+
+    <br>
+
+    <ul>
+        {% for user in users %}
+            {% if !user.is_deleted() %}
+                <li>
+                    <a href="/users/{{ user.id }}">{{ user.name }}</a>
+                    {% for (user_id, score) in scores_by_user %}
+                        {% if user_id.clone() == user.id %}
+                            (Score: {{ score }})
+                        {% endif %}
+                    {% endfor %}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
 
     <br>
     <br>
