@@ -136,7 +136,7 @@ async fn main() {
 }
 
 async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
-    let db_url = "sqlite:./sqlite.db";
+    let db_url = "sqlite:./data/sqlite.db";
 
     if ! sqlx::Sqlite::database_exists(db_url).await.unwrap_or(false) {
         tracing::info!("Creating database {}", db_url);
