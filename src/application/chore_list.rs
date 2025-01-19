@@ -58,7 +58,7 @@ pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
 #[allow(dead_code)]
 pub struct CreatePayload {
     name: String,
-    description: Option<String>,
+    description: String,
     score_reset_interval: chore_list::ScoreResetInterval,
 }
 
@@ -70,7 +70,10 @@ pub async fn create(
     let chore_list = chore_list::ChoreList {
         id: Uuid::now_v7(),
         name: payload.name,
-        description: payload.description,
+        description: match payload.description.trim() {
+            "" => None,
+            description => Some(description.to_string()),
+        },
         score_reset_interval: payload.score_reset_interval,
         date_created: chrono::offset::Utc::now(),
         date_deleted: None,
@@ -111,7 +114,7 @@ pub async fn view_update_form(
 #[allow(dead_code)]
 pub struct UpdatePayload {
     name: String,
-    description: Option<String>,
+    description: String,
     score_reset_interval: chore_list::ScoreResetInterval,
 }
 
@@ -131,7 +134,10 @@ pub async fn update(
     }
 
     chore_list.name = payload.name;
-    chore_list.description = payload.description;
+    chore_list.description = match payload.description.trim() {
+        "" => None,
+        description => Some(description.to_string()),
+    };
     chore_list.score_reset_interval = payload.score_reset_interval;
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();

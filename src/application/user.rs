@@ -143,7 +143,7 @@ pub async fn update(
     user.name = payload.name;
     user.handle = payload.handle;
 
-    if ! payload.password.is_empty() {
+    if ! payload.password.trim().is_empty() {
         let password_hash = Argon2::default().hash_password(
             payload.password.as_bytes(),
             &SaltString::generate(&mut OsRng),

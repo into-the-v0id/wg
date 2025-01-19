@@ -86,7 +86,7 @@ pub async fn view_create_form(
 pub struct CreatePayload {
     name: String,
     points: i32,
-    description: Option<String>,
+    description: String,
 }
 
 pub async fn create(
@@ -109,7 +109,10 @@ pub async fn create(
         chore_list_id: chore_list.id,
         name: payload.name,
         points: payload.points,
-        description: payload.description,
+        description: match payload.description.trim() {
+            "" => None,
+            description => Some(description.to_string()),
+        },
         date_created: chrono::offset::Utc::now(),
         date_deleted: None,
     };
@@ -156,7 +159,7 @@ pub async fn view_update_form(
 pub struct UpdatePayload {
     name: String,
     points: i32,
-    description: Option<String>,
+    description: String,
 }
 
 pub async fn update(
@@ -184,7 +187,10 @@ pub async fn update(
 
     chore.name = payload.name;
     chore.points = payload.points;
-    chore.description = payload.description;
+    chore.description = match payload.description.trim() {
+        "" => None,
+        description => Some(description.to_string()),
+    };
 
     chore::update(&state.pool, &chore).await.unwrap();
 
