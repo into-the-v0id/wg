@@ -12,7 +12,7 @@
         <select id="chore_id" name="chore_id" required>
             <option disabled value=""></option>
             {% for chore in chores %}
-                <option value="{{ chore.id }}" {% if chore.id == activity.chore_id %}selected{% endif %}>{{ chore.name }} ({{ chore.points}} PT)</option>
+                <option value="{{ chore.id }}" {% if chore.id == activity.chore_id %}selected{% endif %}>{{ chore.name }} ({{ chore.points}}P)</option>
             {% endfor %}
         </select>
 

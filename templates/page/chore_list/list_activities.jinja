@@ -14,7 +14,7 @@
                     <li>
                         {% for chore in chores %}
                             {% if chore.id == activity.chore_id %}
-                                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }} PT)
+                                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }}P)
                             {% endif %}
                         {% endfor %}
                         {% for user in users %}
@@ -41,7 +41,7 @@
                     <li>
                         {% for chore in chores %}
                             {% if chore.id == activity.chore_id %}
-                                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }} PT)
+                                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }}P)
                             {% endif %}
                         {% endfor %}
                         {% for user in users %}
