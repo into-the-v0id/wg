@@ -88,7 +88,12 @@ pub async fn login(
         user_id: user.id,
     };
 
-    let cookie_jar = cookie_jar.add(Cookie::new(COOKIE_NAME, auth_session.auth_token.clone()));
+    let cookie =  Cookie::build((COOKIE_NAME, auth_session.auth_token.clone()))
+        .secure(true)
+        .http_only(true)
+        .same_site(axum_extra::extract::cookie::SameSite::Lax)
+        .build();
+    let cookie_jar = cookie_jar.add(cookie);
 
     let mut auth_sessions = state.auth_sessions.lock().await;
     auth_sessions.push(auth_session);
