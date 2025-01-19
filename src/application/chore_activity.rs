@@ -20,7 +20,7 @@ struct DetailTemplate {
 }
 
 pub async fn view_detail(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
@@ -31,6 +31,10 @@ pub async fn view_detail(
     };
 
     let chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
+
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     let user = user::get_by_id(&state.pool, &activity.user_id).await.unwrap();
 
@@ -42,10 +46,11 @@ pub async fn view_detail(
 struct UpdateTemplate {
     activity: chore_activity::ChoreActivity,
     chores: Vec<chore::Chore>,
+    chore_list: chore_list::ChoreList,
 }
 
 pub async fn view_update_form(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
@@ -66,6 +71,9 @@ pub async fn view_update_form(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
@@ -74,7 +82,7 @@ pub async fn view_update_form(
 
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
 
-    Ok(Html(UpdateTemplate {activity, chores}.render().unwrap()))
+    Ok(Html(UpdateTemplate {activity, chores, chore_list}.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -85,7 +93,7 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
@@ -107,6 +115,9 @@ pub async fn update(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
@@ -118,11 +129,11 @@ pub async fn update(
 
     chore_activity::update(&state.pool, &activity).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-activities/{}", activity.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
 }
 
 pub async fn delete(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
@@ -143,6 +154,9 @@ pub async fn delete(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
@@ -153,11 +167,11 @@ pub async fn delete(
 
     chore_activity::update(&state.pool, &activity).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-activities/{}", activity.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
 }
 
 pub async fn restore(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
@@ -174,6 +188,9 @@ pub async fn restore(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
@@ -184,5 +201,5 @@ pub async fn restore(
 
     chore_activity::update(&state.pool, &activity).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-activities/{}", activity.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
 }

@@ -17,7 +17,7 @@ struct DetailTemplate {
 }
 
 pub async fn view_detail(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
@@ -26,6 +26,9 @@ pub async fn view_detail(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
 
@@ -36,10 +39,11 @@ pub async fn view_detail(
 #[template(path = "page/chore/update.jinja")]
 struct UpdateTemplate {
     chore: chore::Chore,
+    chore_list: chore_list::ChoreList,
 }
 
 pub async fn view_update_form(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
@@ -51,13 +55,16 @@ pub async fn view_update_form(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
-    Ok(Html(UpdateTemplate {chore}.render().unwrap()))
+    Ok(Html(UpdateTemplate {chore, chore_list}.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -68,7 +75,7 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
@@ -81,6 +88,9 @@ pub async fn update(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
@@ -92,11 +102,11 @@ pub async fn update(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chores/{}", chore.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id)))
 }
 
 pub async fn delete(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
@@ -108,6 +118,9 @@ pub async fn delete(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
@@ -118,11 +131,11 @@ pub async fn delete(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chores/{}", chore.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id)))
 }
 
 pub async fn restore(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
@@ -134,6 +147,9 @@ pub async fn restore(
     if !chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
@@ -144,7 +160,7 @@ pub async fn restore(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chores/{}", chore.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id)))
 }
 
 #[derive(Template)]
@@ -157,7 +173,7 @@ struct ActivityListTemplate {
 }
 
 pub async fn view_activity_list(
-    Path(id): Path<Uuid>,
+    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
@@ -166,6 +182,9 @@ pub async fn view_activity_list(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
+    if chore.chore_list_id != chore_list_id {
+        return Err(StatusCode::NOT_FOUND)
+    }
 
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     let activities = chore_activity::get_all_for_chore(&state.pool, &chore.id).await.unwrap();

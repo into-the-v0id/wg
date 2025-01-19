@@ -26,7 +26,7 @@
         </tr>
         <tr>
             <th scope="row">Chore</th>
-            <td><a href="/chores/{{ chore.id }}" class="secondary">🧹&nbsp;{{ chore.name }}</a> ({{ chore.points }} PT)</td>
+            <td><a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">🧹&nbsp;{{ chore.name }}</a> ({{ chore.points }} PT)</td>
         </tr>
         <tr>
             <th scope="row">Chore List</th>
@@ -40,15 +40,15 @@
         {% if ! chore.is_deleted() && !chore_list.is_deleted() %}
             <div>
                 <button type="submit" form="activity_restore" style="width: auto;">Restore</button>
-                <form id="activity_restore" method="post" action="/chore-activities/{{ activity.id }}/restore"></form>
+                <form id="activity_restore" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/restore"></form>
             </div>
         {% endif %}
     {% else if activity.user_id == auth_session.user_id %}
         <div>
-            <a href="/chore-activities/{{ activity.id }}/update" role="button">Edit</a>
+            <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" role="button">Edit</a>
             <button type="submit" form="activity_delete" class="outline secondary" style="width: auto;">Delete</button>
 
-            <form id="activity_delete" method="post" action="/chore-activities/{{ activity.id }}/delete"></form>
+            <form id="activity_delete" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/delete"></form>
         </div>
     {% endif %}
 {% endblock %}

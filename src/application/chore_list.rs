@@ -246,7 +246,7 @@ pub async fn create_chore(
 
     chore::create(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chores/{}", chore.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id)))
 }
 
 #[derive(Template)]

@@ -14,7 +14,7 @@
                     <li>
                         {% for chore in chores %}
                             {% if chore.id == activity.chore_id %}
-                                <a href="/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }} PT)
+                                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }} PT)
                             {% endif %}
                         {% endfor %}
                         {% for user in users %}
@@ -22,7 +22,7 @@
                                 by <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
                             {% endif %}
                         {% endfor %}
-                        at <a href="/chore-activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+                        at <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -41,7 +41,7 @@
                     <li>
                         {% for chore in chores %}
                             {% if chore.id == activity.chore_id %}
-                                <a href="/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }} PT)
+                                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }} PT)
                             {% endif %}
                         {% endfor %}
                         {% for user in users %}
@@ -49,7 +49,7 @@
                                 by <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
                             {% endif %}
                         {% endfor %}
-                        at <a href="/chore-activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+                        at <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
                     </li>
                 {% endif %}
             {% endfor %}

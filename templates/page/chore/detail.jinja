@@ -32,22 +32,22 @@
         {% if !chore_list.is_deleted() %}
             <div>
                 <button type="submit" form="chore_restore" style="width: auto;">Restore</button>
-                <form id="chore_restore" method="post" action="/chores/{{ chore.id }}/restore"></form>
+                <form id="chore_restore" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/restore"></form>
             </div>
         {% endif %}
     {% else %}
         <div>
-            <a href="/chores/{{ chore.id }}/update" role="button">Edit</a>
+            <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/update" role="button">Edit</a>
             <button type="submit" form="chore_delete" class="outline secondary" style="width: auto;">Delete</button>
 
-            <form id="chore_delete" method="post" action="/chores/{{ chore.id }}/delete"></form>
+            <form id="chore_delete" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/delete"></form>
         </div>
     {% endif %}
 
     <aside>
         <nav>
             <ul>
-                <li><a href="/chores/{{ chore.id }}/activities">✅&nbsp;Activities</a></li>
+                <li><a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/activities">✅&nbsp;Activities</a></li>
             </ul>
         </nav>
     </aside>
