@@ -30,7 +30,7 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list_id: 
         INNER JOIN chores ON chore_activities.chore_id = chores.id
         INNER JOIN chore_lists ON chores.chore_list_id = chore_lists.id
         INNER JOIN users ON chore_activities.user_id = users.id
-        WHERE chore_lists.id = ?
+        WHERE chore_lists.id = ? AND chore_activities.date_deleted IS NULL
         GROUP BY users.id
     ").bind(chore_list_id).fetch_all(pool).await.map(|r| r.into_iter().collect())
 }
