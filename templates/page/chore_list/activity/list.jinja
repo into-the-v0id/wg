@@ -2,6 +2,10 @@
 
 {% block title %}✅&nbsp;Activities{% endblock %}
 
+{% block teaser %}
+    For <a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a>
+{% endblock %}
+
 {% block back_link %}
     <a href="/chore-lists/{{ chore_list.id }}" class="secondary">&larr; Back</a>
 {% endblock %}

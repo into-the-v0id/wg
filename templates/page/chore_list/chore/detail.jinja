@@ -2,7 +2,16 @@
 
 {% block title %}🧹&nbsp;{{ chore.name }}{% endblock %}
 
-{% block teaser %}{{ chore.description.clone().unwrap_or("".to_string())|escape|linebreaksbr|safe }}{% endblock %}
+{% block teaser %}
+    Of <a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a>
+
+    {% if let Some(description) = chore.description.clone() %}
+        <br>
+        <br>
+
+        {{ description|escape|linebreaksbr|safe }}
+    {% endif %}
+{% endblock %}
 
 {% block back_link %}
     <a href="/chore-lists/{{ chore_list.id }}/chores" class="secondary">&larr; Back</a>
@@ -21,10 +30,6 @@
         <tr>
             <th scope="row">Points</th>
             <td>{{ chore.points }}</td>
-        </tr>
-        <tr>
-            <th scope="row">Chore List</th>
-            <td><a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a></td>
         </tr>
     </table>
 
@@ -45,6 +50,8 @@
             <form id="chore_delete" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/delete"></form>
         </div>
     {% endif %}
+
+    <br>
 
     <aside>
         <nav>

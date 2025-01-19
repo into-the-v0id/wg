@@ -2,6 +2,10 @@
 
 {% block title %}✅&nbsp;Activity{% endblock %}
 
+{% block teaser %}
+    For <a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a>
+{% endblock %}
+
 {% block back_link %}
     <a href="/chore-lists/{{ chore_list.id }}/activities" class="secondary">&larr; Back</a>
 {% endblock %}
@@ -27,10 +31,6 @@
         <tr>
             <th scope="row">Chore</th>
             <td><a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">🧹&nbsp;{{ chore.name }}</a> ({{ chore.points }}P)</td>
-        </tr>
-        <tr>
-            <th scope="row">Chore List</th>
-            <td><a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a></td>
         </tr>
         {% if let Some(comment) = activity.comment.clone() %}
             <tr>
