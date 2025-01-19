@@ -101,6 +101,7 @@ pub async fn view_create_form(
 pub struct CreatePayload {
     chore_id: Uuid,
     date: chrono::NaiveDate,
+    comment: Option<String>,
 }
 
 pub async fn create(
@@ -133,6 +134,7 @@ pub async fn create(
         chore_id: chore.id,
         user_id: auth_session.user_id,
         date: payload.date,
+        comment: payload.comment,
         date_created: chrono::offset::Utc::now(),
         date_deleted: None,
     };
@@ -193,6 +195,7 @@ pub async fn view_update_form(
 pub struct UpdatePayload {
     chore_id: Uuid,
     date: chrono::NaiveDate,
+    comment: Option<String>,
 }
 
 pub async fn update(
@@ -229,6 +232,7 @@ pub async fn update(
 
     activity.chore_id = payload.chore_id;
     activity.date = payload.date;
+    activity.comment = payload.comment;
 
     chore_activity::update(&state.pool, &activity).await.unwrap();
 

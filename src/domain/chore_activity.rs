@@ -6,6 +6,7 @@ pub struct ChoreActivity {
     pub chore_id: Uuid,
     pub user_id: Uuid,
     pub date: chrono::NaiveDate,
+    pub comment: Option<String>,
     pub date_created: chrono::DateTime<chrono::Utc>,
     pub date_deleted: Option<chrono::DateTime<chrono::Utc>>,
 }
@@ -38,11 +39,12 @@ pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActivity) -> Result<(), sqlx::Error> {
     tracing::info!("Created {:?}", chore_activity);
 
-    sqlx::query("INSERT INTO chore_activities (id, chore_id, user_id, date, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
+    sqlx::query("INSERT INTO chore_activities (id, chore_id, user_id, date, comment, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?, ?)")
         .bind(&chore_activity.id)
         .bind(&chore_activity.chore_id)
         .bind(&chore_activity.user_id)
         .bind(&chore_activity.date)
+        .bind(&chore_activity.comment)
         .bind(&chore_activity.date_created)
         .bind(&chore_activity.date_deleted)
         .execute(pool)
@@ -53,10 +55,11 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActivity) -> Result<(), sqlx::Error> {
     tracing::info!("Updated {:?}", chore_activity);
 
-    sqlx::query("UPDATE chore_activities SET chore_id = ?, user_id = ?, date = ?, date_deleted = ? WHERE id = ?")
+    sqlx::query("UPDATE chore_activities SET chore_id = ?, user_id = ?, date = ?, comment = ?, date_deleted = ? WHERE id = ?")
         .bind(&chore_activity.chore_id)
         .bind(&chore_activity.user_id)
         .bind(&chore_activity.date)
+        .bind(&chore_activity.comment)
         .bind(&chore_activity.date_deleted)
         .bind(&chore_activity.id)
         .execute(pool)

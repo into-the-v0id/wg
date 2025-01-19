@@ -53,6 +53,7 @@ pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
 #[allow(dead_code)]
 pub struct CreatePayload {
     name: String,
+    description: Option<String>,
 }
 
 pub async fn create(
@@ -63,6 +64,7 @@ pub async fn create(
     let chore_list = chore_list::ChoreList {
         id: Uuid::now_v7(),
         name: payload.name,
+        description: payload.description,
         date_created: chrono::offset::Utc::now(),
         date_deleted: None,
     };
@@ -99,6 +101,7 @@ pub async fn view_update_form(
 #[allow(dead_code)]
 pub struct UpdatePayload {
     name: String,
+    description: Option<String>,
 }
 
 pub async fn update(
@@ -117,6 +120,7 @@ pub async fn update(
     }
 
     chore_list.name = payload.name;
+    chore_list.description = payload.description;
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 

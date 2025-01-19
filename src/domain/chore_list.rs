@@ -6,6 +6,7 @@ use uuid::Uuid;
 pub struct ChoreList {
     pub id: Uuid,
     pub name: String,
+    pub description: Option<String>,
     pub date_created: chrono::DateTime<chrono::Utc>,
     pub date_deleted: Option<chrono::DateTime<chrono::Utc>>,
 }
@@ -38,9 +39,10 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list_id: 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
     tracing::info!("Created {:?}", chore_list);
 
-    sqlx::query("INSERT INTO chore_lists (id, name, date_created, date_deleted) VALUES (?, ?, ?, ?)")
+    sqlx::query("INSERT INTO chore_lists (id, name, description, date_created, date_deleted) VALUES (?, ?, ?, ?, ?)")
         .bind(&chore_list.id)
         .bind(&chore_list.name)
+        .bind(&chore_list.description)
         .bind(&chore_list.date_created)
         .bind(&chore_list.date_deleted)
         .execute(pool)
@@ -51,8 +53,9 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
     tracing::info!("Updated {:?}", chore_list);
 
-    sqlx::query("UPDATE chore_lists SET name = ?, date_deleted = ? WHERE id = ?")
+    sqlx::query("UPDATE chore_lists SET name = ?, description = ?, date_deleted = ? WHERE id = ?")
         .bind(&chore_list.name)
+        .bind(&chore_list.description)
         .bind(&chore_list.date_deleted)
         .bind(&chore_list.id)
         .execute(pool)

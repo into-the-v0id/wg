@@ -2,6 +2,8 @@
 
 {% block title %}🧹&nbsp;{{ chore.name }}{% endblock %}
 
+{% block teaser %}{{ chore.description.clone().unwrap_or("".to_string())|escape|linebreaksbr|safe }}{% endblock %}
+
 {% block back_link %}
     <a href="/chore-lists/{{ chore_list.id }}/chores" class="secondary">&larr; Back</a>
 {% endblock %}

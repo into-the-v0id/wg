@@ -11,6 +11,12 @@
         <label for="name">Name</label>
         <input id="name" name="name" type="text" required value="{{ chore_list.name }}" />
 
+        <label for="description">
+            Description
+            <i style="opacity: 0.6;">(optional)</i>
+        </label>
+        <textarea id="description" name="description">{{ chore_list.description.clone().unwrap_or("".to_string()) }}</textarea>
+
         <button type="submit">Update</button>
     </form>
 {% endblock %}

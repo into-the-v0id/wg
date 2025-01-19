@@ -19,6 +19,12 @@
         <label for="date">Date</label>
         <input id="date" name="date" type="date" max="{{ now.format("%Y-%m-%d") }}" value="{{ now.format("%Y-%m-%d") }}" />
 
+        <label for="comment">
+            Comment
+            <i style="opacity: 0.6;">(optional)</i>
+        </label>
+        <textarea id="comment" name="comment"></textarea>
+
         <button type="submit">Create</button>
     </form>
 {% endblock %}

@@ -32,6 +32,12 @@
             <th scope="row">Chore List</th>
             <td><a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a></td>
         </tr>
+        {% if let Some(comment) = activity.comment.clone() %}
+            <tr>
+                <th scope="row">Comment</th>
+                <td>{{ comment|escape|linebreaksbr|safe }}</td>
+            </tr>
+        {% endif %}
     </table>
 
     <br>
