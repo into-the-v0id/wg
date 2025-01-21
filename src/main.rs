@@ -60,6 +60,7 @@ async fn main() {
         .route("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/delete", post(application::chore_activity::delete))
         .route("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/restore", post(application::chore_activity::restore))
         .route("/chore-lists/{chore_list_id}/users", get(application::chore_list::view_users_list))
+        .route("/legal/privacy-policy", get(application::legal::view_privacy_policy))
         .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
             let response = next.run(request).await;
 
