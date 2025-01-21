@@ -174,6 +174,10 @@ pub async fn delete(
 
     user::update(&state.pool, &user).await.unwrap();
 
+    // Remove auth sessions for that user
+    let mut auth_sessions = state.auth_sessions.lock().await;
+    auth_sessions.retain(|auth_session| auth_session.user_id != user.id);
+
     Ok(Redirect::to(&format!("/users/{}", user.id)))
 }
 
