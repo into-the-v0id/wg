@@ -1,8 +1,8 @@
-use uuid::Uuid;
+use uuid::fmt::Hyphenated as HyphenatedUuid;
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct User {
-    pub id: Uuid,
+    pub id: HyphenatedUuid,
     pub name: String,
     pub handle: String,
     pub password_hash: String,
@@ -16,7 +16,7 @@ impl User {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<User, sqlx::Error> {
+pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &HyphenatedUuid) -> Result<User, sqlx::Error> {
     sqlx::query_as("SELECT * FROM users WHERE id = ?").bind(id).fetch_one(pool).await
 }
 

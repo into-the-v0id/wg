@@ -1,10 +1,10 @@
-use uuid::Uuid;
+use uuid::fmt::Hyphenated as HyphenatedUuid;
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct ChoreActivity {
-    pub id: Uuid,
-    pub chore_id: Uuid,
-    pub user_id: Uuid,
+    pub id: HyphenatedUuid,
+    pub chore_id: HyphenatedUuid,
+    pub user_id: HyphenatedUuid,
     pub date: chrono::NaiveDate,
     pub comment: Option<String>,
     pub date_created: chrono::DateTime<chrono::Utc>,
@@ -17,7 +17,7 @@ impl ChoreActivity {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<ChoreActivity, sqlx::Error> {
+pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &HyphenatedUuid) -> Result<ChoreActivity, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_activities WHERE id = ?").bind(id).fetch_one(pool).await
 }
 
@@ -25,11 +25,11 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreActivit
     sqlx::query_as("SELECT * FROM chore_activitie ORDER BY date DESC").fetch_all(pool).await
 }
 
-pub async fn get_all_for_chore(pool: &sqlx::sqlite::SqlitePool, chore_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
+pub async fn get_all_for_chore(pool: &sqlx::sqlite::SqlitePool, chore_id: &HyphenatedUuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? ORDER BY date DESC").bind(chore_id).fetch_all(pool).await
 }
 
-pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
+pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &HyphenatedUuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id IN (SELECT id FROM chores WHERE chore_list_id = ?) ORDER BY date DESC")
         .bind(chore_list_id)
         .fetch_all(pool)

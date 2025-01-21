@@ -1,9 +1,9 @@
-use uuid::Uuid;
+use uuid::fmt::Hyphenated as HyphenatedUuid;
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct Chore {
-    pub id: Uuid,
-    pub chore_list_id: Uuid,
+    pub id: HyphenatedUuid,
+    pub chore_list_id: HyphenatedUuid,
     pub name: String,
     pub points: i32,
     pub description: Option<String>,
@@ -17,7 +17,7 @@ impl Chore {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<Chore, sqlx::Error> {
+pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &HyphenatedUuid) -> Result<Chore, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chores WHERE id = ?").bind(id).fetch_one(pool).await
 }
 
@@ -25,7 +25,7 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<Chore>, sqlx
     sqlx::query_as("SELECT * FROM chores").fetch_all(pool).await
 }
 
-pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<Vec<Chore>, sqlx::Error> {
+pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &HyphenatedUuid) -> Result<Vec<Chore>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chores WHERE chore_list_id = ?").bind(chore_list_id).fetch_all(pool).await
 }
 

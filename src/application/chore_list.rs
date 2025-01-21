@@ -3,6 +3,7 @@ use askama::Template;
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
 use strum::IntoEnumIterator;
 use uuid::Uuid;
+use uuid::fmt::Hyphenated as HyphenatedUuid;
 use crate::{domain::user, AppState};
 use crate::domain::chore_list;
 use super::authentication::AuthSession;
@@ -33,7 +34,7 @@ pub async fn view_detail(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
+    let chore_list = match chore_list::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -68,7 +69,7 @@ pub async fn create(
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
     let chore_list = chore_list::ChoreList {
-        id: Uuid::now_v7(),
+        id: Uuid::now_v7().hyphenated(),
         name: payload.name,
         description: match payload.description.trim() {
             "" => None,
@@ -96,7 +97,7 @@ pub async fn view_update_form(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession
 ) -> Result<Html<String>, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
+    let chore_list = match chore_list::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -124,7 +125,7 @@ pub async fn update(
     _auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
+    let mut chore_list = match chore_list::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -150,7 +151,7 @@ pub async fn delete(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
+    let mut chore_list = match chore_list::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -171,7 +172,7 @@ pub async fn restore(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
+    let mut chore_list = match chore_list::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -192,7 +193,7 @@ pub async fn restore(
 struct UserListTemplate {
     chore_list: chore_list::ChoreList,
     users: Vec<user::User>,
-    scores_by_user: HashMap<Uuid, i32>,
+    scores_by_user: HashMap<HyphenatedUuid, i32>,
 }
 
 pub async fn view_users_list(
@@ -200,7 +201,7 @@ pub async fn view_users_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
+    let chore_list = match chore_list::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),

@@ -37,7 +37,7 @@ pub async fn view_detail(
     State(state): State<Arc<AppState>>,
     auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let user = match user::get_by_id(&state.pool, &id).await {
+    let user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -73,7 +73,7 @@ pub async fn create(
     ).unwrap().to_string();
 
     let user = user::User {
-        id: Uuid::now_v7(),
+        id: Uuid::now_v7().hyphenated(),
         name: payload.name,
         handle: payload.handle,
         password_hash,
@@ -97,7 +97,7 @@ pub async fn view_update_form(
     State(state): State<Arc<AppState>>,
     auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let user = match user::get_by_id(&state.pool, &id).await {
+    let user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -127,7 +127,7 @@ pub async fn update(
     auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id).await {
+    let mut user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -161,7 +161,7 @@ pub async fn delete(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id).await {
+    let mut user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -182,7 +182,7 @@ pub async fn restore(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id).await {
+    let mut user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),

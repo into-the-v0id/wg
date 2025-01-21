@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use chrono::Datelike;
-use uuid::Uuid;
+use uuid::fmt::Hyphenated as HyphenatedUuid;
 
 #[derive(Debug, Copy, Clone, PartialEq, strum::EnumString, strum::Display, strum::AsRefStr, strum::IntoStaticStr, strum::EnumIter, serde::Serialize, serde::Deserialize, sqlx::Type)]
 pub enum ScoreResetInterval {
@@ -25,7 +25,7 @@ impl ScoreResetInterval {
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct ChoreList {
-    pub id: Uuid,
+    pub id: HyphenatedUuid,
     pub name: String,
     pub description: Option<String>,
     pub score_reset_interval: ScoreResetInterval,
@@ -39,7 +39,7 @@ impl ChoreList {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<ChoreList, sqlx::Error> {
+pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &HyphenatedUuid) -> Result<ChoreList, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_lists WHERE id = ?").bind(id).fetch_one(pool).await
 }
 
@@ -47,7 +47,7 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreList>, 
     sqlx::query_as("SELECT * FROM chore_lists").fetch_all(pool).await
 }
 
-pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<HashMap<Uuid, i32>, sqlx::Error> {
+pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<HashMap<HyphenatedUuid, i32>, sqlx::Error> {
     let mut interval_start_date = chrono::NaiveDate::MIN;
     let mut interval_end_date = chrono::NaiveDate::MAX;
 
@@ -65,7 +65,7 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
             .checked_sub_days(chrono::Days::new(1)).unwrap();
     }
 
-    sqlx::query_as::<_, (Uuid, i32)>("
+    sqlx::query_as::<_, (HyphenatedUuid, i32)>("
         SELECT users.id as user_id, SUM(chores.points) as score FROM chore_activities
         INNER JOIN chores ON chore_activities.chore_id = chores.id
         INNER JOIN chore_lists ON chores.chore_list_id = chore_lists.id
