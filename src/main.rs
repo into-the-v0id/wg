@@ -165,21 +165,26 @@ async fn main() {
         }))
         .with_state(app_state);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let port = std::env::var("PORT")
+        .map(|raw_port| raw_port.parse::<i32>().unwrap())
+        .unwrap_or(3000);
+    let address = format!("0.0.0.0:{}", port);
+    let listener = tokio::net::TcpListener::bind(address).await.unwrap();
     tracing::info!("Listening on {}", listener.local_addr().unwrap());
 
     axum::serve(listener, router).await.unwrap();
 }
 
 async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
-    let db_url = "sqlite:./data/sqlite.db";
+    let db_file = std::env::var("DB_FILE").unwrap_or(String::from("./data/sqlite.db"));
+    let db_url = format!("sqlite:{}", db_file);
 
-    if ! sqlx::Sqlite::database_exists(db_url).await.unwrap_or(false) {
-        tracing::info!("Creating database {}", db_url);
-        sqlx::Sqlite::create_database(db_url).await.unwrap();
+    if ! sqlx::Sqlite::database_exists(&db_url).await.unwrap_or(false) {
+        tracing::info!("Creating database {}", &db_url);
+        sqlx::Sqlite::create_database(&db_url).await.unwrap();
     }
 
-    sqlx::sqlite::SqlitePool::connect(db_url).await.unwrap()
+    sqlx::sqlite::SqlitePool::connect(&db_url).await.unwrap()
 }
 
 #[derive(Template)]
