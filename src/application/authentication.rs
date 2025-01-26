@@ -4,18 +4,16 @@ use askama::Template;
 use argon2::{password_hash::{PasswordHash, PasswordVerifier}, Argon2};
 use axum::{extract::{FromRequestParts, State}, http::{request::Parts, StatusCode}, response::{Html, Redirect}, Form, RequestPartsExt};
 use axum_extra::extract::{cookie::Cookie, CookieJar};
-use uuid::Uuid;
-use uuid::fmt::Hyphenated as HyphenatedUuid;
-use crate::AppState;
+use crate::{domain::value::Uuid, AppState};
 use crate::domain::user;
 
 const COOKIE_NAME: &str = "authentication";
 
 #[derive(Debug, Clone)]
 pub struct AuthSession {
-    pub id: HyphenatedUuid,
+    pub id: Uuid,
     pub auth_token: String,
-    pub user_id: HyphenatedUuid,
+    pub user_id: Uuid,
 }
 
 impl FromRequestParts<Arc<AppState>> for AuthSession
@@ -84,7 +82,7 @@ pub async fn login(
     let auth_token = const_hex::encode(auth_token_buf);
 
     let auth_session = AuthSession {
-        id: Uuid::now_v7().hyphenated(),
+        id: Uuid::new(),
         auth_token,
         user_id: user.id,
     };

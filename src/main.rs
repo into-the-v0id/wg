@@ -11,6 +11,7 @@ use tokio::sync::Mutex;
 use tower_http::{catch_panic::CatchPanicLayer, request_id, set_header::SetResponseHeaderLayer, trace::{DefaultMakeSpan, TraceLayer}};
 use tracing::Level;
 use tracing::Instrument;
+use tracing_subscriber::EnvFilter;
 
 pub struct AppState {
     pub pool: sqlx::sqlite::SqlitePool,
@@ -19,7 +20,10 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .json()
+        .init();
 
     let app_state = Arc::new(AppState {
         pool: create_db_pool().await,
@@ -127,7 +131,7 @@ async fn main() {
 
                 let span = tracing::error_span!(
                     "auth_session",
-                    user_id = ?user_id,
+                    user_id = %user_id,
                 );
 
                 next.run(request).instrument(span).await
@@ -141,7 +145,7 @@ async fn main() {
 
             let span = tracing::error_span!(
                 "request_id",
-                request_id = ?request_id,
+                request_id = request_id.to_str().unwrap(),
             );
 
             next.run(request).instrument(span).await
@@ -180,7 +184,7 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
     let db_file = std::env::var("DB_FILE").unwrap_or(String::from("./data/sqlite.db"));
     let db_url = format!("sqlite:{}", db_file);
 
-    if ! sqlx::Sqlite::database_exists(&db_url).await.unwrap_or(false) {
+    if ! sqlx::Sqlite::database_exists(&db_url).await.unwrap() {
         tracing::info!("Creating database {}", &db_url);
         sqlx::Sqlite::create_database(&db_url).await.unwrap();
     }

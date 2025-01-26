@@ -1,13 +1,14 @@
-use uuid::fmt::Hyphenated as HyphenatedUuid;
+
+use super::value::{DateTime, Uuid};
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct User {
-    pub id: HyphenatedUuid,
+    pub id: Uuid,
     pub name: String,
     pub handle: String,
     pub password_hash: String,
-    pub date_created: chrono::DateTime<chrono::Utc>,
-    pub date_deleted: Option<chrono::DateTime<chrono::Utc>>,
+    pub date_created: DateTime,
+    pub date_deleted: Option<DateTime>,
 }
 
 impl User {
@@ -16,7 +17,7 @@ impl User {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &HyphenatedUuid) -> Result<User, sqlx::Error> {
+pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<User, sqlx::Error> {
     sqlx::query_as("SELECT * FROM users WHERE id = ?").bind(id).fetch_one(pool).await
 }
 

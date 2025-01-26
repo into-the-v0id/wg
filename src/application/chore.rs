@@ -1,8 +1,7 @@
 use std::sync::Arc;
 use askama::Template;
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
-use uuid::Uuid;
-use crate::AppState;
+use crate::{domain::value::{DateTime, Uuid}, AppState};
 use crate::domain::chore;
 use crate::domain::chore_list;
 use crate::domain::chore_activity;
@@ -21,7 +20,7 @@ pub async fn view_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &id.hyphenated()).await {
+    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -44,12 +43,12 @@ pub async fn view_detail(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let chore = match chore::get_by_id(&state.pool, &id.hyphenated()).await {
+    let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-    if chore.chore_list_id != chore_list_id.hyphenated() {
+    if chore.chore_list_id != chore_list_id {
         return Err(StatusCode::NOT_FOUND)
     }
 
@@ -69,7 +68,7 @@ pub async fn view_create_form(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id.hyphenated()).await {
+    let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -95,7 +94,7 @@ pub async fn create(
     _auth_session: AuthSession,
     Form(payload): Form<CreatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id.hyphenated()).await {
+    let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -105,7 +104,7 @@ pub async fn create(
     }
 
     let chore = chore::Chore {
-        id: Uuid::now_v7().hyphenated(),
+        id: Uuid::new(),
         chore_list_id: chore_list.id,
         name: payload.name,
         points: payload.points,
@@ -113,7 +112,7 @@ pub async fn create(
             "" => None,
             description => Some(description.to_string()),
         },
-        date_created: chrono::offset::Utc::now(),
+        date_created: DateTime::now(),
         date_deleted: None,
     };
 
@@ -134,7 +133,7 @@ pub async fn view_update_form(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let chore = match chore::get_by_id(&state.pool, &id.hyphenated()).await {
+    let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -142,7 +141,7 @@ pub async fn view_update_form(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
-    if chore.chore_list_id != chore_list_id.hyphenated() {
+    if chore.chore_list_id != chore_list_id {
         return Err(StatusCode::NOT_FOUND)
     }
 
@@ -168,7 +167,7 @@ pub async fn update(
     _auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore = match chore::get_by_id(&state.pool, &id.hyphenated()).await {
+    let mut chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -176,7 +175,7 @@ pub async fn update(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
-    if chore.chore_list_id != chore_list_id.hyphenated() {
+    if chore.chore_list_id != chore_list_id {
         return Err(StatusCode::NOT_FOUND)
     }
 
@@ -202,7 +201,7 @@ pub async fn delete(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore = match chore::get_by_id(&state.pool, &id.hyphenated()).await {
+    let mut chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -210,7 +209,7 @@ pub async fn delete(
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
-    if chore.chore_list_id != chore_list_id.hyphenated() {
+    if chore.chore_list_id != chore_list_id {
         return Err(StatusCode::NOT_FOUND)
     }
 
@@ -219,7 +218,7 @@ pub async fn delete(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    chore.date_deleted = Some(chrono::offset::Utc::now());
+    chore.date_deleted = Some(DateTime::now());
 
     chore::update(&state.pool, &chore).await.unwrap();
 
@@ -231,7 +230,7 @@ pub async fn restore(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore = match chore::get_by_id(&state.pool, &id.hyphenated()).await {
+    let mut chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -239,7 +238,7 @@ pub async fn restore(
     if !chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
-    if chore.chore_list_id != chore_list_id.hyphenated() {
+    if chore.chore_list_id != chore_list_id {
         return Err(StatusCode::NOT_FOUND)
     }
 
@@ -269,12 +268,12 @@ pub async fn view_activity_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let chore = match chore::get_by_id(&state.pool, &id.hyphenated()).await {
+    let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
-    if chore.chore_list_id != chore_list_id.hyphenated() {
+    if chore.chore_list_id != chore_list_id {
         return Err(StatusCode::NOT_FOUND)
     }
 

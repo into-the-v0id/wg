@@ -5,8 +5,7 @@ use argon2::{
     Argon2
 };
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
-use uuid::Uuid;
-use crate::AppState;
+use crate::{domain::value::{DateTime, Uuid}, AppState};
 use crate::domain::user;
 use super::authentication::AuthSession;
 
@@ -37,7 +36,7 @@ pub async fn view_detail(
     State(state): State<Arc<AppState>>,
     auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
+    let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -73,11 +72,11 @@ pub async fn create(
     ).unwrap().to_string();
 
     let user = user::User {
-        id: Uuid::now_v7().hyphenated(),
+        id: Uuid::new(),
         name: payload.name,
         handle: payload.handle,
         password_hash,
-        date_created: chrono::offset::Utc::now(),
+        date_created: DateTime::now(),
         date_deleted: None,
     };
 
@@ -97,7 +96,7 @@ pub async fn view_update_form(
     State(state): State<Arc<AppState>>,
     auth_session: AuthSession,
 ) -> Result<Html<String>, StatusCode> {
-    let user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
+    let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -127,7 +126,7 @@ pub async fn update(
     auth_session: AuthSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
+    let mut user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -161,7 +160,7 @@ pub async fn delete(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
+    let mut user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
@@ -170,7 +169,7 @@ pub async fn delete(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    user.date_deleted = Some(chrono::offset::Utc::now());
+    user.date_deleted = Some(DateTime::now());
 
     user::update(&state.pool, &user).await.unwrap();
 
@@ -186,7 +185,7 @@ pub async fn restore(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id.hyphenated()).await {
+    let mut user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
