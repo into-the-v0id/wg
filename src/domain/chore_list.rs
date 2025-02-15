@@ -77,7 +77,7 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
-    tracing::info!("Created {:?}", chore_list);
+    tracing::info!(chore_list = ?chore_list, "Creating chore list");
 
     sqlx::query("INSERT INTO chore_lists (id, name, description, score_reset_interval, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
         .bind(&chore_list.id)
@@ -92,7 +92,7 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
 }
 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
-    tracing::info!("Updated {:?}", chore_list);
+    tracing::info!(chore_list = ?chore_list, "Updating chore list");
 
     sqlx::query("UPDATE chore_lists SET name = ?, description = ?, score_reset_interval = ?, date_deleted = ? WHERE id = ?")
         .bind(&chore_list.name)
@@ -106,7 +106,7 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
 }
 
 pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
-    tracing::info!("Deleted {:?}", chore_list);
+    tracing::info!(chore_list = ?chore_list, "Deleting chore list");
 
     sqlx::query("DELETE FROM chore_lists WHERE ID = ?")
         .bind(&chore_list.id)

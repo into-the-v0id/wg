@@ -30,7 +30,7 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<User>, sqlx:
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
-    tracing::info!("Created {:?}", user);
+    tracing::info!(user = ?user, "Creating user");
 
     sqlx::query("INSERT INTO users (id, name, handle, password_hash, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
         .bind(&user.id)
@@ -45,7 +45,7 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
 }
 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
-    tracing::info!("Updated {:?}", user);
+    tracing::info!(user = ?user, "Updating user");
 
     sqlx::query("UPDATE users SET name = ?, handle = ?, password_hash = ?, date_deleted = ? WHERE id = ?")
         .bind(&user.name)
@@ -59,7 +59,7 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
 }
 
 pub async fn delete(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
-    tracing::info!("Deleted {:?}", user);
+    tracing::info!(user = ?user, "Deleting user");
 
     sqlx::query("DELETE FROM users WHERE ID = ?")
         .bind(&user.id)
