@@ -20,4 +20,7 @@ RUN apt-get update && apt-get install -y libssl-dev && rm -rf /var/lib/apt/lists
 WORKDIR /app
 COPY --from=build /app/wg /app/wg
 
+RUN mkdir /data
+ENV DB_FILE=/data/sqlite.db
+
 CMD ["/app/wg"]
