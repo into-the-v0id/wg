@@ -7,6 +7,7 @@ use axum::{
     body::Body, extract::State, http::{header, HeaderName, HeaderValue, StatusCode}, middleware::Next, response::{IntoResponse, Response}, routing::{get, post}, RequestExt, Router
 };
 use sqlx::migrate::MigrateDatabase;
+use tokio::signal;
 use tokio::sync::Mutex;
 use tower_http::{catch_panic::CatchPanicLayer, request_id, set_header::SetResponseHeaderLayer, trace::{DefaultMakeSpan, TraceLayer}};
 use tracing::Level;
@@ -177,7 +178,30 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
     tracing::info!("Listening on {}", listener.local_addr().unwrap());
 
-    axum::serve(listener, router).await.unwrap();
+    axum::serve(listener, router)
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .unwrap();
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
 }
 
 async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
