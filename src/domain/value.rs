@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use argon2::{Argon2, password_hash::{rand_core::OsRng, PasswordHasher, SaltString}, PasswordVerifier};
+use secrecy::{ExposeSecret, SecretString};
 use sqlx::{encode::IsNull, error::BoxDynError, sqlite::{SqliteArgumentValue, SqliteTypeInfo, SqliteValueRef}, Decode, Encode, Sqlite, Type};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
@@ -114,5 +116,58 @@ impl From<Date> for chrono::NaiveDate {
 impl AsRef<chrono::NaiveDate> for Date {
     fn as_ref(&self) -> &chrono::NaiveDate {
         &self.0
+    }
+}
+
+#[derive(Debug, serde::Deserialize)]
+#[repr(transparent)]
+pub struct PasswordHash(SecretString);
+
+impl PasswordHash {
+    pub fn from_plain_password(plain_password: SecretString) -> Self {
+        let hash = Argon2::default()
+            .hash_password(
+                plain_password.expose_secret().as_bytes(),
+                &SaltString::generate(&mut OsRng),
+            )
+            .unwrap()
+            .to_string();
+
+        Self(hash.into())
+    }
+
+    pub fn from_hash(hash: SecretString) -> Self {
+        Self(hash)
+    }
+
+    pub fn verify(&self, plain_password: SecretString) -> bool {
+        Argon2::default()
+            .verify_password(
+                plain_password.expose_secret().as_bytes(),
+                &argon2::password_hash::PasswordHash::new(&self.0.expose_secret()).unwrap(),
+            )
+            .is_ok()
+    }
+}
+
+impl Type<Sqlite> for PasswordHash {
+    fn type_info() -> SqliteTypeInfo {
+        <String as Type<Sqlite>>::type_info()
+    }
+}
+
+impl<'q> Encode<'q, Sqlite> for PasswordHash {
+    fn encode_by_ref(
+        &self,
+        args: &mut Vec<SqliteArgumentValue<'q>>,
+    ) -> Result<IsNull, BoxDynError> {
+        <String as Encode<Sqlite>>::encode_by_ref(&self.0.expose_secret().to_string(), args)
+    }
+}
+
+impl Decode<'_, Sqlite> for PasswordHash {
+    fn decode(value: SqliteValueRef<'_>) -> Result<Self, BoxDynError> {
+        <String as Decode<Sqlite>>::decode(value)
+            .map(|password_hash| PasswordHash::from_hash(password_hash.into()))
     }
 }

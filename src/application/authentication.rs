@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use askama::Template;
-use argon2::{password_hash::{PasswordHash, PasswordVerifier}, Argon2};
 use axum::{extract::{FromRequestParts, State}, http::{request::Parts, StatusCode}, response::{Html, Redirect}, Form, RequestPartsExt};
 use axum_extra::extract::{cookie::Cookie, CookieJar};
+use secrecy::SecretString;
 use crate::{domain::value::Uuid, AppState};
 use crate::domain::user;
 
@@ -50,7 +50,7 @@ pub async fn view_login_form() -> Html<String> {
 #[allow(dead_code)]
 pub struct LoginPayload {
     handle: String,
-    password: String,
+    password: SecretString,
 }
 
 pub async fn login(
@@ -67,13 +67,8 @@ pub async fn login(
         return Err(StatusCode::UNAUTHORIZED);
     }
 
-    let is_valid_password = Argon2::default()
-        .verify_password(
-            payload.password.as_bytes(),
-            &PasswordHash::new(&user.password_hash).unwrap(),
-        )
-        .is_ok();
-    if ! is_valid_password {
+    let is_matching_password = user.password_hash.verify(payload.password);
+    if ! is_matching_password {
         return Err(StatusCode::UNAUTHORIZED);
     }
 

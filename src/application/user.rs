@@ -1,11 +1,8 @@
 use std::sync::Arc;
 use askama::Template;
-use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
-    Argon2
-};
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
-use crate::{domain::value::{DateTime, Uuid}, AppState};
+use secrecy::{ExposeSecret, SecretString};
+use crate::{domain::value::{DateTime, PasswordHash, Uuid}, AppState};
 use crate::domain::user;
 use super::authentication::AuthSession;
 
@@ -58,7 +55,7 @@ pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
 pub struct CreatePayload {
     name: String,
     handle: String,
-    password: String,
+    password: SecretString,
 }
 
 pub async fn create(
@@ -66,16 +63,11 @@ pub async fn create(
     _auth_session: AuthSession,
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
-    let password_hash = Argon2::default().hash_password(
-        payload.password.as_bytes(),
-        &SaltString::generate(&mut OsRng),
-    ).unwrap().to_string();
-
     let user = user::User {
         id: Uuid::new(),
         name: payload.name,
         handle: payload.handle,
-        password_hash,
+        password_hash: PasswordHash::from_plain_password(payload.password),
         date_created: DateTime::now(),
         date_deleted: None,
     };
@@ -117,7 +109,7 @@ pub async fn view_update_form(
 pub struct UpdatePayload {
     name: String,
     handle: String,
-    password: String,
+    password: SecretString,
 }
 
 pub async fn update(
@@ -142,12 +134,8 @@ pub async fn update(
     user.name = payload.name;
     user.handle = payload.handle;
 
-    if ! payload.password.trim().is_empty() {
-        let password_hash = Argon2::default().hash_password(
-            payload.password.as_bytes(),
-            &SaltString::generate(&mut OsRng),
-        ).unwrap().to_string();
-        user.password_hash = password_hash;
+    if ! payload.password.expose_secret().trim().is_empty() {
+        user.password_hash = PasswordHash::from_plain_password(payload.password);
     }
 
     user::update(&state.pool, &user).await.unwrap();

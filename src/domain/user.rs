@@ -1,12 +1,12 @@
 
-use super::value::{DateTime, Uuid};
+use super::value::{DateTime, PasswordHash, Uuid};
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct User {
     pub id: Uuid,
     pub name: String,
     pub handle: String,
-    pub password_hash: String,
+    pub password_hash: PasswordHash,
     pub date_created: DateTime,
     pub date_deleted: Option<DateTime>,
 }
