@@ -35,14 +35,12 @@
 
     <br>
 
-    {% if chore.is_deleted() || chore_list.is_deleted() %}
-        {% if !chore_list.is_deleted() %}
-            <div>
-                <button type="submit" form="chore_restore" style="width: auto;">Restore</button>
-                <form id="chore_restore" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/restore"></form>
-            </div>
-        {% endif %}
-    {% else %}
+    {% if chore.is_deleted() %}
+        <div>
+            <button type="submit" form="chore_restore" style="width: auto;">Restore</button>
+            <form id="chore_restore" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/restore"></form>
+        </div>
+    {% else if !chore_list.is_deleted() %}
         <div>
             <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/update" role="button">Edit</a>
             <button type="submit" form="chore_delete" class="outline secondary" style="width: auto;">Delete</button>

@@ -42,14 +42,12 @@
 
     <br>
 
-    {% if activity.is_deleted() || chore.is_deleted() || chore_list.is_deleted() %}
-        {% if ! chore.is_deleted() && !chore_list.is_deleted() %}
-            <div>
-                <button type="submit" form="activity_restore" style="width: auto;">Restore</button>
-                <form id="activity_restore" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/restore"></form>
-            </div>
-        {% endif %}
-    {% else if activity.user_id == auth_session.user_id %}
+    {% if activity.is_deleted() %}
+        <div>
+            <button type="submit" form="activity_restore" style="width: auto;">Restore</button>
+            <form id="activity_restore" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/restore"></form>
+        </div>
+    {% else if !chore.is_deleted() && !chore_list.is_deleted() && activity.user_id == auth_session.user_id %}
         <div>
             {% if allow_edit %}
                 <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" role="button">Edit</a>
