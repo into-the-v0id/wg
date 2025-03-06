@@ -5,12 +5,6 @@ RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/li
 
 WORKDIR /app
 
-# Build cargo dependencies
-RUN cargo init --bin .
-COPY Cargo.toml .
-COPY Cargo.lock .
-RUN --mount=type=cache,target=/app/target --mount=type=cache,target=/root/.cargo cargo build --release
-
 # Build app
 COPY . .
 RUN --mount=type=cache,target=/app/target --mount=type=cache,target=/root/.cargo cargo build --release && cp /app/target/release/wg /app/wg
