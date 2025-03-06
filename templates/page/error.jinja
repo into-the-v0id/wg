@@ -14,4 +14,10 @@
     <a href="/" class="secondary">&larr; Back</a>
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+    {% if let Some(request_id) = request_id %}
+        <small style="color: var(--pico-muted-color);">
+            Request ID: {{ request_id }}
+        </small>
+    {% endif %}
+{% endblock %}

@@ -67,6 +67,9 @@ async fn main() {
         .route("/chore-lists/{chore_list_id}/users", get(application::chore_list::view_users_list))
         .route("/legal/privacy-policy", get(application::legal::view_privacy_policy))
         .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
+            let request_id = request.headers().get("x-request-id")
+                .map(|v| v.to_str().unwrap().to_string());
+
             let response = next.run(request).await;
 
             let status_code = response.status();
@@ -77,7 +80,7 @@ async fn main() {
                     header::CONTENT_TYPE,
                     HeaderValue::from_static(mime::TEXT_HTML_UTF_8.as_ref())
                 );
-                let body = Body::from(ErrorTemplate {status_code}.render().unwrap());
+                let body = Body::from(ErrorTemplate {status_code, request_id}.render().unwrap());
 
                 return Response::from_parts(response_parts, body);
             }
@@ -220,4 +223,5 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
 #[template(path = "page/error.jinja")]
 struct ErrorTemplate {
     status_code: StatusCode,
+    request_id: Option<String>
 }
