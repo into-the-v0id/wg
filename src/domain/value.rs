@@ -80,6 +80,12 @@ impl From<DateTime> for chrono::DateTime<chrono::Utc> {
     }
 }
 
+impl From<chrono::DateTime<chrono::Utc>> for DateTime {
+    fn from(value: chrono::DateTime<chrono::Utc>) -> Self {
+        Self(value)
+    }
+}
+
 impl AsRef<chrono::DateTime<chrono::Utc>> for DateTime {
     fn as_ref(&self) -> &chrono::DateTime<chrono::Utc> {
         &self.0
@@ -110,6 +116,18 @@ impl Display for Date {
 impl From<Date> for chrono::NaiveDate {
     fn from(value: Date) -> Self {
         value.0
+    }
+}
+
+impl From<chrono::NaiveDate> for Date {
+    fn from(value: chrono::NaiveDate) -> Self {
+        Self(value)
+    }
+}
+
+impl From<chrono::NaiveDateTime> for Date {
+    fn from(value: chrono::NaiveDateTime) -> Self {
+        Self(value.date())
     }
 }
 

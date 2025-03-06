@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use askama::Template;
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
+use chrono::Days;
 use crate::{domain::value::{Uuid, Date, DateTime}, AppState};
 use crate::domain::chore_activity;
 use crate::domain::chore;
@@ -72,6 +73,8 @@ pub async fn view_detail(
 struct CreateTemplate {
     chore_list: chore_list::ChoreList,
     chores: Vec<chore::Chore>,
+    min_date: Date,
+    max_date: Date,
     now: DateTime
 }
 
@@ -90,9 +93,16 @@ pub async fn view_create_form(
     }
 
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+    let min_date = Date::from(
+        chrono::Utc::now()
+            .checked_sub_days(Days::new(2))
+            .unwrap_or_else(|| chrono::Utc::now())
+            .date_naive()
+    );
+    let max_date = Date::now();
     let now = DateTime::now();
 
-    Ok(Html(CreateTemplate {chore_list, chores, now}.render().unwrap()))
+    Ok(Html(CreateTemplate {chore_list, chores, min_date, max_date, now}.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -128,6 +138,17 @@ pub async fn create(
         return Err(StatusCode::UNPROCESSABLE_ENTITY);
     }
 
+    let min_date = chrono::Utc::now()
+        .checked_sub_days(Days::new(2))
+        .unwrap_or_else(|| chrono::Utc::now())
+        .date_naive();
+    let max_date = chrono::Utc::now()
+        .date_naive();
+
+    if payload.date.as_ref() < &min_date || payload.date.as_ref() > &max_date {
+        return Err(StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
     let activity = chore_activity::ChoreActivity {
         id: Uuid::new(),
         chore_id: chore.id,
@@ -152,7 +173,8 @@ struct UpdateTemplate {
     activity: chore_activity::ChoreActivity,
     chores: Vec<chore::Chore>,
     chore_list: chore_list::ChoreList,
-    now: DateTime
+    min_date: Date,
+    max_date: Date
 }
 
 pub async fn view_update_form(
@@ -187,9 +209,15 @@ pub async fn view_update_form(
     }
 
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
-    let now = DateTime::now();
+    let min_date = Date::from(
+        chrono::Utc::now()
+            .checked_sub_days(Days::new(2))
+            .unwrap_or_else(|| chrono::Utc::now())
+            .date_naive()
+    );
+    let max_date = Date::now();
 
-    Ok(Html(UpdateTemplate {activity, chores, chore_list, now}.render().unwrap()))
+    Ok(Html(UpdateTemplate {activity, chores, chore_list, min_date, max_date}.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -230,6 +258,17 @@ pub async fn update(
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
+    }
+
+    let min_date = chrono::Utc::now()
+        .checked_sub_days(Days::new(2))
+        .unwrap_or_else(|| chrono::Utc::now())
+        .date_naive();
+    let max_date = chrono::Utc::now()
+        .date_naive();
+
+    if payload.date.as_ref() < &min_date || payload.date.as_ref() > &max_date {
+        return Err(StatusCode::UNPROCESSABLE_ENTITY);
     }
 
     activity.chore_id = payload.chore_id;
