@@ -51,7 +51,10 @@
         {% endif %}
     {% else if activity.user_id == auth_session.user_id %}
         <div>
-            <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" role="button">Edit</a>
+            {% if allow_edit %}
+                <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" role="button">Edit</a>
+            {% endif %}
+
             <button type="submit" form="activity_delete" class="outline secondary" style="width: auto;">Delete</button>
 
             <form id="activity_delete" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/delete"></form>

@@ -44,6 +44,7 @@ struct DetailTemplate {
     chore_list: chore_list::ChoreList,
     user: user::User,
     auth_session: AuthSession,
+    allow_edit: bool,
 }
 
 pub async fn view_detail(
@@ -65,7 +66,13 @@ pub async fn view_detail(
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
     let user = user::get_by_id(&state.pool, &activity.user_id).await.unwrap();
 
-    Ok(Html(DetailTemplate {activity, chore, chore_list, user, auth_session}.render().unwrap()))
+    let min_date = chrono::Utc::now()
+        .checked_sub_days(Days::new(2))
+        .unwrap_or_else(|| chrono::Utc::now())
+        .date_naive();
+    let allow_edit = activity.date.as_ref() >= &min_date;
+
+    Ok(Html(DetailTemplate {activity, chore, chore_list, user, auth_session, allow_edit}.render().unwrap()))
 }
 
 #[derive(Template)]
@@ -208,13 +215,16 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
+    let min_date = chrono::Utc::now()
+        .checked_sub_days(Days::new(2))
+        .unwrap_or_else(|| chrono::Utc::now())
+        .date_naive();
+    if activity.date.as_ref() < &min_date {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
-    let min_date = Date::from(
-        chrono::Utc::now()
-            .checked_sub_days(Days::new(2))
-            .unwrap_or_else(|| chrono::Utc::now())
-            .date_naive()
-    );
+    let min_date = Date::from(min_date);
     let max_date = Date::now();
 
     Ok(Html(UpdateTemplate {activity, chores, chore_list, min_date, max_date}.render().unwrap()))
@@ -264,6 +274,10 @@ pub async fn update(
         .checked_sub_days(Days::new(2))
         .unwrap_or_else(|| chrono::Utc::now())
         .date_naive();
+    if activity.date.as_ref() < &min_date {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
     let max_date = chrono::Utc::now()
         .date_naive();
 
