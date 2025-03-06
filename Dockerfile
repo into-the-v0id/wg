@@ -14,6 +14,8 @@ FROM debian:stable-slim
 WORKDIR /app
 COPY --from=build /app/wg /app/wg
 
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 RUN mkdir /data
 ENV DB_FILE=/data/sqlite.db
 
