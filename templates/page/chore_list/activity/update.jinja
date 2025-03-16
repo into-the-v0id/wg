@@ -17,7 +17,7 @@
         </select>
 
         <label for="date">Date</label>
-        <input id="date" name="date" type="date" min="{{ min_date.format("%Y-%m-%d") }}" max="{{ max_date.format("%Y-%m-%d") }}" value="{{ activity.date.format("%Y-%m-%d") }}" />
+        <input id="date" name="date" type="date" min="{{ min_date.format("%Y-%m-%d") }}" max="{{ max_date.format("%Y-%m-%d") }}" value="{{ activity.date.format("%Y-%m-%d") }}" required />
 
         <label for="comment">
             Comment
