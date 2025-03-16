@@ -17,16 +17,18 @@
 
     <br>
 
-    <ul>
-        {% for user in users %}
-            {% if !user.is_deleted() %}
-                <li>
-                    <a href="/users/{{ user.id }}">{{ user.name }}</a>
-                    (Score: {{ scores_by_user.clone().get(user.id).unwrap_or(0|as_ref) }})
-                </li>
-            {% endif %}
+    <ol>
+        {% for (user_id, score) in scores_by_user %}
+            <li>
+                {% for user in users %}
+                    {% if user.id|as_ref == user_id %}
+                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
+                    {% endif %}
+                {% endfor %}
+                (Score: {{ score }})
+            </li>
         {% endfor %}
-    </ul>
+    </ol>
 
     <br>
     <br>
@@ -38,7 +40,6 @@
                 {% if user.is_deleted() %}
                     <li>
                         <a href="/users/{{ user.id }}">{{ user.name }}</a>
-                        (Score: {{ scores_by_user.clone().get(user.id).unwrap_or(0|as_ref) }})
                     </li>
                 {% endif %}
             {% endfor %}

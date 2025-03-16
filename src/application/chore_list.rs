@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 use askama::Template;
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
 use strum::IntoEnumIterator;
@@ -191,7 +191,7 @@ pub async fn restore(
 struct UserListTemplate {
     chore_list: chore_list::ChoreList,
     users: Vec<user::User>,
-    scores_by_user: HashMap<Uuid, i32>,
+    scores_by_user: Vec<(Uuid, i32)>,
 }
 
 pub async fn view_users_list(
@@ -206,7 +206,19 @@ pub async fn view_users_list(
     };
 
     let users = user::get_all(&state.pool).await.unwrap();
-    let scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list).await.unwrap();
+    let mut scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list).await.unwrap();
+    for user in users.iter() {
+        if user.is_deleted() {
+            continue;
+        }
+
+        let has_score = scores_by_user.iter().any(|(user_id, _score)| user_id == &user.id);
+        if has_score {
+            continue;
+        }
+
+        scores_by_user.push((user.id, 0));
+    }
 
     Ok(Html(UserListTemplate {chore_list, users, scores_by_user}.render().unwrap()))
 }

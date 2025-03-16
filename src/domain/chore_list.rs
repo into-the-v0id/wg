@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use chrono::Datelike;
 use super::value::{DateTime, Uuid};
 
@@ -47,7 +46,7 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreList>, 
     sqlx::query_as("SELECT * FROM chore_lists").fetch_all(pool).await
 }
 
-pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<HashMap<Uuid, i32>, sqlx::Error> {
+pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<Vec<(Uuid, i32)>, sqlx::Error> {
     let mut interval_start_date = chrono::NaiveDate::MIN;
     let mut interval_end_date = chrono::NaiveDate::MAX;
 
@@ -66,7 +65,7 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
     }
 
     sqlx::query_as::<_, (Uuid, i32)>("
-        SELECT users.id as user_id, SUM(chores.points) as score FROM chore_activities
+        SELECT users.id as user_id, SUM(chores.points) as total_score FROM chore_activities
         INNER JOIN chores ON chore_activities.chore_id = chores.id
         INNER JOIN chore_lists ON chores.chore_list_id = chore_lists.id
         INNER JOIN users ON chore_activities.user_id = users.id
@@ -74,6 +73,7 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
             AND chore_activities.date_deleted IS NULL AND chores.date_deleted IS NULL AND chore_lists.date_deleted IS NULL AND users.date_deleted IS NULL
             AND chore_activities.date >= ? AND chore_activities.date <= ?
         GROUP BY users.id
+        ORDER BY total_score DESC
     ").bind(chore_list.id).bind(interval_start_date).bind(interval_end_date).fetch_all(pool).await.map(|r| r.into_iter().collect())
 }
 
