@@ -23,11 +23,11 @@ pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<Cho
 }
 
 pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreActivity>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_activitie ORDER BY date DESC").fetch_all(pool).await
+    sqlx::query_as("SELECT * FROM chore_activitie ORDER BY date DESC, date_created DESC").fetch_all(pool).await
 }
 
 pub async fn get_all_for_chore(pool: &sqlx::sqlite::SqlitePool, chore_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? ORDER BY date DESC").bind(chore_id).fetch_all(pool).await
+    sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? ORDER BY date DESC, date_created DESC").bind(chore_id).fetch_all(pool).await
 }
 
 pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
@@ -35,7 +35,7 @@ pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_
         SELECT chore_activities.* FROM chore_activities
         INNER JOIN chores ON chore_activities.chore_id = chores.id
         WHERE chores.chore_list_id = ?
-        ORDER BY date DESC
+        ORDER BY date DESC, date_created DESC
     ")
         .bind(chore_list_id)
         .fetch_all(pool)
