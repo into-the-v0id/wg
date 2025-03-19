@@ -23,15 +23,23 @@
                 <li>
                     {% for chore in chores %}
                         {% if chore.id == activity.chore_id %}
-                            <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }}P)
+                            <span style="display: inline-block;">
+                                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }}P)
+                            </span>
                         {% endif %}
                     {% endfor %}
+
                     {% for user in users %}
                         {% if user.id == activity.user_id %}
-                            by <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
+                            <span style="display: inline-block;">
+                                by <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
+                            </span>
                         {% endif %}
                     {% endfor %}
-                    at <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+
+                    <span style="display: inline-block;">
+                        at <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+                    </span>
                 </li>
             {% endif %}
         {% endfor %}
@@ -48,15 +56,23 @@
                     <li>
                         {% for chore in chores %}
                             {% if chore.id == activity.chore_id %}
-                                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }}P)
+                                <span style="display: inline-block;">
+                                    <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">{{ chore.name }}</a> ({{ chore.points }}P)
+                                </span>
                             {% endif %}
                         {% endfor %}
+
                         {% for user in users %}
                             {% if user.id == activity.user_id %}
-                                by <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
+                                <span style="display: inline-block;">
+                                    by <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
+                                </span>
                             {% endif %}
                         {% endfor %}
-                        at <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+
+                        <span style="display: inline-block;">
+                            at <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+                        </span>
                     </li>
                 {% endif %}
             {% endfor %}
