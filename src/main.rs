@@ -81,6 +81,8 @@ async fn main() {
                     header::CONTENT_TYPE,
                     HeaderValue::from_static(mime::TEXT_HTML_UTF_8.as_ref())
                 );
+                response_parts.headers.remove(header::CONTENT_LENGTH);
+                response_parts.headers.remove(header::CONTENT_ENCODING);
                 let body = Body::from(ErrorTemplate {status_code, request_id}.render().unwrap());
 
                 return Response::from_parts(response_parts, body);
