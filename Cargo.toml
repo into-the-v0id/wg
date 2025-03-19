@@ -13,6 +13,8 @@ chrono = { version = "0.4.39", features = ["serde"] }
 const-hex = "1.14.0"
 getrandom = "0.2.15"
 mime = "0.3.17"
+mime_guess = "2.0.5"
+rust-embed = "8.6.0"
 secrecy = { version = "0.10.3", features = ["serde"] }
 serde = { version = "1.0.217", features = ["derive"] }
 sqlx = { version = "0.8.3", features = ["runtime-tokio", "sqlite", "derive", "uuid", "chrono", "time"] }

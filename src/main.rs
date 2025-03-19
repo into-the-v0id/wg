@@ -66,6 +66,7 @@ async fn main() {
         .route("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/restore", post(application::chore_activity::restore))
         .route("/chore-lists/{chore_list_id}/users", get(application::chore_list::view_users_list))
         .route("/legal/privacy-policy", get(application::legal::view_privacy_policy))
+        .fallback_service(get(application::assets::serve))
         .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
             let request_id = request.headers().get("x-request-id")
                 .map(|v| v.to_str().unwrap().to_string());
@@ -101,7 +102,7 @@ async fn main() {
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::CONTENT_SECURITY_POLICY,
-            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css; img-src data:; frame-ancestors 'none'; form-action 'self';"),
+            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' 'self'; img-src data:; frame-ancestors 'none'; form-action 'self';"),
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::X_FRAME_OPTIONS,
