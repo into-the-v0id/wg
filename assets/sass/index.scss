@@ -1,5 +1,9 @@
 @use "../../node_modules/@picocss/pico/scss/pico";
 
+:root {
+    hyphens: auto;
+}
+
 body {
     display: flex;
     flex-direction: column;
