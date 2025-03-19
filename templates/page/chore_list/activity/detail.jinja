@@ -30,7 +30,7 @@
         </tr>
         <tr>
             <th scope="row">Chore</th>
-            <td><a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">🧹&nbsp;{{ chore.name }}</a> ({{ chore.points }}P)</td>
+            <td><a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="secondary">🧹&nbsp;{{ chore.name }}</a>&nbsp;({{ chore.points }}P)</td>
         </tr>
         {% if let Some(comment) = activity.comment.clone() %}
             <tr>

@@ -12,7 +12,7 @@
         <select id="chore_id" name="chore_id" required>
             <option selected disabled hidden value=""></option>
             {% for chore in chores %}
-                <option value="{{ chore.id }}">{{ chore.name }} ({{ chore.points}}P)</option>
+                <option value="{{ chore.id }}">{{ chore.name }}&nbsp;({{ chore.points}}P)</option>
             {% endfor %}
         </select>
 
