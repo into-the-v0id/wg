@@ -13,3 +13,18 @@ main {
 td, th {
     padding: calc(var(--pico-spacing)/ 2);
 }
+
+button, [type="submit"], [type="reset"], [type="button"] {
+    &.link {
+        --pico-button-hover-box-shadow: none;
+        --pico-outline-width: 0;
+
+        background: none;
+        padding: 0;
+        border: none;
+        width: auto;
+        transition: none;
+
+        @extend [role="link"];
+    }
+}

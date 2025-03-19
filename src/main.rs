@@ -38,6 +38,7 @@ async fn main() {
 
     let router = Router::new()
         .route("/login", get(application::authentication::view_login_form).post(application::authentication::login))
+        .route("/logout", post(application::authentication::logout))
         .route("/", get(application::dashboard::view))
         .route("/users", get(application::user::view_list))
         .route("/users/create", get(application::user::view_create_form).post(application::user::create))

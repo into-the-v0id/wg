@@ -111,3 +111,22 @@ pub async fn login(
 
     Ok((cookie_jar, Redirect::to("/")))
 }
+
+pub async fn logout(
+    auth_session: Option<AuthSession>,
+    State(state): State<Arc<AppState>>,
+    mut cookie_jar: CookieJar,
+) -> (CookieJar, Redirect) {
+    if let Some(auth_session) = auth_session {
+        let mut auth_sessions = state.auth_sessions.lock().await;
+        if let Some(auth_session_position) = auth_sessions.iter().position(|item| item.id == auth_session.id) {
+            auth_sessions.remove(auth_session_position);
+        }
+    }
+
+    if cookie_jar.get(COOKIE_NAME).is_some() {
+        cookie_jar = cookie_jar.remove(COOKIE_NAME);
+    }
+
+    (cookie_jar, Redirect::to("/login"))
+}
