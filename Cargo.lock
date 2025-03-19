@@ -3092,6 +3092,7 @@ dependencies = [
  "chrono",
  "const-hex",
  "getrandom",
+ "hex",
  "mime",
  "mime_guess",
  "rust-embed",

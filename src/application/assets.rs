@@ -19,7 +19,7 @@ pub async fn serve(
 
     let mime_type = mime_guess::from_path(path).first_or_octet_stream();
 
-    let cache_control = if query_params.contains_key("hash") {
+    let cache_control = if query_params.get("hash").unwrap_or(&"".to_string()) != "" {
         "public, max-age=31536000, immutable"
     } else {
         "public, max-age=0, must-revalidate"
@@ -33,4 +33,12 @@ pub async fn serve(
         ],
         file.data,
     ).into_response()
+}
+
+pub fn get_url(path: &str) -> Option<String> {
+    let path = path.trim_start_matches('/');
+    let file = Asset::get(path)?;
+    let hash = hex::encode(file.metadata.sha256_hash());
+
+    Some(format!("/{path}?hash={hash}"))
 }

@@ -12,6 +12,7 @@ axum-extra = { version = "0.10.0", features = ["cookie"] }
 chrono = { version = "0.4.39", features = ["serde"] }
 const-hex = "1.14.0"
 getrandom = "0.2.15"
+hex = "0.4.3"
 mime = "0.3.17"
 mime_guess = "2.0.5"
 rust-embed = "8.6.0"

@@ -10,7 +10,7 @@
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="robots" content="noindex, nofollow">
 
-        <link rel="stylesheet" href="/css/index.css">
+        <link rel="stylesheet" href="{{ crate::application::assets::get_url("/css/index.css").unwrap() }}">
 
         {% block head %}{% endblock %}
     </head>
