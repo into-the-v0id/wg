@@ -1,0 +1,15 @@
+@use "../../node_modules/@picocss/pico/scss/pico";
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+}
+
+td, th {
+    padding: calc(var(--pico-spacing)/ 2);
+}

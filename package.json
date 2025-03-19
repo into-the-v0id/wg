@@ -1,0 +1,12 @@
+{
+  "name": "wg",
+  "scripts": {
+    "build:sass": "sass --no-source-map --style=compressed assets/sass:static/css"
+  },
+  "devDependencies": {
+    "sass": "^1.86.0"
+  },
+  "dependencies": {
+    "@picocss/pico": "^2.1.1"
+  }
+}
