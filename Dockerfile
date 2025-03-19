@@ -26,12 +26,13 @@ RUN --mount=type=cache,target=/app/target --mount=type=cache,target=/root/.cargo
 
 FROM debian:stable-slim
 
-WORKDIR /app
-COPY --from=build /app/wg /app/wg
-
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
 
 RUN mkdir /data
 ENV DB_FILE=/data/sqlite.db
+
+COPY --from=build /app/wg /app/wg
 
 CMD ["/app/wg"]
