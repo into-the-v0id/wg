@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use askama::Template;
-use axum::{extract::{FromRequestParts, State}, http::{request::Parts, StatusCode}, response::{Html, Redirect}, Form, RequestPartsExt};
+use axum::{extract::{FromRequestParts, OptionalFromRequestParts, State}, http::{request::Parts, StatusCode}, response::{Html, IntoResponse, Redirect}, Form, RequestPartsExt};
 use axum_extra::extract::{cookie::Cookie, CookieJar};
 use secrecy::SecretString;
 use crate::{domain::value::Uuid, AppState};
@@ -38,12 +38,29 @@ impl FromRequestParts<Arc<AppState>> for AuthSession
     }
 }
 
+impl OptionalFromRequestParts<Arc<AppState>> for AuthSession
+{
+    type Rejection = <AuthSession as FromRequestParts<Arc<AppState>>>::Rejection;
+
+    async fn from_request_parts(parts: &mut Parts, state: &Arc<AppState>) -> Result<Option<Self>, Self::Rejection> {
+        match <AuthSession as FromRequestParts<Arc<AppState>>>::from_request_parts(parts, state).await {
+            Ok(auth_session) => Ok(Some(auth_session)),
+            Err(StatusCode::UNAUTHORIZED) => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
+}
+
 #[derive(Template)]
 #[template(path = "page/authentication/login.jinja")]
 struct LoginTemplate();
 
-pub async fn view_login_form() -> Html<String> {
-    Html(LoginTemplate().render().unwrap())
+pub async fn view_login_form(auth_session: Option<AuthSession>) -> impl IntoResponse {
+    if auth_session.is_some() {
+        return Redirect::to("/").into_response();
+    }
+
+    Html(LoginTemplate().render().unwrap()).into_response()
 }
 
 #[derive(serde::Deserialize, Debug)]
