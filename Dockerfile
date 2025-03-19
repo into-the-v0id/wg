@@ -11,16 +11,17 @@ RUN --mount=type=cache,target=/app/node_modules npm install && npm run build:sas
 
 FROM rustlang/rust:nightly-slim AS build
 
+# Install build dependencies
+RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
+
+COPY . .
 
 # Install assets
 COPY --from=assets /app/static /app/static
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
-
 # Build app
-COPY . .
 RUN --mount=type=cache,target=/app/target --mount=type=cache,target=/root/.cargo cargo build --release && cp /app/target/release/wg /app/wg
 
 FROM debian:stable-slim
