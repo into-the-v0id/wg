@@ -1,7 +1,7 @@
 
 use super::value::{Date, DateTime, Uuid};
 
-#[derive(Debug, sqlx::FromRow)]
+#[derive(Debug, sqlx::FromRow, Clone)]
 pub struct ChoreActivity {
     pub id: Uuid,
     pub chore_id: Uuid,

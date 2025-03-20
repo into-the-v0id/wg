@@ -14,6 +14,7 @@ use super::authentication::AuthSession;
 struct ListTemplate {
     chore_list: chore_list::ChoreList,
     activities: Vec<chore_activity::ChoreActivity>,
+    activities_by_date: Vec<(Date, Vec<chore_activity::ChoreActivity>)>,
     chores: Vec<chore::Chore>,
     users: Vec<user::User>,
 }
@@ -30,10 +31,35 @@ pub async fn view_list(
     };
 
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
-    let activities = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
     let users = user::get_all(&state.pool).await.unwrap();
 
-    Ok(Html(ListTemplate {chore_list, activities, chores, users}.render().unwrap()))
+    let activities = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+
+    let mut activities_by_date = Vec::new();
+    let mut current_date: Option<Date> = None;
+    let mut current_activities: Vec<chore_activity::ChoreActivity> = Vec::new();
+    for activity in activities.iter() {
+        if current_date.is_none() {
+            current_date = Some(activity.date);
+        }
+
+        if current_date.unwrap() != activity.date {
+            current_date = Some(activity.date);
+
+            if ! current_activities.is_empty() {
+                activities_by_date.push((current_date.unwrap(), current_activities));
+                current_activities = Vec::new();
+            }
+        }
+
+        current_activities.push(activity.clone());
+    }
+
+    if ! current_activities.is_empty() {
+        activities_by_date.push((current_date.unwrap(), current_activities));
+    }
+
+    Ok(Html(ListTemplate {chore_list, activities, activities_by_date, chores, users}.render().unwrap()))
 }
 
 #[derive(Template)]
