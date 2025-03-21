@@ -21,7 +21,7 @@
             <a href="/users/{{ user.id }}/update" role="button">Edit</a>
         {% endif %}
 
-        <button type="submit" form="user_delete" class="outline secondary" style="width: auto;">Delete</button>
+        <button type="submit" form="user_delete" class="outline danger" style="width: auto;">Delete</button>
 
         <form id="user_delete" method="post" action="/users/{{ user.id }}/delete"></form>
     {% endif %}

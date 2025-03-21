@@ -1,7 +1,19 @@
+@use "sass:color";
 @use "../../node_modules/@picocss/pico/scss/pico";
+@use "../../node_modules/@picocss/pico/scss/colors" as *;
+
+$danger-color: color.mix(
+    $red-500,
+    $slate-600,
+    75%
+);
 
 :root {
     hyphens: auto;
+
+    --pico-danger-color: #{$danger-color};
+    --pico-danger-hover-color: #{color.scale($danger-color, $lightness: 10%)};
+    --pico-danger-focus: #{rgba($danger-color, 0.375)};
 }
 
 body {
@@ -18,7 +30,7 @@ td, th {
     padding: calc(var(--pico-spacing)/ 2);
 }
 
-button, [type="submit"], [type="reset"], [type="button"] {
+:is(button, [type="submit"], [type="button"], [type="reset"], [role="button"]) {
     &.link {
         --pico-button-hover-box-shadow: none;
         --pico-outline-width: 0;
@@ -30,5 +42,33 @@ button, [type="submit"], [type="reset"], [type="button"] {
         transition: none;
 
         @extend [role="link"];
+    }
+
+    &.danger {
+        --pico-background-color: var(--pico-danger-color);
+        --pico-border-color: var(--pico-danger-color);
+        --pico-color: var(--pico-danger-color);
+
+        &:is([aria-current]:not([aria-current="false"]), :hover, :active, :focus) {
+            --pico-background-color: var(--pico-danger-hover-color);
+            --pico-border-color: var(--pico-danger-hover-color);
+            --pico-color: var(--pico-danger-hover-color);
+        }
+
+        &:focus,
+        &:is([aria-current]:not([aria-current="false"])):focus {
+            --pico-box-shadow:
+                var(--pico-button-hover-box-shadow, 0 0 0 rgba(0, 0, 0, 0)),
+                0 0 0 var(--pico-outline-width) var(--pico-danger-focus);
+        }
+    }
+
+    // Fix Outline button
+    &.outline {
+        background-color: transparent;
+
+        &:is([aria-current]:not([aria-current="false"]), :hover, :active, :focus) {
+            background-color: transparent;
+        }
     }
 }

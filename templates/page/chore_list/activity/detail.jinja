@@ -53,7 +53,7 @@
                 <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" role="button">Edit</a>
             {% endif %}
 
-            <button type="submit" form="activity_delete" class="outline secondary" style="width: auto;">Delete</button>
+            <button type="submit" form="activity_delete" class="outline danger" style="width: auto;">Delete</button>
 
             <form id="activity_delete" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/delete"></form>
         </div>
