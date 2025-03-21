@@ -108,7 +108,7 @@ async fn main() {
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::CONTENT_SECURITY_POLICY,
-            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' 'self'; img-src data:; frame-ancestors 'none'; form-action 'self';"),
+            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' 'self'; img-src data: 'self'; frame-ancestors 'none'; form-action 'self'; manifest-src 'self';"),
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::X_FRAME_OPTIONS,

@@ -8,5 +8,21 @@
     "start_url": "/?utm_medium=web_app_manifest",
     "display": "standalone",
     "theme_color": "#13171F",
-    "background_color": "#13171F"
+    "background_color": "#13171F",
+    "icons": [
+        {
+            "src": "/img/app-icon/app.svg",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "/img/app-icon/maskable.svg",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/img/app-icon/monochrome.svg",
+            "type": "image/svg+xml",
+            "purpose": "monochrome"
+        }
+    ]
 }
