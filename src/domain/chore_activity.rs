@@ -82,3 +82,37 @@ pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
         .await
         .map(|_| ())
 }
+
+pub fn group_and_sort_by_date(mut activities: Vec<&ChoreActivity>, sort_latest_first: bool) -> Vec<(Date, Vec<&ChoreActivity>)> {
+    activities.sort_by(|a, b| a.date.cmp(&b.date).then_with(|| a.date_created.cmp(&b.date_created)));
+    if sort_latest_first {
+        activities.reverse();
+    }
+
+    let mut activities_by_date = Vec::new();
+
+    let mut current_date: Option<Date> = None;
+    let mut current_activities: Vec<&ChoreActivity> = Vec::new();
+    for activity in activities.iter() {
+        if current_date.is_none() {
+            current_date = Some(activity.date);
+        }
+
+        if current_date.unwrap() != activity.date {
+            if ! current_activities.is_empty() {
+                activities_by_date.push((current_date.unwrap(), current_activities));
+                current_activities = Vec::new();
+            }
+
+            current_date = Some(activity.date);
+        }
+
+        current_activities.push(activity);
+    }
+
+    if ! current_activities.is_empty() {
+        activities_by_date.push((current_date.unwrap(), current_activities));
+    }
+
+    activities_by_date
+}

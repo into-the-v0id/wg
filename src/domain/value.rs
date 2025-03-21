@@ -53,7 +53,7 @@ impl Decode<'_, Sqlite> for Uuid {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, sqlx::Type)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize, sqlx::Type)]
 #[sqlx(transparent)]
 #[repr(transparent)]
 pub struct DateTime(chrono::DateTime<chrono::Utc>);
@@ -92,7 +92,7 @@ impl AsRef<chrono::DateTime<chrono::Utc>> for DateTime {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, sqlx::Type)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize, sqlx::Type)]
 #[sqlx(transparent)]
 #[repr(transparent)]
 pub struct Date(chrono::NaiveDate);
