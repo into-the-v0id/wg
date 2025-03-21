@@ -186,7 +186,7 @@ async fn main() {
         .unwrap_or(3000);
     let address = format!("0.0.0.0:{}", port);
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
-    tracing::info!("Listening on {}", listener.local_addr().unwrap());
+    println!("Listening on http://{} ...", listener.local_addr().unwrap());
 
     axum::serve(listener, router)
         .with_graceful_shutdown(shutdown_signal())
