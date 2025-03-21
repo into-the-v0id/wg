@@ -44,12 +44,12 @@ pub async fn view_list(
         }
 
         if current_date.unwrap() != activity.date {
-            current_date = Some(activity.date);
-
             if ! current_activities.is_empty() {
                 activities_by_date.push((current_date.unwrap(), current_activities));
                 current_activities = Vec::new();
             }
+
+            current_date = Some(activity.date);
         }
 
         current_activities.push(activity.clone());
