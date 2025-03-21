@@ -21,12 +21,15 @@
         {% for activity in activities %}
             {% if !activity.is_deleted() %}
                 <li>
-                    {% for user in users %}
-                        {% if user.id == activity.user_id %}
-                            <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
-                        {% endif %}
-                    {% endfor %}
-                    at <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+                    <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
+                        {{ activity.date.format("%Y-%m-%d") }}
+
+                        {% for user in users %}
+                            {% if user.id == activity.user_id %}
+                                by {{ user.name }}
+                            {% endif %}
+                        {% endfor %}
+                    </a>
                 </li>
             {% endif %}
         {% endfor %}
@@ -41,12 +44,15 @@
             {% for activity in activities %}
                 {% if activity.is_deleted() %}
                     <li>
-                        {% for user in users %}
-                            {% if user.id == activity.user_id %}
-                                <a href="/users/{{ user.id }}" class="secondary">{{ user.name }}</a>
-                            {% endif %}
-                        {% endfor %}
-                        at <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">{{ activity.date.format("%Y-%m-%d") }}</a>
+                        <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
+                            {{ activity.date.format("%Y-%m-%d") }}
+
+                            {% for user in users %}
+                                {% if user.id == activity.user_id %}
+                                    by {{ user.name }}
+                                {% endif %}
+                            {% endfor %}
+                        </a>
                     </li>
                 {% endif %}
             {% endfor %}
