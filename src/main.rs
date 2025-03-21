@@ -6,6 +6,7 @@ use askama::Template;
 use axum::{
     body::Body, extract::State, http::{header, HeaderName, HeaderValue, StatusCode}, middleware::Next, response::{IntoResponse, Response}, routing::{get, post}, RequestExt, Router
 };
+use domain::value::{DateTime, PasswordHash, Uuid};
 use sqlx::migrate::MigrateDatabase;
 use tokio::signal;
 use tokio::sync::Mutex;
@@ -35,6 +36,8 @@ async fn main() {
         .run(&app_state.pool)
         .await
         .unwrap();
+
+    create_user_if_necessary(&app_state.pool).await;
 
     let router = Router::new()
         .route("/login", get(application::authentication::view_login_form).post(application::authentication::login))
@@ -221,6 +224,31 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
     }
 
     sqlx::sqlite::SqlitePool::connect(&db_url).await.unwrap()
+}
+
+/// If no users exist, create a user and print ist credentials.
+/// Mainly used for new-installs without an existing DB.
+async fn create_user_if_necessary(pool: &sqlx::sqlite::SqlitePool) {
+    let users = domain::user::get_all(pool).await.unwrap();
+    if !users.is_empty() {
+        return;
+    }
+
+    let mut plain_password_buf = [0u8; 8];
+    getrandom::getrandom(&mut plain_password_buf).unwrap();
+    let plain_password = const_hex::encode(plain_password_buf);
+
+    let user = domain::user::User {
+        id: Uuid::new(),
+        name: "Admin".to_string(),
+        handle: "admin".to_string(),
+        password_hash: PasswordHash::from_plain_password(plain_password.clone().into()),
+        date_created: DateTime::now(),
+        date_deleted: None,
+    };
+    domain::user::create(pool, &user).await.unwrap();
+
+    println!("Created user with handle '{}' and password '{}'", user.handle, plain_password);
 }
 
 #[derive(Template)]
