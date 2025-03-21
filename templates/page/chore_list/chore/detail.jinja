@@ -1,6 +1,7 @@
 {% extends "layout/default.jinja" %}
 
-{% block title %}🧹&nbsp;{{ chore.name }}{% endblock %}
+{% block icon %}🧹{% endblock %}
+{% block title %}{{ chore.name }}{% endblock %}
 
 {% block teaser %}
     Of <a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a>

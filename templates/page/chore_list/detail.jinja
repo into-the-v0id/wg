@@ -1,6 +1,7 @@
 {% extends "layout/default.jinja" %}
 
-{% block title %}📋&nbsp;{{ chore_list.name }}{% endblock %}
+{% block icon %}📋{% endblock %}
+{% block title %}{{ chore_list.name }}{% endblock %}
 
 {% block teaser %}{{ chore_list.description.clone().unwrap_or("".to_string())|escape|linebreaksbr|safe }}{% endblock %}
 

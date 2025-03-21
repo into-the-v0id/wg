@@ -6,7 +6,9 @@
     {% endif %}
 {% endblock %}
 
+{% block icon %}🏠{% endblock %}
 {% block title %}{{ status_code.canonical_reason().unwrap_or("Unknown Error") }}{% endblock %}
+{% block headline %}{{ status_code.canonical_reason().unwrap_or("Unknown Error") }}{% endblock %}
 
 {% block teaser %}ERROR {{ status_code.as_u16() }}{% endblock %}
 
