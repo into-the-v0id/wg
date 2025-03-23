@@ -1,5 +1,6 @@
 {
   "name": "wg",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "build:sass": "sass --no-source-map --style=compressed assets/sass:static/css"
   },
