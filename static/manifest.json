@@ -12,15 +12,18 @@
     "icons": [
         {
             "src": "/img/app-icon/app.svg",
+            "sizes": "any",
             "type": "image/svg+xml"
         },
         {
             "src": "/img/app-icon/maskable.svg",
+            "sizes": "any",
             "type": "image/svg+xml",
             "purpose": "maskable"
         },
         {
             "src": "/img/app-icon/monochrome.svg",
+            "sizes": "any",
             "type": "image/svg+xml",
             "purpose": "monochrome"
         }
