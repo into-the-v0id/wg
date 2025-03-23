@@ -65,13 +65,13 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
     }
 
     sqlx::query_as::<_, (Uuid, i32)>("
-        SELECT users.id as user_id, SUM(chores.points) as total_score FROM chore_activities
-        INNER JOIN chores ON chore_activities.chore_id = chores.id
-        INNER JOIN chore_lists ON chores.chore_list_id = chore_lists.id
-        INNER JOIN users ON chore_activities.user_id = users.id
-        WHERE chore_lists.id = ?
-            AND chore_activities.date_deleted IS NULL AND chores.date_deleted IS NULL AND chore_lists.date_deleted IS NULL AND users.date_deleted IS NULL
-            AND chore_activities.date >= ? AND chore_activities.date <= ?
+        SELECT users.id as user_id, COALESCE(SUM(chores.points), 0) as total_score FROM users
+        LEFT JOIN chore_activities ON users.id = chore_activities.user_id AND chore_activities.date_deleted IS NULL
+        LEFT JOIN chores ON chore_activities.chore_id = chores.id AND chores.date_deleted IS NULL
+        LEFT JOIN chore_lists ON chores.chore_list_id = chore_lists.id AND chore_lists.date_deleted IS NULL
+        WHERE users.date_deleted IS NULL
+            AND (chore_lists.id = ? OR chore_lists.id IS NULL)
+            AND ((chore_activities.date >= ? AND chore_activities.date <= ?) OR chore_activities.date IS NULL)
         GROUP BY users.id
         ORDER BY total_score DESC
     ").bind(chore_list.id).bind(interval_start_date).bind(interval_end_date).fetch_all(pool).await.map(|r| r.into_iter().collect())

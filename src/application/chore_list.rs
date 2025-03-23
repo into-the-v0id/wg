@@ -206,19 +206,7 @@ pub async fn view_users_list(
     };
 
     let users = user::get_all(&state.pool).await.unwrap();
-    let mut scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list).await.unwrap();
-    for user in users.iter() {
-        if user.is_deleted() {
-            continue;
-        }
-
-        let has_score = scores_by_user.iter().any(|(user_id, _score)| user_id == &user.id);
-        if has_score {
-            continue;
-        }
-
-        scores_by_user.push((user.id, 0));
-    }
+    let scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list).await.unwrap();
 
     Ok(Html(UserListTemplate {chore_list, users, scores_by_user}.render().unwrap()))
 }
