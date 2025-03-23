@@ -53,7 +53,7 @@
     <div>
         <h4>Deleted ✅&nbsp;Activities</h4>
         <ul>
-            {% for activity in activities %}
+            {% for activity in deleted_activities %}
                 {% if activity.is_deleted() %}
                     <li>
                         <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">

@@ -13,8 +13,8 @@ use super::authentication::AuthSession;
 #[template(path = "page/chore_list/activity/list.jinja")]
 struct ListTemplate<'a> {
     chore_list: chore_list::ChoreList,
-    activities: Vec<&'a chore_activity::ChoreActivity>,
     activities_by_date: Vec<(Date, Vec<&'a chore_activity::ChoreActivity>)>,
+    deleted_activities: Vec<&'a chore_activity::ChoreActivity>,
     chores: Vec<chore::Chore>,
     users: Vec<user::User>,
 }
@@ -33,11 +33,12 @@ pub async fn view_list(
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
     let users = user::get_all(&state.pool).await.unwrap();
 
-    let activities = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
-    let activities_by_ref = activities.iter().collect::<Vec<&chore_activity::ChoreActivity>>();
-    let activities_by_date = chore_activity::group_and_sort_by_date(activities_by_ref.clone(), true);
+    let all_activities = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+    let activities = all_activities.iter().filter(|a| !a.is_deleted()).collect::<Vec<&chore_activity::ChoreActivity>>();
+    let activities_by_date = chore_activity::group_and_sort_by_date(activities, true);
+    let deleted_activities = all_activities.iter().filter(|a| a.is_deleted()).collect::<Vec<&chore_activity::ChoreActivity>>();
 
-    Ok(Html(ListTemplate {chore_list, activities: activities_by_ref, activities_by_date, chores, users}.render().unwrap()))
+    Ok(Html(ListTemplate {chore_list, activities_by_date, deleted_activities, chores, users}.render().unwrap()))
 }
 
 #[derive(Template)]
