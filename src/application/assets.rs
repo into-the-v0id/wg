@@ -38,7 +38,7 @@ pub async fn serve(
 pub fn get_url(path: &str) -> Option<String> {
     let path = path.trim_start_matches('/');
     let file = Asset::get(path)?;
-    let hash = hex::encode(file.metadata.sha256_hash());
+    let hash = const_hex::encode(file.metadata.sha256_hash());
 
     Some(format!("/{path}?hash={hash}"))
 }

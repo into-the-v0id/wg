@@ -83,7 +83,7 @@ async fn main() {
 
                 response_parts.headers.insert(
                     header::CONTENT_TYPE,
-                    HeaderValue::from_static(mime::TEXT_HTML_UTF_8.as_ref())
+                    HeaderValue::from_static("text/html; charset=utf-8")
                 );
                 response_parts.headers.remove(header::CONTENT_LENGTH);
                 response_parts.headers.remove(header::CONTENT_ENCODING);
