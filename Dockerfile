@@ -11,9 +11,6 @@ RUN --mount=type=cache,target=/app/node_modules npm install && npm run build:sas
 
 FROM rustlang/rust:nightly-slim AS build
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
 COPY . .
