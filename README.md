@@ -2,6 +2,12 @@
 
 Track chores of a shared household
 
+## Screenshots
+
+<img src="./docs/img/screenshots/chore-lists.png" alt="Chore Lists" width="23%"> <img src="./docs/img/screenshots/chore-list-chores.png" alt="Chores" width="23%"> <img src="./docs/img/screenshots/chore-list-activities.png" alt="Activities" width="23%"> <img src="./docs/img/screenshots/chore-list-users.png" alt="Users" width="23%">
+
+[More](./docs/img/screenshots/)
+
 ## Build
 
 ### Docker
