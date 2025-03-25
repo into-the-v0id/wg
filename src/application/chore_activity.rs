@@ -145,7 +145,9 @@ pub async fn create(
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNPROCESSABLE_ENTITY),
         Err(err) => panic!("{}", err),
     };
-
+    if chore.is_deleted() {
+        return Err(StatusCode::FORBIDDEN);
+    }
     if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::UNPROCESSABLE_ENTITY);
     }

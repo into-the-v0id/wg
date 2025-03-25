@@ -14,7 +14,9 @@
         <select id="chore_id" name="chore_id" required>
             <option disabled hidden value=""></option>
             {% for chore in chores %}
-                <option value="{{ chore.id }}" {% if chore.id == activity.chore_id %}selected{% endif %}>{{ chore.name }}&nbsp;({{ chore.points}}P)</option>
+                {% if !chore.is_deleted() %}
+                    <option value="{{ chore.id }}" {% if chore.id == activity.chore_id %}selected{% endif %}>{{ chore.name }}&nbsp;({{ chore.points}}P)</option>
+                {% endif %}
             {% endfor %}
         </select>
 
