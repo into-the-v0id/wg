@@ -110,7 +110,7 @@ async fn main() {
         }))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::CACHE_CONTROL,
-            HeaderValue::from_static("private, max-age=0, must-revalidate"),
+            HeaderValue::from_static("no-store"),
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::X_CONTENT_TYPE_OPTIONS,
