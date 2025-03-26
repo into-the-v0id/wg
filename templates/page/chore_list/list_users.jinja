@@ -12,12 +12,6 @@
 {% endblock %}
 
 {% block content %}
-    <div>
-        <a href="/users/create" role="button">Add User</a>
-    </div>
-
-    <br>
-
     <ol>
         {% for (user_id, score) in scores_by_user %}
             <li>
