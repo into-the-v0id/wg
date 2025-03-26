@@ -4,7 +4,7 @@
 {% block title %}Activities{% endblock %}
 
 {% block teaser %}
-    For <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}" class="secondary">👤&nbsp;{{ user.name }}</a>
+    Of <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}" class="secondary">👤&nbsp;{{ user.name }}</a>
     in <a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a>
 {% endblock %}
 
@@ -13,23 +13,24 @@
 {% endblock %}
 
 {% block content %}
-    <ul>
-        {% for activity in activities %}
+    {% for (date, activities_of_date) in activities_by_date %}
+        <h6>{{ date.format("%Y-%m-%d") }}</h6>
+        {% for activity in activities_of_date %}
             {% if !activity.is_deleted() %}
-                <li>
-                    <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
-                        {{ activity.date.format("%Y-%m-%d") }}
-
-                        {% for chore in chores %}
-                            {% if chore.id == activity.chore_id %}
-                                {{ chore.name }}&nbsp;({{ chore.points }}P)
-                            {% endif %}
-                        {% endfor %}
-                    </a>
-                </li>
+                <ul>
+                    <li>
+                        <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
+                            {% for chore in chores %}
+                                {% if chore.id == activity.chore_id %}
+                                    {{ chore.name }}&nbsp;({{ chore.points }}P)
+                                {% endif %}
+                            {% endfor %}
+                        </a>
+                    </li>
+                </ul>
             {% endif %}
         {% endfor %}
-    </ul>
+    {% endfor %}
 
     <br>
     <br>
@@ -37,17 +38,21 @@
     <div>
         <h4>Deleted ✅&nbsp;Activities</h4>
         <ul>
-            {% for activity in activities %}
+            {% for activity in deleted_activities %}
                 {% if activity.is_deleted() %}
                     <li>
                         <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
-                            {{ activity.date.format("%Y-%m-%d") }}
-
                             {% for chore in chores %}
                                 {% if chore.id == activity.chore_id %}
-                                    {{ chore.name }}&nbsp;({{ chore.points }}P)
+                                    <span style="display: inline-block; text-decoration: inherit;">
+                                        {{ chore.name }}&nbsp;({{ chore.points }}P)
+                                    </span>
                                 {% endif %}
                             {% endfor %}
+
+                            <span style="display: inline-block; text-decoration: inherit;">
+                                at {{ activity.date.format("%Y-%m-%d") }}
+                            </span>
                         </a>
                     </li>
                 {% endif %}
