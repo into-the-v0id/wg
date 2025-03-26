@@ -2,7 +2,7 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
 use strum::IntoEnumIterator;
-use crate::{domain::{user, value::{DateTime, Uuid}}, AppState};
+use crate::{domain::value::{DateTime, Uuid}, AppState};
 use crate::domain::chore_list;
 use super::authentication::AuthSession;
 
@@ -184,29 +184,4 @@ pub async fn restore(
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
     Ok(Redirect::to(&format!("/chore-lists/{}", chore_list.id)))
-}
-
-#[derive(Template)]
-#[template(path = "page/chore_list/list_users.jinja")]
-struct UserListTemplate {
-    chore_list: chore_list::ChoreList,
-    users: Vec<user::User>,
-    scores_by_user: Vec<(Uuid, i32)>,
-}
-
-pub async fn view_users_list(
-    Path(id): Path<Uuid>,
-    State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
-) -> Result<Html<String>, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-
-    let users = user::get_all(&state.pool).await.unwrap();
-    let scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list).await.unwrap();
-
-    Ok(Html(UserListTemplate {chore_list, users, scores_by_user}.render().unwrap()))
 }

@@ -17,7 +17,7 @@
             <li>
                 {% for user in users %}
                     {% if user.id|as_ref == user_id %}
-                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
+                        <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}">{{ user.name }}</a>
                     {% endif %}
                 {% endfor %}
                 (Score: {{ score }})
@@ -34,7 +34,7 @@
             {% for user in users %}
                 {% if user.is_deleted() %}
                     <li>
-                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
+                        <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}">{{ user.name }}</a>
                     </li>
                 {% endif %}
             {% endfor %}

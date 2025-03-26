@@ -42,6 +42,20 @@ pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_
         .await
 }
 
+pub async fn get_all_for_chore_list_and_user(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid, user_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
+    sqlx::query_as("
+        SELECT chore_activities.* FROM chore_activities
+        INNER JOIN chores ON chore_activities.chore_id = chores.id
+        INNER JOIN users ON chore_activities.user_id = users.id
+        WHERE chores.chore_list_id = ?
+        ORDER BY date DESC, date_created DESC
+    ")
+        .bind(chore_list_id)
+        .bind(user_id)
+        .fetch_all(pool)
+        .await
+}
+
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActivity) -> Result<(), sqlx::Error> {
     tracing::info!(chore_activity = ?chore_activity, "Creating chore activity");
 
