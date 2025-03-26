@@ -6,7 +6,7 @@
 {% block teaser %}{{ chore_list.description.clone().unwrap_or("".to_string())|escape|linebreaksbr|safe }}{% endblock %}
 
 {% block back_link %}
-    <a href="/chore-lists" class="secondary">&larr; Back</a>
+    <a href="/chore-lists" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
 {% block content %}

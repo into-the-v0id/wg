@@ -5,7 +5,7 @@
 {% block headline %}Update 👤&nbsp;User{% endblock %}
 
 {% block back_link %}
-    <a href="/users/{{ user.id }}" class="secondary">&larr; Back</a>
+    <a href="/users/{{ user.id }}" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
 {% block content %}

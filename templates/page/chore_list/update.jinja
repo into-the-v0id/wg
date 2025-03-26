@@ -5,7 +5,7 @@
 {% block headline %}Update 📋&nbsp;Chore List{% endblock %}
 
 {% block back_link %}
-    <a href="/chore-lists/{{ chore_list.id }}" class="secondary">&larr; Back</a>
+    <a href="/chore-lists/{{ chore_list.id }}" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
 {% block content %}
