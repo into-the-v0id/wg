@@ -18,13 +18,13 @@
 
             <br>
 
-            <button type="submit" form="chore_list_restore" style="width: auto;">Restore</button>
+            <button type="submit" form="chore_list_restore" style="width: auto;">⮌ Restore</button>
             <form id="chore_list_restore" method="post" action="/chore-lists/{{ chore_list.id }}/restore"></form>
         </div>
     {% else %}
         <div>
-            <a href="/chore-lists/{{ chore_list.id }}/update" role="button">Edit</a>
-            <button type="submit" form="chore_list_delete" class="outline danger" style="width: auto;">Delete</button>
+            <a href="/chore-lists/{{ chore_list.id }}/update" role="button">✎ Edit</a>
+            <button type="submit" form="chore_list_delete" class="outline danger" style="width: auto;">✗ Delete</button>
 
             <form id="chore_list_delete" method="post" action="/chore-lists/{{ chore_list.id }}/delete"></form>
         </div>
