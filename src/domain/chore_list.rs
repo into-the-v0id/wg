@@ -83,6 +83,7 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
             GROUP BY users.id
         )
         RIGHT JOIN users ON user_id = users.id
+        WHERE users.date_deleted IS NULL
         ORDER BY total_score DESC
     ").bind(chore_list.id).bind(interval_start_date).bind(interval_start_date).bind(interval_end_date).bind(interval_end_date)
         .fetch_all(pool).await.map(|r| r.into_iter().collect())
