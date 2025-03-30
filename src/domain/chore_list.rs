@@ -47,8 +47,8 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreList>, 
 }
 
 pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<Vec<(Uuid, i32)>, sqlx::Error> {
-    let mut interval_start_date = chrono::NaiveDate::MIN;
-    let mut interval_end_date = chrono::NaiveDate::MAX;
+    let mut interval_start_date = None;
+    let mut interval_end_date = None;
 
     if let Some(interval_duration_months) = chore_list.score_reset_interval.as_months() {
         let now = chrono::offset::Utc::now();
@@ -58,10 +58,14 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
 
         let interval_start_month = current_month - elapsed_months;
 
-        interval_start_date = chrono::NaiveDate::from_ymd_opt(now.year(), interval_start_month, 1).unwrap();
-        interval_end_date = interval_start_date
-            .checked_add_months(chrono::Months::new(interval_duration_months)).unwrap()
-            .checked_sub_days(chrono::Days::new(1)).unwrap();
+        interval_start_date = Some(
+            chrono::NaiveDate::from_ymd_opt(now.year(), interval_start_month, 1).unwrap()
+        );
+        interval_end_date = Some(
+            interval_start_date.unwrap()
+                .checked_add_months(chrono::Months::new(interval_duration_months)).unwrap()
+                .checked_sub_days(chrono::Days::new(1)).unwrap()
+        );
     }
 
     sqlx::query_as::<_, (Uuid, i32)>("
@@ -74,13 +78,14 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
             INNER JOIN users ON chore_activities.user_id = users.id AND users.date_deleted IS NULL
             WHERE chore_activities.date_deleted IS NULL
                 AND chore_lists.id = ?
-                AND chore_activities.date >= ?
-                AND chore_activities.date <= ?
+                AND (? IS NULL OR chore_activities.date >= ?)
+                AND (? IS NULL OR chore_activities.date <= ?)
             GROUP BY users.id
         )
         RIGHT JOIN users ON user_id = users.id
         ORDER BY total_score DESC
-    ").bind(chore_list.id).bind(interval_start_date).bind(interval_end_date).fetch_all(pool).await.map(|r| r.into_iter().collect())
+    ").bind(chore_list.id).bind(interval_start_date).bind(interval_start_date).bind(interval_end_date).bind(interval_end_date)
+        .fetch_all(pool).await.map(|r| r.into_iter().collect())
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
