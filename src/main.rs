@@ -146,8 +146,6 @@ async fn main() {
             HeaderName::from_static("x-robots-tag"),
             HeaderValue::from_static("noindex, nofollow"),
         ))
-        .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
-        .layer(TraceLayer::new_for_http().make_span_with(DefaultMakeSpan::new().level(Level::ERROR)))
         .layer(axum::middleware::from_fn_with_state(
             app_state.clone(),
             async |State(state): State<Arc<AppState>>, mut request: axum::extract::Request, next: Next| -> Response {
@@ -177,10 +175,12 @@ async fn main() {
 
             next.run(request).instrument(span).await
         }))
+        .layer(request_id::PropagateRequestIdLayer::new(HeaderName::from_static("x-request-id")))
         .layer(request_id::SetRequestIdLayer::new(
             HeaderName::from_static("x-request-id"),
             request_id::MakeRequestUuid,
         ))
+        .layer(TraceLayer::new_for_http().make_span_with(DefaultMakeSpan::new().level(Level::ERROR)))
         .layer(CatchPanicLayer::custom(|err: Box<dyn Any + Send + 'static>| {
             if let Some(s) = err.downcast_ref::<String>() {
                 tracing::error!("Service panicked: {}", s);
