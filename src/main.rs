@@ -86,6 +86,7 @@ async fn main() {
         .route("/chore-lists/{chore_list_id}/users/{user_id}", get(application::chore_list_user::view_detail))
         .route("/chore-lists/{chore_list_id}/users/{user_id}/activities", get(application::chore_list_user::view_activity_list))
         .route("/legal/privacy-policy", get(application::legal::view_privacy_policy))
+        .route("/healthz", get(application::health::check))
         .fallback_service(get(application::assets::serve))
         .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
             let request_id = request.headers().get("x-request-id")
