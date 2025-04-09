@@ -47,7 +47,7 @@ pub async fn get_all_for_chore_list_and_user(pool: &sqlx::sqlite::SqlitePool, ch
         SELECT chore_activities.* FROM chore_activities
         INNER JOIN chores ON chore_activities.chore_id = chores.id
         INNER JOIN users ON chore_activities.user_id = users.id
-        WHERE chores.chore_list_id = ?
+        WHERE chores.chore_list_id = ? AND users.id = ?
         ORDER BY date DESC, date_created DESC
     ")
         .bind(chore_list_id)
