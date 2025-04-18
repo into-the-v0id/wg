@@ -61,7 +61,7 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
 pub async fn delete(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
     tracing::info!(user = ?user, "Deleting user");
 
-    sqlx::query("DELETE FROM users WHERE ID = ?")
+    sqlx::query("DELETE FROM users WHERE id = ?")
         .bind(&user.id)
         .execute(pool)
         .await

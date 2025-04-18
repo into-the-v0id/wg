@@ -4,7 +4,7 @@ use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect},
 use strum::IntoEnumIterator;
 use crate::{domain::value::{DateTime, Uuid}, AppState};
 use crate::domain::chore_list;
-use super::authentication::AuthSession;
+use crate::domain::authentication_session::AuthenticationSession;
 
 #[derive(Template)]
 #[template(path = "page/chore_list/list.jinja")]
@@ -14,7 +14,7 @@ struct ListTemplate {
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Html<String> {
     let chore_lists = chore_list::get_all(&state.pool).await.unwrap();
 
@@ -30,7 +30,7 @@ struct DetailTemplate {
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -47,7 +47,7 @@ struct CreateTemplate {
     score_reset_intervals: Vec<chore_list::ScoreResetInterval>,
 }
 
-pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
+pub async fn view_create_form(_auth_session: AuthenticationSession) -> Html<String> {
     let score_reset_intervals = chore_list::ScoreResetInterval::iter().collect();
 
     Html(CreateTemplate{score_reset_intervals}.render().unwrap())
@@ -63,7 +63,7 @@ pub struct CreatePayload {
 
 pub async fn create(
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
     let chore_list = chore_list::ChoreList {
@@ -93,7 +93,7 @@ struct UpdateTemplate {
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession
+    _auth_session: AuthenticationSession
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -120,7 +120,7 @@ pub struct UpdatePayload {
 pub async fn update(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
@@ -147,7 +147,7 @@ pub async fn update(
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -168,7 +168,7 @@ pub async fn delete(
 pub async fn restore(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
     let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,

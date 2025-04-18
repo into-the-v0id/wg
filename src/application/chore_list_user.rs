@@ -6,7 +6,7 @@ use crate::domain::chore;
 use crate::domain::chore_list;
 use crate::domain::chore_activity;
 use crate::domain::user;
-use super::authentication::AuthSession;
+use crate::domain::authentication_session::AuthenticationSession;
 
 #[derive(Template)]
 #[template(path = "page/chore_list/user/list.jinja")]
@@ -19,7 +19,7 @@ struct ListTemplate {
 pub async fn view_list(
     Path(chore_list_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
         Ok(chore_list) => chore_list,
@@ -43,7 +43,7 @@ struct DetailTemplate {
 pub async fn view_detail(
     Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Result<Html<String>, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -69,7 +69,7 @@ struct ActivityListTemplate<'a> {
 pub async fn view_activity_list(
     Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Result<Html<String>, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,

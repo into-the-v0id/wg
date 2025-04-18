@@ -20,10 +20,9 @@ use askama::Template;
 use axum::{
     body::Body, extract::State, http::{header, HeaderName, HeaderValue, StatusCode}, middleware::Next, response::{IntoResponse, Response}, routing::{get, post}, RequestExt, Router
 };
-use domain::value::{DateTime, PasswordHash, Uuid};
+use domain::{authentication_session::AuthenticationSession, value::{DateTime, PasswordHash, Uuid}};
 use sqlx::migrate::MigrateDatabase;
 use tokio::signal;
-use tokio::sync::Mutex;
 use tower_http::{catch_panic::CatchPanicLayer, request_id, set_header::SetResponseHeaderLayer, trace::{DefaultMakeSpan, TraceLayer}};
 use tracing::Level;
 use tracing::Instrument;
@@ -31,7 +30,6 @@ use tracing_subscriber::EnvFilter;
 
 pub struct AppState {
     pub pool: sqlx::sqlite::SqlitePool,
-    pub auth_sessions: Mutex<Vec<application::authentication::AuthSession>>,
 }
 
 #[tokio::main]
@@ -43,7 +41,6 @@ async fn main() {
 
     let app_state = Arc::new(AppState {
         pool: create_db_pool().await,
-        auth_sessions: Mutex::new(Vec::new()),
     });
 
     sqlx::migrate!()
@@ -150,8 +147,8 @@ async fn main() {
         .layer(axum::middleware::from_fn_with_state(
             app_state.clone(),
             async |State(state): State<Arc<AppState>>, mut request: axum::extract::Request, next: Next| -> Response {
-                let user_id = match request.extract_parts_with_state::<application::authentication::AuthSession, _>(&state).await {
-                    Ok(application::authentication::AuthSession {user_id, ..}) => user_id,
+                let user_id = match request.extract_parts_with_state::<AuthenticationSession, _>(&state).await {
+                    Ok(AuthenticationSession {user_id, ..}) => user_id,
                     Err(_) => return next.run(request).await,
                 };
 

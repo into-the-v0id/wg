@@ -21,6 +21,7 @@ secrecy = { version = "0.10.3", features = ["serde"] }
 serde = { version = "1.0.217", features = ["derive"] }
 sqlx = { version = "0.8.3", features = ["runtime-tokio", "sqlite", "derive", "uuid", "chrono", "time"] }
 strum = { version = "0.26.3", features = ["derive"] }
+time = "0.3.41"
 tokio = { version = "1.43.0", features = ["full"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.2", features = ["request-id", "trace", "catch-panic", "set-header"] }

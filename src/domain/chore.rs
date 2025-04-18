@@ -73,7 +73,7 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore: &Chore) -> Result<()
 pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore: &Chore) -> Result<(), sqlx::Error> {
     tracing::info!(chore = ?chore, "Deleting chore");
 
-    sqlx::query("DELETE FROM chores WHERE ID = ?")
+    sqlx::query("DELETE FROM chores WHERE id = ?")
         .bind(&chore.id)
         .execute(pool)
         .await

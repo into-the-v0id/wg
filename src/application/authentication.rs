@@ -3,20 +3,14 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{extract::{FromRequestParts, OptionalFromRequestParts, State}, http::{request::Parts, StatusCode}, response::{Html, IntoResponse, Redirect}, Form, RequestPartsExt};
 use axum_extra::extract::{cookie::Cookie, CookieJar};
+use chrono::Days;
 use secrecy::SecretString;
-use crate::{domain::value::Uuid, AppState};
+use crate::{domain::{authentication_session::{self, AuthenticationSession}, value::{DateTime, Uuid}}, AppState};
 use crate::domain::user;
 
 const COOKIE_NAME: &str = "authentication";
 
-#[derive(Debug, Clone)]
-pub struct AuthSession {
-    pub id: Uuid,
-    pub auth_token: String,
-    pub user_id: Uuid,
-}
-
-impl FromRequestParts<Arc<AppState>> for AuthSession
+impl FromRequestParts<Arc<AppState>> for AuthenticationSession
 {
     type Rejection = StatusCode;
 
@@ -28,22 +22,25 @@ impl FromRequestParts<Arc<AppState>> for AuthSession
             None => return Err(StatusCode::UNAUTHORIZED),
         };
 
-        let auth_sessions = state.auth_sessions.lock().await;
-        let auth_session = match auth_sessions.iter().find(|s| s.auth_token == auth_token) {
-            Some(auth_session) => auth_session,
-            None => return Err(StatusCode::UNAUTHORIZED)
+        let auth_session = match authentication_session::get_by_token(&state.pool, auth_token).await {
+            Ok(auth_session) => auth_session,
+            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
+            Err(err) => panic!("{}", err),
         };
+        if auth_session.is_expired() {
+            return Err(StatusCode::UNAUTHORIZED);
+        }
 
-        Ok(auth_session.clone())
+        Ok(auth_session)
     }
 }
 
-impl OptionalFromRequestParts<Arc<AppState>> for AuthSession
+impl OptionalFromRequestParts<Arc<AppState>> for AuthenticationSession
 {
-    type Rejection = <AuthSession as FromRequestParts<Arc<AppState>>>::Rejection;
+    type Rejection = <AuthenticationSession as FromRequestParts<Arc<AppState>>>::Rejection;
 
     async fn from_request_parts(parts: &mut Parts, state: &Arc<AppState>) -> Result<Option<Self>, Self::Rejection> {
-        match <AuthSession as FromRequestParts<Arc<AppState>>>::from_request_parts(parts, state).await {
+        match <AuthenticationSession as FromRequestParts<Arc<AppState>>>::from_request_parts(parts, state).await {
             Ok(auth_session) => Ok(Some(auth_session)),
             Err(StatusCode::UNAUTHORIZED) => Ok(None),
             Err(error) => Err(error),
@@ -55,7 +52,7 @@ impl OptionalFromRequestParts<Arc<AppState>> for AuthSession
 #[template(path = "page/authentication/login.jinja")]
 struct LoginTemplate();
 
-pub async fn view_login_form(auth_session: Option<AuthSession>) -> impl IntoResponse {
+pub async fn view_login_form(auth_session: Option<AuthenticationSession>) -> impl IntoResponse {
     if auth_session.is_some() {
         return Redirect::to("/").into_response();
     }
@@ -89,39 +86,40 @@ pub async fn login(
         return Err(StatusCode::UNAUTHORIZED);
     }
 
-    let mut auth_token_buf = [0u8; 64];
-    getrandom::getrandom(&mut auth_token_buf).unwrap();
-    let auth_token = const_hex::encode(auth_token_buf);
+    let mut token_buf = [0u8; 64];
+    getrandom::getrandom(&mut token_buf).unwrap();
+    let token = const_hex::encode(token_buf);
 
-    let auth_session = AuthSession {
+    let auth_session = AuthenticationSession {
         id: Uuid::new(),
-        auth_token,
+        token,
         user_id: user.id,
+        date_expires: DateTime::from(DateTime::now().as_ref().checked_add_days(Days::new(30)).unwrap()),
+        date_created: DateTime::now(),
     };
 
-    let cookie =  Cookie::build((COOKIE_NAME, auth_session.auth_token.clone()))
+    authentication_session::create(&state.pool, &auth_session).await.unwrap();
+
+    authentication_session::delete_all_expired(&state.pool).await.unwrap();
+
+    let cookie =  Cookie::build((COOKIE_NAME, auth_session.token.clone()))
         .secure(true)
         .http_only(true)
         .same_site(axum_extra::extract::cookie::SameSite::Lax)
+        .expires(time::OffsetDateTime::from_unix_timestamp(auth_session.date_expires.as_ref().timestamp()).unwrap())
         .build();
     let cookie_jar = cookie_jar.add(cookie);
-
-    let mut auth_sessions = state.auth_sessions.lock().await;
-    auth_sessions.push(auth_session);
 
     Ok((cookie_jar, Redirect::to("/")))
 }
 
 pub async fn logout(
-    auth_session: Option<AuthSession>,
+    auth_session: Option<AuthenticationSession>,
     State(state): State<Arc<AppState>>,
     mut cookie_jar: CookieJar,
 ) -> (CookieJar, Redirect) {
     if let Some(auth_session) = auth_session {
-        let mut auth_sessions = state.auth_sessions.lock().await;
-        if let Some(auth_session_position) = auth_sessions.iter().position(|item| item.id == auth_session.id) {
-            auth_sessions.remove(auth_session_position);
-        }
+        authentication_session::delete(&state.pool, &auth_session).await.unwrap();
     }
 
     if cookie_jar.get(COOKIE_NAME).is_some() {

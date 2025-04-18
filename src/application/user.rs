@@ -2,9 +2,9 @@ use std::sync::Arc;
 use askama::Template;
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
 use secrecy::{ExposeSecret, SecretString};
-use crate::{domain::value::{DateTime, PasswordHash, Uuid}, AppState};
+use crate::{domain::{authentication_session, value::{DateTime, PasswordHash, Uuid}}, AppState};
 use crate::domain::user;
-use super::authentication::AuthSession;
+use crate::domain::authentication_session::AuthenticationSession;
 
 #[derive(Template)]
 #[template(path = "page/user/list.jinja")]
@@ -14,7 +14,7 @@ struct ListTemplate {
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Html<String> {
     let users = user::get_all(&state.pool).await.unwrap();
 
@@ -25,13 +25,13 @@ pub async fn view_list(
 #[template(path = "page/user/detail.jinja")]
 struct DetailTemplate {
     user: user::User,
-    auth_session: AuthSession,
+    auth_session: AuthenticationSession,
 }
 
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    auth_session: AuthSession,
+    auth_session: AuthenticationSession,
 ) -> Result<Html<String>, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -46,7 +46,7 @@ pub async fn view_detail(
 #[template(path = "page/user/create.jinja")]
 struct CreateTemplate();
 
-pub async fn view_create_form(_auth_session: AuthSession) -> Html<String> {
+pub async fn view_create_form(_auth_session: AuthenticationSession) -> Html<String> {
     Html(CreateTemplate().render().unwrap())
 }
 
@@ -60,7 +60,7 @@ pub struct CreatePayload {
 
 pub async fn create(
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
     let user = user::User {
@@ -86,7 +86,7 @@ struct UpdateTemplate {
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    auth_session: AuthSession,
+    auth_session: AuthenticationSession,
 ) -> Result<Html<String>, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -115,7 +115,7 @@ pub struct UpdatePayload {
 pub async fn update(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    auth_session: AuthSession,
+    auth_session: AuthenticationSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
     let mut user = match user::get_by_id(&state.pool, &id).await {
@@ -146,7 +146,7 @@ pub async fn update(
 pub async fn delete(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
     let mut user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
@@ -162,8 +162,10 @@ pub async fn delete(
     user::update(&state.pool, &user).await.unwrap();
 
     // Remove auth sessions for that user
-    let mut auth_sessions = state.auth_sessions.lock().await;
-    auth_sessions.retain(|auth_session| auth_session.user_id != user.id);
+    let auth_sessions = authentication_session::get_all_for_user(&state.pool, &user.id).await.unwrap();
+    for auth_session in auth_sessions.iter() {
+        authentication_session::delete(&state.pool, &auth_session).await.unwrap();
+    }
 
     Ok(Redirect::to(&format!("/users/{}", user.id)))
 }
@@ -171,7 +173,7 @@ pub async fn delete(
 pub async fn restore(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthSession,
+    _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
     let mut user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
