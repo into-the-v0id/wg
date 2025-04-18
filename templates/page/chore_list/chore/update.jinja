@@ -20,7 +20,7 @@
         <textarea id="description" name="description">{{ chore.description.clone().unwrap_or("".to_string()) }}</textarea>
 
         <label for="points">Points</label>
-        <input id="points" name="points" type="number" required value="{{ chore.points }}" />
+        <input id="points" name="points" type="number" min="1" step="1" required value="{{ chore.points }}" />
 
         <label for="interval_days">
             Interval (days)

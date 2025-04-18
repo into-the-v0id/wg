@@ -9,7 +9,7 @@ pub struct Chore {
     pub id: Uuid,
     pub chore_list_id: Uuid,
     pub name: String,
-    pub points: i32,
+    pub points: u32,
     pub interval_days: Option<u32>,
     pub next_due_date: Option<Date>,
     pub description: Option<String>,

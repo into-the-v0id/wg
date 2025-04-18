@@ -85,7 +85,7 @@ pub async fn view_create_form(
 #[allow(dead_code)]
 pub struct CreatePayload {
     name: String,
-    points: i32,
+    points: u32,
     interval_days: Option<u32>,
     description: String,
 }
@@ -167,7 +167,7 @@ pub async fn view_update_form(
 #[allow(dead_code)]
 pub struct UpdatePayload {
     name: String,
-    points: i32,
+    points: u32,
     interval_days: Option<u32>,
     description: String,
 }
