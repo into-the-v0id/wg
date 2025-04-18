@@ -1,10 +1,10 @@
 pub mod assets;
-pub mod dashboard;
-pub mod user;
-pub mod chore_list;
+pub mod authentication;
 pub mod chore;
 pub mod chore_activity;
+pub mod chore_list;
 pub mod chore_list_user;
-pub mod authentication;
-pub mod legal;
+pub mod dashboard;
 pub mod health;
+pub mod legal;
+pub mod user;

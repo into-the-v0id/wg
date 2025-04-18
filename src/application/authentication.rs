@@ -1,20 +1,33 @@
 use std::sync::Arc;
 
+use crate::domain::user;
+use crate::{
+    AppState,
+    domain::{
+        authentication_session::{self, AuthenticationSession},
+        value::{DateTime, Uuid},
+    },
+};
 use askama::Template;
-use axum::{extract::{FromRequestParts, OptionalFromRequestParts, State}, http::{request::Parts, StatusCode}, response::{Html, IntoResponse, Redirect}, Form, RequestPartsExt};
-use axum_extra::extract::{cookie::Cookie, CookieJar};
+use axum::{
+    Form, RequestPartsExt,
+    extract::{FromRequestParts, OptionalFromRequestParts, State},
+    http::{StatusCode, request::Parts},
+    response::{Html, IntoResponse, Redirect},
+};
+use axum_extra::extract::{CookieJar, cookie::Cookie};
 use chrono::Days;
 use secrecy::SecretString;
-use crate::{domain::{authentication_session::{self, AuthenticationSession}, value::{DateTime, Uuid}}, AppState};
-use crate::domain::user;
 
 const COOKIE_NAME: &str = "authentication";
 
-impl FromRequestParts<Arc<AppState>> for AuthenticationSession
-{
+impl FromRequestParts<Arc<AppState>> for AuthenticationSession {
     type Rejection = StatusCode;
 
-    async fn from_request_parts(parts: &mut Parts, state: &Arc<AppState>) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
         let cookie_jar = parts.extract::<CookieJar>().await.unwrap();
 
         let auth_token = match cookie_jar.get(COOKIE_NAME) {
@@ -22,7 +35,8 @@ impl FromRequestParts<Arc<AppState>> for AuthenticationSession
             None => return Err(StatusCode::UNAUTHORIZED),
         };
 
-        let auth_session = match authentication_session::get_by_token(&state.pool, auth_token).await {
+        let auth_session = match authentication_session::get_by_token(&state.pool, auth_token).await
+        {
             Ok(auth_session) => auth_session,
             Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
             Err(err) => panic!("{}", err),
@@ -35,12 +49,18 @@ impl FromRequestParts<Arc<AppState>> for AuthenticationSession
     }
 }
 
-impl OptionalFromRequestParts<Arc<AppState>> for AuthenticationSession
-{
+impl OptionalFromRequestParts<Arc<AppState>> for AuthenticationSession {
     type Rejection = <AuthenticationSession as FromRequestParts<Arc<AppState>>>::Rejection;
 
-    async fn from_request_parts(parts: &mut Parts, state: &Arc<AppState>) -> Result<Option<Self>, Self::Rejection> {
-        match <AuthenticationSession as FromRequestParts<Arc<AppState>>>::from_request_parts(parts, state).await {
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Option<Self>, Self::Rejection> {
+        match <AuthenticationSession as FromRequestParts<Arc<AppState>>>::from_request_parts(
+            parts, state,
+        )
+        .await
+        {
             Ok(auth_session) => Ok(Some(auth_session)),
             Err(StatusCode::UNAUTHORIZED) => Ok(None),
             Err(error) => Err(error),
@@ -82,7 +102,7 @@ pub async fn login(
     }
 
     let is_matching_password = user.password_hash.verify(payload.password);
-    if ! is_matching_password {
+    if !is_matching_password {
         return Err(StatusCode::UNAUTHORIZED);
     }
 
@@ -94,19 +114,33 @@ pub async fn login(
         id: Uuid::new(),
         token,
         user_id: user.id,
-        date_expires: DateTime::from(DateTime::now().as_ref().checked_add_days(Days::new(30)).unwrap()),
+        date_expires: DateTime::from(
+            DateTime::now()
+                .as_ref()
+                .checked_add_days(Days::new(30))
+                .unwrap(),
+        ),
         date_created: DateTime::now(),
     };
 
-    authentication_session::create(&state.pool, &auth_session).await.unwrap();
+    authentication_session::create(&state.pool, &auth_session)
+        .await
+        .unwrap();
 
-    authentication_session::delete_all_expired(&state.pool).await.unwrap();
+    authentication_session::delete_all_expired(&state.pool)
+        .await
+        .unwrap();
 
-    let cookie =  Cookie::build((COOKIE_NAME, auth_session.token.clone()))
+    let cookie = Cookie::build((COOKIE_NAME, auth_session.token.clone()))
         .secure(true)
         .http_only(true)
         .same_site(axum_extra::extract::cookie::SameSite::Lax)
-        .expires(time::OffsetDateTime::from_unix_timestamp(auth_session.date_expires.as_ref().timestamp()).unwrap())
+        .expires(
+            time::OffsetDateTime::from_unix_timestamp(
+                auth_session.date_expires.as_ref().timestamp(),
+            )
+            .unwrap(),
+        )
         .build();
     let cookie_jar = cookie_jar.add(cookie);
 
@@ -119,7 +153,9 @@ pub async fn logout(
     mut cookie_jar: CookieJar,
 ) -> (CookieJar, Redirect) {
     if let Some(auth_session) = auth_session {
-        authentication_session::delete(&state.pool, &auth_session).await.unwrap();
+        authentication_session::delete(&state.pool, &auth_session)
+            .await
+            .unwrap();
     }
 
     if cookie_jar.get(COOKIE_NAME).is_some() {

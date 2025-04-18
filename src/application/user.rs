@@ -1,10 +1,21 @@
-use std::sync::Arc;
-use askama::Template;
-use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
-use secrecy::{ExposeSecret, SecretString};
-use crate::{domain::{authentication_session, value::{DateTime, PasswordHash, Uuid}}, AppState};
-use crate::domain::user;
 use crate::domain::authentication_session::AuthenticationSession;
+use crate::domain::user;
+use crate::{
+    AppState,
+    domain::{
+        authentication_session,
+        value::{DateTime, PasswordHash, Uuid},
+    },
+};
+use askama::Template;
+use axum::{
+    Form,
+    extract::{Path, State},
+    http::StatusCode,
+    response::{Html, Redirect},
+};
+use secrecy::{ExposeSecret, SecretString};
+use std::sync::Arc;
 
 #[derive(Template)]
 #[template(path = "page/user/list.jinja")]
@@ -18,7 +29,7 @@ pub async fn view_list(
 ) -> Html<String> {
     let users = user::get_all(&state.pool).await.unwrap();
 
-    Html(ListTemplate {users}.render().unwrap())
+    Html(ListTemplate { users }.render().unwrap())
 }
 
 #[derive(Template)]
@@ -39,7 +50,9 @@ pub async fn view_detail(
         Err(err) => panic!("{}", err),
     };
 
-    Ok(Html(DetailTemplate {user, auth_session}.render().unwrap()))
+    Ok(Html(
+        DetailTemplate { user, auth_session }.render().unwrap(),
+    ))
 }
 
 #[derive(Template)]
@@ -101,7 +114,7 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    Ok(Html(UpdateTemplate {user}.render().unwrap()))
+    Ok(Html(UpdateTemplate { user }.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -134,7 +147,7 @@ pub async fn update(
     user.name = payload.name;
     user.handle = payload.handle;
 
-    if ! payload.password.expose_secret().trim().is_empty() {
+    if !payload.password.expose_secret().trim().is_empty() {
         user.password_hash = PasswordHash::from_plain_password(payload.password);
     }
 
@@ -162,9 +175,13 @@ pub async fn delete(
     user::update(&state.pool, &user).await.unwrap();
 
     // Remove auth sessions for that user
-    let auth_sessions = authentication_session::get_all_for_user(&state.pool, &user.id).await.unwrap();
+    let auth_sessions = authentication_session::get_all_for_user(&state.pool, &user.id)
+        .await
+        .unwrap();
     for auth_session in auth_sessions.iter() {
-        authentication_session::delete(&state.pool, auth_session).await.unwrap();
+        authentication_session::delete(&state.pool, auth_session)
+            .await
+            .unwrap();
     }
 
     Ok(Redirect::to(&format!("/users/{}", user.id)))

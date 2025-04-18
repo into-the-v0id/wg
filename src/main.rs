@@ -12,20 +12,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pub mod domain;
 pub mod application;
+pub mod domain;
 
-use std::{any::Any, sync::Arc};
 use askama::Template;
 use axum::{
-    body::Body, extract::State, http::{header, HeaderName, HeaderValue, StatusCode}, middleware::Next, response::{IntoResponse, Response}, routing::{get, post}, RequestExt, Router
+    RequestExt, Router,
+    body::Body,
+    extract::State,
+    http::{HeaderName, HeaderValue, StatusCode, header},
+    middleware::Next,
+    response::{IntoResponse, Response},
+    routing::{get, post},
 };
-use domain::{authentication_session::AuthenticationSession, value::{DateTime, PasswordHash, Uuid}};
+use domain::{
+    authentication_session::AuthenticationSession,
+    value::{DateTime, PasswordHash, Uuid},
+};
 use sqlx::migrate::MigrateDatabase;
+use std::{any::Any, sync::Arc};
 use tokio::signal;
-use tower_http::{catch_panic::CatchPanicLayer, request_id, set_header::SetResponseHeaderLayer, trace::{DefaultMakeSpan, TraceLayer}};
-use tracing::Level;
+use tower_http::{
+    catch_panic::CatchPanicLayer,
+    request_id,
+    set_header::SetResponseHeaderLayer,
+    trace::{DefaultMakeSpan, TraceLayer},
+};
 use tracing::Instrument;
+use tracing::Level;
 use tracing_subscriber::EnvFilter;
 
 pub struct AppState {
@@ -43,10 +57,7 @@ async fn main() {
         pool: create_db_pool().await,
     });
 
-    sqlx::migrate!()
-        .run(&app_state.pool)
-        .await
-        .unwrap();
+    sqlx::migrate!().run(&app_state.pool).await.unwrap();
 
     create_user_if_necessary(&app_state.pool).await;
 
@@ -232,7 +243,7 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
     let db_file = std::env::var("DB_FILE").unwrap_or(String::from("./data/sqlite.db"));
     let db_url = format!("sqlite:{}", db_file);
 
-    if ! sqlx::Sqlite::database_exists(&db_url).await.unwrap() {
+    if !sqlx::Sqlite::database_exists(&db_url).await.unwrap() {
         tracing::info!("Creating database {}", &db_url);
         sqlx::Sqlite::create_database(&db_url).await.unwrap();
     }
@@ -262,12 +273,15 @@ async fn create_user_if_necessary(pool: &sqlx::sqlite::SqlitePool) {
     };
     domain::user::create(pool, &user).await.unwrap();
 
-    println!("Created user with handle '{}' and password '{}'", user.handle, plain_password);
+    println!(
+        "Created user with handle '{}' and password '{}'",
+        user.handle, plain_password
+    );
 }
 
 #[derive(Template)]
 #[template(path = "page/error.jinja")]
 struct ErrorTemplate {
     status_code: StatusCode,
-    request_id: Option<String>
+    request_id: Option<String>,
 }

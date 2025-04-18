@@ -1,7 +1,20 @@
-use chrono::Datelike;
 use super::value::{DateTime, Uuid};
+use chrono::Datelike;
 
-#[derive(Debug, Copy, Clone, PartialEq, strum::EnumString, strum::Display, strum::AsRefStr, strum::IntoStaticStr, strum::EnumIter, serde::Serialize, serde::Deserialize, sqlx::Type)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    strum::EnumString,
+    strum::Display,
+    strum::AsRefStr,
+    strum::IntoStaticStr,
+    strum::EnumIter,
+    serde::Serialize,
+    serde::Deserialize,
+    sqlx::Type,
+)]
 pub enum ScoreResetInterval {
     Monthly,
     Quaterly,
@@ -38,15 +51,26 @@ impl ChoreList {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<ChoreList, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_lists WHERE id = ?").bind(id).fetch_one(pool).await
+pub async fn get_by_id(
+    pool: &sqlx::sqlite::SqlitePool,
+    id: &Uuid,
+) -> Result<ChoreList, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM chore_lists WHERE id = ?")
+        .bind(id)
+        .fetch_one(pool)
+        .await
 }
 
 pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreList>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_lists").fetch_all(pool).await
+    sqlx::query_as("SELECT * FROM chore_lists")
+        .fetch_all(pool)
+        .await
 }
 
-pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<Vec<(Uuid, i32)>, sqlx::Error> {
+pub async fn get_score_per_user(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_list: &ChoreList,
+) -> Result<Vec<(Uuid, i32)>, sqlx::Error> {
     let mut interval_start_date = None;
     let mut interval_end_date = None;
 
@@ -58,13 +82,15 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
 
         let interval_start_month = current_month - elapsed_months;
 
-        interval_start_date = Some(
-            chrono::NaiveDate::from_ymd_opt(now.year(), interval_start_month, 1).unwrap()
-        );
+        interval_start_date =
+            Some(chrono::NaiveDate::from_ymd_opt(now.year(), interval_start_month, 1).unwrap());
         interval_end_date = Some(
-            interval_start_date.unwrap()
-                .checked_add_months(chrono::Months::new(interval_duration_months)).unwrap()
-                .checked_sub_days(chrono::Days::new(1)).unwrap()
+            interval_start_date
+                .unwrap()
+                .checked_add_months(chrono::Months::new(interval_duration_months))
+                .unwrap()
+                .checked_sub_days(chrono::Days::new(1))
+                .unwrap(),
         );
     }
 
@@ -85,11 +111,21 @@ pub async fn get_score_per_user(pool: &sqlx::sqlite::SqlitePool, chore_list: &Ch
         RIGHT JOIN users ON user_id = users.id
         WHERE users.date_deleted IS NULL
         ORDER BY total_score DESC
-    ").bind(chore_list.id).bind(interval_start_date).bind(interval_start_date).bind(interval_end_date).bind(interval_end_date)
-        .fetch_all(pool).await.map(|r| r.into_iter().collect())
+    ")
+        .bind(chore_list.id)
+        .bind(interval_start_date)
+        .bind(interval_start_date)
+        .bind(interval_end_date)
+        .bind(interval_end_date)
+        .fetch_all(pool)
+        .await
+        .map(|r| r.into_iter().collect())
 }
 
-pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
+pub async fn create(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_list: &ChoreList,
+) -> Result<(), sqlx::Error> {
     tracing::info!(chore_list = ?chore_list, "Creating chore list");
 
     sqlx::query("INSERT INTO chore_lists (id, name, description, score_reset_interval, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
@@ -104,7 +140,10 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
         .map(|_| ())
 }
 
-pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
+pub async fn update(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_list: &ChoreList,
+) -> Result<(), sqlx::Error> {
     tracing::info!(chore_list = ?chore_list, "Updating chore list");
 
     sqlx::query("UPDATE chore_lists SET name = ?, description = ?, score_reset_interval = ?, date_deleted = ? WHERE id = ?")
@@ -118,7 +157,10 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
         .map(|_| ())
 }
 
-pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> Result<(), sqlx::Error> {
+pub async fn delete(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_list: &ChoreList,
+) -> Result<(), sqlx::Error> {
     tracing::info!(chore_list = ?chore_list, "Deleting chore list");
 
     sqlx::query("DELETE FROM chore_lists WHERE id = ?")

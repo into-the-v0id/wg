@@ -1,4 +1,3 @@
-
 use super::value::{DateTime, PasswordHash, Uuid};
 
 #[derive(Debug, sqlx::FromRow)]
@@ -18,11 +17,20 @@ impl User {
 }
 
 pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<User, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM users WHERE id = ?").bind(id).fetch_one(pool).await
+    sqlx::query_as("SELECT * FROM users WHERE id = ?")
+        .bind(id)
+        .fetch_one(pool)
+        .await
 }
 
-pub async fn get_by_handle(pool: &sqlx::sqlite::SqlitePool, handle: &str) -> Result<User, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM users WHERE handle = ?").bind(handle).fetch_one(pool).await
+pub async fn get_by_handle(
+    pool: &sqlx::sqlite::SqlitePool,
+    handle: &str,
+) -> Result<User, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM users WHERE handle = ?")
+        .bind(handle)
+        .fetch_one(pool)
+        .await
 }
 
 pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<User>, sqlx::Error> {

@@ -1,13 +1,21 @@
-use std::sync::Arc;
-use askama::Template;
-use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
-use chrono::Days;
-use crate::{domain::value::{Uuid, Date, DateTime}, AppState};
-use crate::domain::chore_activity;
+use crate::domain::authentication_session::AuthenticationSession;
 use crate::domain::chore;
+use crate::domain::chore_activity;
 use crate::domain::chore_list;
 use crate::domain::user;
-use crate::domain::authentication_session::AuthenticationSession;
+use crate::{
+    AppState,
+    domain::value::{Date, DateTime, Uuid},
+};
+use askama::Template;
+use axum::{
+    Form,
+    extract::{Path, State},
+    http::StatusCode,
+    response::{Html, Redirect},
+};
+use chrono::Days;
+use std::sync::Arc;
 
 #[derive(Template)]
 #[template(path = "page/chore_list/activity/list.jinja")]
@@ -30,15 +38,35 @@ pub async fn view_list(
         Err(err) => panic!("{}", err),
     };
 
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
+        .await
+        .unwrap();
     let users = user::get_all(&state.pool).await.unwrap();
 
-    let all_activities = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
-    let activities = all_activities.iter().filter(|a| !a.is_deleted()).collect::<Vec<&chore_activity::ChoreActivity>>();
+    let all_activities = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id)
+        .await
+        .unwrap();
+    let activities = all_activities
+        .iter()
+        .filter(|a| !a.is_deleted())
+        .collect::<Vec<&chore_activity::ChoreActivity>>();
     let activities_by_date = chore_activity::group_and_sort_by_date(activities, true);
-    let deleted_activities = all_activities.iter().filter(|a| a.is_deleted()).collect::<Vec<&chore_activity::ChoreActivity>>();
+    let deleted_activities = all_activities
+        .iter()
+        .filter(|a| a.is_deleted())
+        .collect::<Vec<&chore_activity::ChoreActivity>>();
 
-    Ok(Html(ListTemplate {chore_list, activities_by_date, deleted_activities, chores, users}.render().unwrap()))
+    Ok(Html(
+        ListTemplate {
+            chore_list,
+            activities_by_date,
+            deleted_activities,
+            chores,
+            users,
+        }
+        .render()
+        .unwrap(),
+    ))
 }
 
 #[derive(Template)]
@@ -63,13 +91,19 @@ pub async fn view_detail(
         Err(err) => panic!("{}", err),
     };
 
-    let chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    let chore = chore::get_by_id(&state.pool, &activity.chore_id)
+        .await
+        .unwrap();
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
-    let user = user::get_by_id(&state.pool, &activity.user_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
+    let user = user::get_by_id(&state.pool, &activity.user_id)
+        .await
+        .unwrap();
 
     let min_date = chrono::Utc::now()
         .checked_sub_days(Days::new(2))
@@ -77,7 +111,18 @@ pub async fn view_detail(
         .date_naive();
     let allow_edit = activity.date.as_ref() >= &min_date;
 
-    Ok(Html(DetailTemplate {activity, chore, chore_list, user, auth_session, allow_edit}.render().unwrap()))
+    Ok(Html(
+        DetailTemplate {
+            activity,
+            chore,
+            chore_list,
+            user,
+            auth_session,
+            allow_edit,
+        }
+        .render()
+        .unwrap(),
+    ))
 }
 
 #[derive(Template)]
@@ -87,7 +132,7 @@ struct CreateTemplate {
     chores: Vec<chore::Chore>,
     min_date: Date,
     max_date: Date,
-    now: DateTime
+    now: DateTime,
 }
 
 pub async fn view_create_form(
@@ -104,17 +149,29 @@ pub async fn view_create_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
+        .await
+        .unwrap();
     let min_date = Date::from(
         chrono::Utc::now()
             .checked_sub_days(Days::new(2))
             .unwrap_or_else(chrono::Utc::now)
-            .date_naive()
+            .date_naive(),
     );
     let max_date = Date::now();
     let now = DateTime::now();
 
-    Ok(Html(CreateTemplate {chore_list, chores, min_date, max_date, now}.render().unwrap()))
+    Ok(Html(
+        CreateTemplate {
+            chore_list,
+            chores,
+            min_date,
+            max_date,
+            now,
+        }
+        .render()
+        .unwrap(),
+    ))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -156,8 +213,7 @@ pub async fn create(
         .checked_sub_days(Days::new(2))
         .unwrap_or_else(chrono::Utc::now)
         .date_naive();
-    let max_date = chrono::Utc::now()
-        .date_naive();
+    let max_date = chrono::Utc::now().date_naive();
 
     if payload.date.as_ref() < &min_date || payload.date.as_ref() > &max_date {
         return Err(StatusCode::UNPROCESSABLE_ENTITY);
@@ -176,11 +232,18 @@ pub async fn create(
         date_deleted: None,
     };
 
-    chore_activity::create(&state.pool, &activity).await.unwrap();
+    chore_activity::create(&state.pool, &activity)
+        .await
+        .unwrap();
 
-    chore::update_next_due_date(&mut chore, &state.pool, true).await.unwrap();
+    chore::update_next_due_date(&mut chore, &state.pool, true)
+        .await
+        .unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/activities", chore_list.id)))
+    Ok(Redirect::to(&format!(
+        "/chore-lists/{}/activities",
+        chore_list.id
+    )))
 }
 
 #[derive(Template)]
@@ -190,7 +253,7 @@ struct UpdateTemplate {
     chores: Vec<chore::Chore>,
     chore_list: chore_list::ChoreList,
     min_date: Date,
-    max_date: Date
+    max_date: Date,
 }
 
 pub async fn view_update_form(
@@ -211,15 +274,19 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    let chore = chore::get_by_id(&state.pool, &activity.chore_id)
+        .await
+        .unwrap();
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -232,11 +299,23 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
+        .await
+        .unwrap();
     let min_date = Date::from(min_date);
     let max_date = Date::now();
 
-    Ok(Html(UpdateTemplate {activity, chores, chore_list, min_date, max_date}.render().unwrap()))
+    Ok(Html(
+        UpdateTemplate {
+            activity,
+            chores,
+            chore_list,
+            min_date,
+            max_date,
+        }
+        .render()
+        .unwrap(),
+    ))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -266,15 +345,19 @@ pub async fn update(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id)
+        .await
+        .unwrap();
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -287,8 +370,7 @@ pub async fn update(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let max_date = chrono::Utc::now()
-        .date_naive();
+    let max_date = chrono::Utc::now().date_naive();
 
     if payload.date.as_ref() < &min_date || payload.date.as_ref() > &max_date {
         return Err(StatusCode::UNPROCESSABLE_ENTITY);
@@ -301,11 +383,18 @@ pub async fn update(
         comment => Some(comment.to_string()),
     };
 
-    chore_activity::update(&state.pool, &activity).await.unwrap();
+    chore_activity::update(&state.pool, &activity)
+        .await
+        .unwrap();
 
-    chore::update_next_due_date(&mut chore, &state.pool, true).await.unwrap();
+    chore::update_next_due_date(&mut chore, &state.pool, true)
+        .await
+        .unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
+    Ok(Redirect::to(&format!(
+        "/chore-lists/{}/activities/{}",
+        chore_list.id, activity.id
+    )))
 }
 
 pub async fn delete(
@@ -326,26 +415,37 @@ pub async fn delete(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id)
+        .await
+        .unwrap();
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
     activity.date_deleted = Some(DateTime::now());
 
-    chore_activity::update(&state.pool, &activity).await.unwrap();
+    chore_activity::update(&state.pool, &activity)
+        .await
+        .unwrap();
 
-    chore::update_next_due_date(&mut chore, &state.pool, true).await.unwrap();
+    chore::update_next_due_date(&mut chore, &state.pool, true)
+        .await
+        .unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
+    Ok(Redirect::to(&format!(
+        "/chore-lists/{}/activities/{}",
+        chore_list.id, activity.id
+    )))
 }
 
 pub async fn restore(
@@ -362,24 +462,35 @@ pub async fn restore(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id)
+        .await
+        .unwrap();
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
     activity.date_deleted = None;
 
-    chore_activity::update(&state.pool, &activity).await.unwrap();
+    chore_activity::update(&state.pool, &activity)
+        .await
+        .unwrap();
 
-    chore::update_next_due_date(&mut chore, &state.pool, true).await.unwrap();
+    chore::update_next_due_date(&mut chore, &state.pool, true)
+        .await
+        .unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
+    Ok(Redirect::to(&format!(
+        "/chore-lists/{}/activities/{}",
+        chore_list.id, activity.id
+    )))
 }

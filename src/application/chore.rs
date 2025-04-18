@@ -1,13 +1,21 @@
-use std::sync::Arc;
-use askama::Template;
-use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
-use chrono::Days;
-use crate::{domain::value::{Date, DateTime, Uuid}, AppState};
-use crate::domain::chore;
-use crate::domain::chore_list;
-use crate::domain::chore_activity;
-use crate::domain::user;
 use crate::domain::authentication_session::AuthenticationSession;
+use crate::domain::chore;
+use crate::domain::chore_activity;
+use crate::domain::chore_list;
+use crate::domain::user;
+use crate::{
+    AppState,
+    domain::value::{Date, DateTime, Uuid},
+};
+use askama::Template;
+use axum::{
+    Form,
+    extract::{Path, State},
+    http::StatusCode,
+    response::{Html, Redirect},
+};
+use chrono::Days;
+use std::sync::Arc;
 
 #[derive(Template)]
 #[template(path = "page/chore_list/chore/list.jinja")]
@@ -27,9 +35,11 @@ pub async fn view_list(
         Err(err) => panic!("{}", err),
     };
 
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id).await.unwrap();
+    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
+        .await
+        .unwrap();
 
-    Ok(Html(ListTemplate {chore_list, chores}.render().unwrap()))
+    Ok(Html(ListTemplate { chore_list, chores }.render().unwrap()))
 }
 
 #[derive(Template)]
@@ -50,12 +60,14 @@ pub async fn view_detail(
         Err(err) => panic!("{}", err),
     };
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
 
-    Ok(Html(DetailTemplate {chore, chore_list}.render().unwrap()))
+    Ok(Html(DetailTemplate { chore, chore_list }.render().unwrap()))
 }
 
 #[derive(Template)]
@@ -78,7 +90,7 @@ pub async fn view_create_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    Ok(Html(CreateTemplate {chore_list}.render().unwrap()))
+    Ok(Html(CreateTemplate { chore_list }.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -105,8 +117,14 @@ pub async fn create(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let next_due_date = payload.interval_days
-        .map(|interval_days| Date::from(Date::now().as_ref().checked_add_days(Days::new(interval_days.into())).unwrap()));
+    let next_due_date = payload.interval_days.map(|interval_days| {
+        Date::from(
+            Date::now()
+                .as_ref()
+                .checked_add_days(Days::new(interval_days.into()))
+                .unwrap(),
+        )
+    });
 
     let chore = chore::Chore {
         id: Uuid::new(),
@@ -125,7 +143,10 @@ pub async fn create(
 
     chore::create(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id)))
+    Ok(Redirect::to(&format!(
+        "/chore-lists/{}/chores/{}",
+        chore_list.id, chore.id
+    )))
 }
 
 #[derive(Template)]
@@ -149,15 +170,17 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
 
-    Ok(Html(UpdateTemplate {chore, chore_list}.render().unwrap()))
+    Ok(Html(UpdateTemplate { chore, chore_list }.render().unwrap()))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -184,10 +207,12 @@ pub async fn update(
         return Err(StatusCode::FORBIDDEN);
     }
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -200,11 +225,16 @@ pub async fn update(
         description => Some(description.to_string()),
     };
 
-    chore::update_next_due_date(&mut chore, &state.pool, false).await.unwrap();
+    chore::update_next_due_date(&mut chore, &state.pool, false)
+        .await
+        .unwrap();
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id)))
+    Ok(Redirect::to(&format!(
+        "/chore-lists/{}/chores/{}",
+        chore_list.id, chore.id
+    )))
 }
 
 pub async fn delete(
@@ -221,10 +251,12 @@ pub async fn delete(
         return Err(StatusCode::FORBIDDEN);
     }
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -233,7 +265,10 @@ pub async fn delete(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id)))
+    Ok(Redirect::to(&format!(
+        "/chore-lists/{}/chores/{}",
+        chore_list.id, chore.id
+    )))
 }
 
 pub async fn restore(
@@ -250,10 +285,12 @@ pub async fn restore(
         return Err(StatusCode::FORBIDDEN);
     }
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -262,7 +299,10 @@ pub async fn restore(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id)))
+    Ok(Redirect::to(&format!(
+        "/chore-lists/{}/chores/{}",
+        chore_list.id, chore.id
+    )))
 }
 
 #[derive(Template)]
@@ -285,12 +325,25 @@ pub async fn view_activity_list(
         Err(err) => panic!("{}", err),
     };
     if chore.chore_list_id != chore_list_id {
-        return Err(StatusCode::NOT_FOUND)
+        return Err(StatusCode::NOT_FOUND);
     }
 
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id).await.unwrap();
-    let activities = chore_activity::get_all_for_chore(&state.pool, &chore.id).await.unwrap();
+    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
+        .await
+        .unwrap();
+    let activities = chore_activity::get_all_for_chore(&state.pool, &chore.id)
+        .await
+        .unwrap();
     let users = user::get_all(&state.pool).await.unwrap();
 
-    Ok(Html(ActivityListTemplate {chore, chore_list, activities, users}.render().unwrap()))
+    Ok(Html(
+        ActivityListTemplate {
+            chore,
+            chore_list,
+            activities,
+            users,
+        }
+        .render()
+        .unwrap(),
+    ))
 }

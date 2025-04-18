@@ -1,4 +1,3 @@
-
 use super::value::{DateTime, Uuid};
 
 #[derive(sqlx::FromRow)]
@@ -16,23 +15,48 @@ impl AuthenticationSession {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<AuthenticationSession, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM authentication_sessions WHERE id = ?").bind(id).fetch_one(pool).await
+pub async fn get_by_id(
+    pool: &sqlx::sqlite::SqlitePool,
+    id: &Uuid,
+) -> Result<AuthenticationSession, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM authentication_sessions WHERE id = ?")
+        .bind(id)
+        .fetch_one(pool)
+        .await
 }
 
-pub async fn get_by_token(pool: &sqlx::sqlite::SqlitePool, token: &str) -> Result<AuthenticationSession, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM authentication_sessions WHERE token = ?").bind(token).fetch_one(pool).await
+pub async fn get_by_token(
+    pool: &sqlx::sqlite::SqlitePool,
+    token: &str,
+) -> Result<AuthenticationSession, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM authentication_sessions WHERE token = ?")
+        .bind(token)
+        .fetch_one(pool)
+        .await
 }
 
-pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<AuthenticationSession>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM authentication_sessions").fetch_all(pool).await
+pub async fn get_all(
+    pool: &sqlx::sqlite::SqlitePool,
+) -> Result<Vec<AuthenticationSession>, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM authentication_sessions")
+        .fetch_all(pool)
+        .await
 }
 
-pub async fn get_all_for_user(pool: &sqlx::sqlite::SqlitePool, user_id: &Uuid) -> Result<Vec<AuthenticationSession>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM authentication_sessions WHERE user_id = ?").bind(user_id).fetch_all(pool).await
+pub async fn get_all_for_user(
+    pool: &sqlx::sqlite::SqlitePool,
+    user_id: &Uuid,
+) -> Result<Vec<AuthenticationSession>, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM authentication_sessions WHERE user_id = ?")
+        .bind(user_id)
+        .fetch_all(pool)
+        .await
 }
 
-pub async fn create(pool: &sqlx::sqlite::SqlitePool, auth_session: &AuthenticationSession) -> Result<(), sqlx::Error> {
+pub async fn create(
+    pool: &sqlx::sqlite::SqlitePool,
+    auth_session: &AuthenticationSession,
+) -> Result<(), sqlx::Error> {
     sqlx::query("INSERT INTO authentication_sessions (id, token, user_id, date_expires, date_created) VALUES (?, ?, ?, ?, ?)")
         .bind(auth_session.id)
         .bind(&auth_session.token)
@@ -44,7 +68,10 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, auth_session: &Authenticati
         .map(|_| ())
 }
 
-pub async fn update(pool: &sqlx::sqlite::SqlitePool, auth_session: &AuthenticationSession) -> Result<(), sqlx::Error> {
+pub async fn update(
+    pool: &sqlx::sqlite::SqlitePool,
+    auth_session: &AuthenticationSession,
+) -> Result<(), sqlx::Error> {
     sqlx::query("UPDATE authentication_sessions SET token = ?, user_id = ?, date_expires = ? WHERE id = ?")
         .bind(&auth_session.token)
         .bind(auth_session.user_id)
@@ -55,7 +82,10 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, auth_session: &Authenticati
         .map(|_| ())
 }
 
-pub async fn delete(pool: &sqlx::sqlite::SqlitePool, auth_session: &AuthenticationSession) -> Result<(), sqlx::Error> {
+pub async fn delete(
+    pool: &sqlx::sqlite::SqlitePool,
+    auth_session: &AuthenticationSession,
+) -> Result<(), sqlx::Error> {
     sqlx::query("DELETE FROM authentication_sessions WHERE id = ?")
         .bind(auth_session.id)
         .execute(pool)

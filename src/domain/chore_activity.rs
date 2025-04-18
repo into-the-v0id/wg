@@ -1,4 +1,3 @@
-
 use super::value::{Date, DateTime, Uuid};
 
 #[derive(Debug, sqlx::FromRow, Clone)]
@@ -18,23 +17,46 @@ impl ChoreActivity {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<ChoreActivity, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_activities WHERE id = ?").bind(id).fetch_one(pool).await
+pub async fn get_by_id(
+    pool: &sqlx::sqlite::SqlitePool,
+    id: &Uuid,
+) -> Result<ChoreActivity, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM chore_activities WHERE id = ?")
+        .bind(id)
+        .fetch_one(pool)
+        .await
 }
 
 pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreActivity>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_activitie ORDER BY date DESC, date_created DESC").fetch_all(pool).await
+    sqlx::query_as("SELECT * FROM chore_activitie ORDER BY date DESC, date_created DESC")
+        .fetch_all(pool)
+        .await
 }
 
-pub async fn get_all_for_chore(pool: &sqlx::sqlite::SqlitePool, chore_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? ORDER BY date DESC, date_created DESC").bind(chore_id).fetch_all(pool).await
+pub async fn get_all_for_chore(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_id: &Uuid,
+) -> Result<Vec<ChoreActivity>, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? ORDER BY date DESC, date_created DESC")
+        .bind(chore_id)
+        .fetch_all(pool)
+        .await
 }
 
-pub async fn get_latest_not_deleted_for_chore(pool: &sqlx::sqlite::SqlitePool, chore_id: &Uuid) -> Result<ChoreActivity, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? AND date_deleted IS NULL ORDER BY date DESC, date_created DESC LIMIT 1").bind(chore_id).fetch_one(pool).await
+pub async fn get_latest_not_deleted_for_chore(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_id: &Uuid,
+) -> Result<ChoreActivity, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? AND date_deleted IS NULL ORDER BY date DESC, date_created DESC LIMIT 1")
+        .bind(chore_id)
+        .fetch_one(pool)
+        .await
 }
 
-pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
+pub async fn get_all_for_chore_list(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_list_id: &Uuid,
+) -> Result<Vec<ChoreActivity>, sqlx::Error> {
     sqlx::query_as("
         SELECT chore_activities.* FROM chore_activities
         INNER JOIN chores ON chore_activities.chore_id = chores.id
@@ -46,7 +68,11 @@ pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_
         .await
 }
 
-pub async fn get_all_for_chore_list_and_user(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid, user_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
+pub async fn get_all_for_chore_list_and_user(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_list_id: &Uuid,
+    user_id: &Uuid,
+) -> Result<Vec<ChoreActivity>, sqlx::Error> {
     sqlx::query_as("
         SELECT chore_activities.* FROM chore_activities
         INNER JOIN chores ON chore_activities.chore_id = chores.id
@@ -60,7 +86,10 @@ pub async fn get_all_for_chore_list_and_user(pool: &sqlx::sqlite::SqlitePool, ch
         .await
 }
 
-pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActivity) -> Result<(), sqlx::Error> {
+pub async fn create(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_activity: &ChoreActivity,
+) -> Result<(), sqlx::Error> {
     tracing::info!(chore_activity = ?chore_activity, "Creating chore activity");
 
     sqlx::query("INSERT INTO chore_activities (id, chore_id, user_id, date, comment, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?, ?)")
@@ -76,7 +105,10 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
         .map(|_| ())
 }
 
-pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActivity) -> Result<(), sqlx::Error> {
+pub async fn update(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_activity: &ChoreActivity,
+) -> Result<(), sqlx::Error> {
     tracing::info!(chore_activity = ?chore_activity, "Updating chore activity");
 
     sqlx::query("UPDATE chore_activities SET chore_id = ?, user_id = ?, date = ?, comment = ?, date_deleted = ? WHERE id = ?")
@@ -91,7 +123,10 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
         .map(|_| ())
 }
 
-pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActivity) -> Result<(), sqlx::Error> {
+pub async fn delete(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_activity: &ChoreActivity,
+) -> Result<(), sqlx::Error> {
     tracing::info!(chore_activity = ?chore_activity, "Deleting chore activity");
 
     sqlx::query("DELETE FROM chore_activities WHERE id = ?")
@@ -101,8 +136,15 @@ pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
         .map(|_| ())
 }
 
-pub fn group_and_sort_by_date(mut activities: Vec<&ChoreActivity>, sort_latest_first: bool) -> Vec<(Date, Vec<&ChoreActivity>)> {
-    activities.sort_by(|a, b| a.date.cmp(&b.date).then_with(|| a.date_created.cmp(&b.date_created)));
+pub fn group_and_sort_by_date(
+    mut activities: Vec<&ChoreActivity>,
+    sort_latest_first: bool,
+) -> Vec<(Date, Vec<&ChoreActivity>)> {
+    activities.sort_by(|a, b| {
+        a.date
+            .cmp(&b.date)
+            .then_with(|| a.date_created.cmp(&b.date_created))
+    });
     if sort_latest_first {
         activities.reverse();
     }
@@ -117,7 +159,7 @@ pub fn group_and_sort_by_date(mut activities: Vec<&ChoreActivity>, sort_latest_f
         }
 
         if current_date.unwrap() != activity.date {
-            if ! current_activities.is_empty() {
+            if !current_activities.is_empty() {
                 activities_by_date.push((current_date.unwrap(), current_activities));
                 current_activities = Vec::new();
             }
@@ -128,7 +170,7 @@ pub fn group_and_sort_by_date(mut activities: Vec<&ChoreActivity>, sort_latest_f
         current_activities.push(activity);
     }
 
-    if ! current_activities.is_empty() {
+    if !current_activities.is_empty() {
         activities_by_date.push((current_date.unwrap(), current_activities));
     }
 

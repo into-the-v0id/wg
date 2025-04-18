@@ -1,8 +1,16 @@
 use std::fmt::Display;
 
-use argon2::{Argon2, password_hash::{rand_core::OsRng, PasswordHasher, SaltString}, PasswordVerifier};
+use argon2::{
+    Argon2, PasswordVerifier,
+    password_hash::{PasswordHasher, SaltString, rand_core::OsRng},
+};
 use secrecy::{ExposeSecret, SecretString};
-use sqlx::{encode::IsNull, error::BoxDynError, sqlite::{SqliteArgumentValue, SqliteTypeInfo, SqliteValueRef}, Decode, Encode, Sqlite, Type};
+use sqlx::{
+    Decode, Encode, Sqlite, Type,
+    encode::IsNull,
+    error::BoxDynError,
+    sqlite::{SqliteArgumentValue, SqliteTypeInfo, SqliteValueRef},
+};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 #[repr(transparent)]
@@ -59,7 +67,19 @@ impl Decode<'_, Sqlite> for Uuid {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize, sqlx::Type)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    serde::Serialize,
+    serde::Deserialize,
+    sqlx::Type,
+)]
 #[sqlx(transparent)]
 #[repr(transparent)]
 pub struct DateTime(chrono::DateTime<chrono::Utc>);
@@ -98,7 +118,19 @@ impl AsRef<chrono::DateTime<chrono::Utc>> for DateTime {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize, sqlx::Type)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    serde::Serialize,
+    serde::Deserialize,
+    sqlx::Type,
+)]
 #[sqlx(transparent)]
 #[repr(transparent)]
 pub struct Date(chrono::NaiveDate);

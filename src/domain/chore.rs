@@ -1,4 +1,3 @@
-
 use chrono::Days;
 
 use super::chore_activity;
@@ -24,15 +23,26 @@ impl Chore {
 }
 
 pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<Chore, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chores WHERE id = ?").bind(id).fetch_one(pool).await
+    sqlx::query_as("SELECT * FROM chores WHERE id = ?")
+        .bind(id)
+        .fetch_one(pool)
+        .await
 }
 
 pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<Chore>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chores ORDER BY points").fetch_all(pool).await
+    sqlx::query_as("SELECT * FROM chores ORDER BY points")
+        .fetch_all(pool)
+        .await
 }
 
-pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<Vec<Chore>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chores WHERE chore_list_id = ? ORDER BY points").bind(chore_list_id).fetch_all(pool).await
+pub async fn get_all_for_chore_list(
+    pool: &sqlx::sqlite::SqlitePool,
+    chore_list_id: &Uuid,
+) -> Result<Vec<Chore>, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM chores WHERE chore_list_id = ? ORDER BY points")
+        .bind(chore_list_id)
+        .fetch_all(pool)
+        .await
 }
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore: &Chore) -> Result<(), sqlx::Error> {
@@ -81,15 +91,27 @@ pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore: &Chore) -> Result<()
 }
 
 /// Returns true if changes were made and false if nothing changed
-pub async fn update_next_due_date(chore: &mut Chore, pool: &sqlx::sqlite::SqlitePool, save_to_db: bool) -> Result<bool, sqlx::Error> {
+pub async fn update_next_due_date(
+    chore: &mut Chore,
+    pool: &sqlx::sqlite::SqlitePool,
+    save_to_db: bool,
+) -> Result<bool, sqlx::Error> {
     if let Some(interval_days) = chore.interval_days {
-        let last_activity_date = match chore_activity::get_latest_not_deleted_for_chore(pool, &chore.id).await {
-            Ok(chore_activity) => chore_activity.date,
-            Err(sqlx::Error::RowNotFound) => Date::from(chore.date_created.as_ref().date_naive()),
-            Err(err) => return Err(err),
-        };
+        let last_activity_date =
+            match chore_activity::get_latest_not_deleted_for_chore(pool, &chore.id).await {
+                Ok(chore_activity) => chore_activity.date,
+                Err(sqlx::Error::RowNotFound) => {
+                    Date::from(chore.date_created.as_ref().date_naive())
+                }
+                Err(err) => return Err(err),
+            };
 
-        let next_due_date = Some(Date::from(last_activity_date.as_ref().checked_add_days(Days::new(interval_days.into())).unwrap()));
+        let next_due_date = Some(Date::from(
+            last_activity_date
+                .as_ref()
+                .checked_add_days(Days::new(interval_days.into()))
+                .unwrap(),
+        ));
 
         if chore.next_due_date != next_due_date {
             chore.next_due_date = next_due_date;
@@ -98,7 +120,7 @@ pub async fn update_next_due_date(chore: &mut Chore, pool: &sqlx::sqlite::Sqlite
                 update(pool, chore).await?;
             }
 
-            return Ok(true)
+            return Ok(true);
         }
 
         Ok(false)
@@ -110,7 +132,7 @@ pub async fn update_next_due_date(chore: &mut Chore, pool: &sqlx::sqlite::Sqlite
                 update(pool, chore).await?;
             }
 
-            return Ok(true)
+            return Ok(true);
         }
 
         Ok(false)

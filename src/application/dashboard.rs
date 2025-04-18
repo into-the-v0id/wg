@@ -1,6 +1,6 @@
+use crate::domain::authentication_session::AuthenticationSession;
 use askama::Template;
 use axum::response::Html;
-use crate::domain::authentication_session::AuthenticationSession;
 
 #[derive(Template)]
 #[template(path = "page/dashboard.jinja")]

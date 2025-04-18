@@ -1,10 +1,18 @@
-use std::sync::Arc;
-use askama::Template;
-use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
-use strum::IntoEnumIterator;
-use crate::{domain::value::{DateTime, Uuid}, AppState};
-use crate::domain::chore_list;
 use crate::domain::authentication_session::AuthenticationSession;
+use crate::domain::chore_list;
+use crate::{
+    AppState,
+    domain::value::{DateTime, Uuid},
+};
+use askama::Template;
+use axum::{
+    Form,
+    extract::{Path, State},
+    http::StatusCode,
+    response::{Html, Redirect},
+};
+use std::sync::Arc;
+use strum::IntoEnumIterator;
 
 #[derive(Template)]
 #[template(path = "page/chore_list/list.jinja")]
@@ -18,7 +26,7 @@ pub async fn view_list(
 ) -> Html<String> {
     let chore_lists = chore_list::get_all(&state.pool).await.unwrap();
 
-    Html(ListTemplate {chore_lists}.render().unwrap())
+    Html(ListTemplate { chore_lists }.render().unwrap())
 }
 
 #[derive(Template)]
@@ -38,7 +46,7 @@ pub async fn view_detail(
         Err(err) => panic!("{}", err),
     };
 
-    Ok(Html(DetailTemplate {chore_list}.render().unwrap()))
+    Ok(Html(DetailTemplate { chore_list }.render().unwrap()))
 }
 
 #[derive(Template)]
@@ -50,7 +58,13 @@ struct CreateTemplate {
 pub async fn view_create_form(_auth_session: AuthenticationSession) -> Html<String> {
     let score_reset_intervals = chore_list::ScoreResetInterval::iter().collect();
 
-    Html(CreateTemplate{score_reset_intervals}.render().unwrap())
+    Html(
+        CreateTemplate {
+            score_reset_intervals,
+        }
+        .render()
+        .unwrap(),
+    )
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -93,7 +107,7 @@ struct UpdateTemplate {
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-    _auth_session: AuthenticationSession
+    _auth_session: AuthenticationSession,
 ) -> Result<Html<String>, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
@@ -106,7 +120,14 @@ pub async fn view_update_form(
 
     let score_reset_intervals = chore_list::ScoreResetInterval::iter().collect();
 
-    Ok(Html(UpdateTemplate {chore_list, score_reset_intervals}.render().unwrap()))
+    Ok(Html(
+        UpdateTemplate {
+            chore_list,
+            score_reset_intervals,
+        }
+        .render()
+        .unwrap(),
+    ))
 }
 
 #[derive(serde::Deserialize, Debug)]

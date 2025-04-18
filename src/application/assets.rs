@@ -1,6 +1,10 @@
-use std::collections::HashMap;
-use axum::{extract::Query, http::{header, StatusCode, Uri}, response::IntoResponse};
+use axum::{
+    extract::Query,
+    http::{StatusCode, Uri, header},
+    response::IntoResponse,
+};
 use rust_embed::Embed;
+use std::collections::HashMap;
 
 #[derive(Embed)]
 #[folder = "static"]
@@ -19,7 +23,11 @@ pub async fn serve(
 
     let mime_type = mime_guess::from_path(path).first_or_octet_stream();
 
-    let cache_control = if !query_params.get("hash").unwrap_or(&"".to_string()).is_empty() {
+    let cache_control = if !query_params
+        .get("hash")
+        .unwrap_or(&"".to_string())
+        .is_empty()
+    {
         "public, max-age=31536000, immutable"
     } else {
         "public, max-age=0, must-revalidate"
@@ -32,7 +40,8 @@ pub async fn serve(
             (header::CACHE_CONTROL, cache_control),
         ],
         file.data,
-    ).into_response()
+    )
+        .into_response()
 }
 
 pub fn get_url(path: &str) -> Option<String> {
