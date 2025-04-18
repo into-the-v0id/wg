@@ -114,12 +114,7 @@ pub async fn login(
         id: Uuid::new(),
         token,
         user_id: user.id,
-        date_expires: DateTime::from(
-            DateTime::now()
-                .as_ref()
-                .checked_add_days(Days::new(30))
-                .unwrap(),
-        ),
+        date_expires: DateTime::from(DateTime::now().as_ref().clone() + Days::new(30)),
         date_created: DateTime::now(),
     };
 

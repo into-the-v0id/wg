@@ -1,5 +1,5 @@
 use super::value::{DateTime, Uuid};
-use chrono::Datelike;
+use chrono::{Datelike, Days, Months};
 
 #[derive(
     Debug,
@@ -85,12 +85,7 @@ pub async fn get_score_per_user(
         interval_start_date =
             Some(chrono::NaiveDate::from_ymd_opt(now.year(), interval_start_month, 1).unwrap());
         interval_end_date = Some(
-            interval_start_date
-                .unwrap()
-                .checked_add_months(chrono::Months::new(interval_duration_months))
-                .unwrap()
-                .checked_sub_days(chrono::Days::new(1))
-                .unwrap(),
+            interval_start_date.unwrap() + Months::new(interval_duration_months) - Days::new(1),
         );
     }
 

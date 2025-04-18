@@ -139,15 +139,15 @@ impl Date {
     }
 
     pub fn is_in_past(&self) -> bool {
-        self.0.lt(&chrono::Utc::now().date_naive())
+        self.0 < chrono::Utc::now().date_naive()
     }
 
     pub fn is_today(&self) -> bool {
-        self.0.eq(&chrono::Utc::now().date_naive())
+        self.0 == chrono::Utc::now().date_naive()
     }
 
     pub fn is_in_future(&self) -> bool {
-        self.0.gt(&chrono::Utc::now().date_naive())
+        self.0 > chrono::Utc::now().date_naive()
     }
 }
 

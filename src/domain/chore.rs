@@ -107,10 +107,7 @@ pub async fn update_next_due_date(
             };
 
         let next_due_date = Some(Date::from(
-            last_activity_date
-                .as_ref()
-                .checked_add_days(Days::new(interval_days.into()))
-                .unwrap(),
+            last_activity_date.as_ref().clone() + Days::new(interval_days.into()),
         ));
 
         if chore.next_due_date != next_due_date {

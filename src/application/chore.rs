@@ -118,12 +118,7 @@ pub async fn create(
     }
 
     let next_due_date = payload.interval_days.map(|interval_days| {
-        Date::from(
-            Date::now()
-                .as_ref()
-                .checked_add_days(Days::new(interval_days.into()))
-                .unwrap(),
-        )
+        Date::from(Date::now().as_ref().clone() + Days::new(interval_days.into()))
     });
 
     let chore = chore::Chore {
