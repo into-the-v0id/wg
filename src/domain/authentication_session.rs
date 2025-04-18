@@ -34,11 +34,11 @@ pub async fn get_all_for_user(pool: &sqlx::sqlite::SqlitePool, user_id: &Uuid) -
 
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, auth_session: &AuthenticationSession) -> Result<(), sqlx::Error> {
     sqlx::query("INSERT INTO authentication_sessions (id, token, user_id, date_expires, date_created) VALUES (?, ?, ?, ?, ?)")
-        .bind(&auth_session.id)
+        .bind(auth_session.id)
         .bind(&auth_session.token)
-        .bind(&auth_session.user_id)
-        .bind(&auth_session.date_expires)
-        .bind(&auth_session.date_created)
+        .bind(auth_session.user_id)
+        .bind(auth_session.date_expires)
+        .bind(auth_session.date_created)
         .execute(pool)
         .await
         .map(|_| ())
@@ -47,9 +47,9 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, auth_session: &Authenticati
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, auth_session: &AuthenticationSession) -> Result<(), sqlx::Error> {
     sqlx::query("UPDATE authentication_sessions SET token = ?, user_id = ?, date_expires = ? WHERE id = ?")
         .bind(&auth_session.token)
-        .bind(&auth_session.user_id)
-        .bind(&auth_session.date_expires)
-        .bind(&auth_session.id)
+        .bind(auth_session.user_id)
+        .bind(auth_session.date_expires)
+        .bind(auth_session.id)
         .execute(pool)
         .await
         .map(|_| ())
@@ -57,7 +57,7 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, auth_session: &Authenticati
 
 pub async fn delete(pool: &sqlx::sqlite::SqlitePool, auth_session: &AuthenticationSession) -> Result<(), sqlx::Error> {
     sqlx::query("DELETE FROM authentication_sessions WHERE id = ?")
-        .bind(&auth_session.id)
+        .bind(auth_session.id)
         .execute(pool)
         .await
         .map(|_| ())

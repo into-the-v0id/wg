@@ -106,7 +106,7 @@ async fn main() {
                 return Response::from_parts(response_parts, body);
             }
 
-            return response;
+            response
         }))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::CACHE_CONTROL,

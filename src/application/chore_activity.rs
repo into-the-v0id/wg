@@ -73,7 +73,7 @@ pub async fn view_detail(
 
     let min_date = chrono::Utc::now()
         .checked_sub_days(Days::new(2))
-        .unwrap_or_else(|| chrono::Utc::now())
+        .unwrap_or_else(chrono::Utc::now)
         .date_naive();
     let allow_edit = activity.date.as_ref() >= &min_date;
 
@@ -108,7 +108,7 @@ pub async fn view_create_form(
     let min_date = Date::from(
         chrono::Utc::now()
             .checked_sub_days(Days::new(2))
-            .unwrap_or_else(|| chrono::Utc::now())
+            .unwrap_or_else(chrono::Utc::now)
             .date_naive()
     );
     let max_date = Date::now();
@@ -154,7 +154,7 @@ pub async fn create(
 
     let min_date = chrono::Utc::now()
         .checked_sub_days(Days::new(2))
-        .unwrap_or_else(|| chrono::Utc::now())
+        .unwrap_or_else(chrono::Utc::now)
         .date_naive();
     let max_date = chrono::Utc::now()
         .date_naive();
@@ -226,7 +226,7 @@ pub async fn view_update_form(
 
     let min_date = chrono::Utc::now()
         .checked_sub_days(Days::new(2))
-        .unwrap_or_else(|| chrono::Utc::now())
+        .unwrap_or_else(chrono::Utc::now)
         .date_naive();
     if activity.date.as_ref() < &min_date {
         return Err(StatusCode::FORBIDDEN);
@@ -281,7 +281,7 @@ pub async fn update(
 
     let min_date = chrono::Utc::now()
         .checked_sub_days(Days::new(2))
-        .unwrap_or_else(|| chrono::Utc::now())
+        .unwrap_or_else(chrono::Utc::now)
         .date_naive();
     if activity.date.as_ref() < &min_date {
         return Err(StatusCode::FORBIDDEN);

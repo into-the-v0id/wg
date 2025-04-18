@@ -93,12 +93,12 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
     tracing::info!(chore_list = ?chore_list, "Creating chore list");
 
     sqlx::query("INSERT INTO chore_lists (id, name, description, score_reset_interval, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
-        .bind(&chore_list.id)
+        .bind(chore_list.id)
         .bind(&chore_list.name)
         .bind(&chore_list.description)
-        .bind(&chore_list.score_reset_interval)
-        .bind(&chore_list.date_created)
-        .bind(&chore_list.date_deleted)
+        .bind(chore_list.score_reset_interval)
+        .bind(chore_list.date_created)
+        .bind(chore_list.date_deleted)
         .execute(pool)
         .await
         .map(|_| ())
@@ -110,9 +110,9 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
     sqlx::query("UPDATE chore_lists SET name = ?, description = ?, score_reset_interval = ?, date_deleted = ? WHERE id = ?")
         .bind(&chore_list.name)
         .bind(&chore_list.description)
-        .bind(&chore_list.score_reset_interval)
-        .bind(&chore_list.date_deleted)
-        .bind(&chore_list.id)
+        .bind(chore_list.score_reset_interval)
+        .bind(chore_list.date_deleted)
+        .bind(chore_list.id)
         .execute(pool)
         .await
         .map(|_| ())
@@ -122,7 +122,7 @@ pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore_list: &ChoreList) -> 
     tracing::info!(chore_list = ?chore_list, "Deleting chore list");
 
     sqlx::query("DELETE FROM chore_lists WHERE id = ?")
-        .bind(&chore_list.id)
+        .bind(chore_list.id)
         .execute(pool)
         .await
         .map(|_| ())

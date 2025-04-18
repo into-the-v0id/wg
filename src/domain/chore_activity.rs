@@ -64,13 +64,13 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
     tracing::info!(chore_activity = ?chore_activity, "Creating chore activity");
 
     sqlx::query("INSERT INTO chore_activities (id, chore_id, user_id, date, comment, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        .bind(&chore_activity.id)
-        .bind(&chore_activity.chore_id)
-        .bind(&chore_activity.user_id)
-        .bind(&chore_activity.date)
+        .bind(chore_activity.id)
+        .bind(chore_activity.chore_id)
+        .bind(chore_activity.user_id)
+        .bind(chore_activity.date)
         .bind(&chore_activity.comment)
-        .bind(&chore_activity.date_created)
-        .bind(&chore_activity.date_deleted)
+        .bind(chore_activity.date_created)
+        .bind(chore_activity.date_deleted)
         .execute(pool)
         .await
         .map(|_| ())
@@ -80,12 +80,12 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
     tracing::info!(chore_activity = ?chore_activity, "Updating chore activity");
 
     sqlx::query("UPDATE chore_activities SET chore_id = ?, user_id = ?, date = ?, comment = ?, date_deleted = ? WHERE id = ?")
-        .bind(&chore_activity.chore_id)
-        .bind(&chore_activity.user_id)
-        .bind(&chore_activity.date)
+        .bind(chore_activity.chore_id)
+        .bind(chore_activity.user_id)
+        .bind(chore_activity.date)
         .bind(&chore_activity.comment)
-        .bind(&chore_activity.date_deleted)
-        .bind(&chore_activity.id)
+        .bind(chore_activity.date_deleted)
+        .bind(chore_activity.id)
         .execute(pool)
         .await
         .map(|_| ())
@@ -95,7 +95,7 @@ pub async fn delete(pool: &sqlx::sqlite::SqlitePool, chore_activity: &ChoreActiv
     tracing::info!(chore_activity = ?chore_activity, "Deleting chore activity");
 
     sqlx::query("DELETE FROM chore_activities WHERE id = ?")
-        .bind(&chore_activity.id)
+        .bind(chore_activity.id)
         .execute(pool)
         .await
         .map(|_| ())

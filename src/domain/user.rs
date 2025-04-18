@@ -33,12 +33,12 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
     tracing::info!(user = ?user, "Creating user");
 
     sqlx::query("INSERT INTO users (id, name, handle, password_hash, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
-        .bind(&user.id)
+        .bind(user.id)
         .bind(&user.name)
         .bind(&user.handle)
         .bind(&user.password_hash)
-        .bind(&user.date_created)
-        .bind(&user.date_deleted)
+        .bind(user.date_created)
+        .bind(user.date_deleted)
         .execute(pool)
         .await
         .map(|_| ())
@@ -51,8 +51,8 @@ pub async fn update(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
         .bind(&user.name)
         .bind(&user.handle)
         .bind(&user.password_hash)
-        .bind(&user.date_deleted)
-        .bind(&user.id)
+        .bind(user.date_deleted)
+        .bind(user.id)
         .execute(pool)
         .await
         .map(|_| ())
@@ -62,7 +62,7 @@ pub async fn delete(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
     tracing::info!(user = ?user, "Deleting user");
 
     sqlx::query("DELETE FROM users WHERE id = ?")
-        .bind(&user.id)
+        .bind(user.id)
         .execute(pool)
         .await
         .map(|_| ())

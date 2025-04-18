@@ -19,7 +19,7 @@ pub async fn serve(
 
     let mime_type = mime_guess::from_path(path).first_or_octet_stream();
 
-    let cache_control = if query_params.get("hash").unwrap_or(&"".to_string()) != "" {
+    let cache_control = if !query_params.get("hash").unwrap_or(&"".to_string()).is_empty() {
         "public, max-age=31536000, immutable"
     } else {
         "public, max-age=0, must-revalidate"

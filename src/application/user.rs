@@ -164,7 +164,7 @@ pub async fn delete(
     // Remove auth sessions for that user
     let auth_sessions = authentication_session::get_all_for_user(&state.pool, &user.id).await.unwrap();
     for auth_session in auth_sessions.iter() {
-        authentication_session::delete(&state.pool, &auth_session).await.unwrap();
+        authentication_session::delete(&state.pool, auth_session).await.unwrap();
     }
 
     Ok(Redirect::to(&format!("/users/{}", user.id)))

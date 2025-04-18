@@ -105,11 +105,8 @@ pub async fn create(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let next_due_date = if let Some(interval_days) = payload.interval_days {
-        Some(Date::from(Date::now().as_ref().checked_add_days(Days::new(interval_days.into())).unwrap()))
-    } else {
-        None
-    };
+    let next_due_date = payload.interval_days
+        .map(|interval_days| Date::from(Date::now().as_ref().checked_add_days(Days::new(interval_days.into())).unwrap()));
 
     let chore = chore::Chore {
         id: Uuid::new(),

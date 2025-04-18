@@ -8,6 +8,12 @@ use sqlx::{encode::IsNull, error::BoxDynError, sqlite::{SqliteArgumentValue, Sql
 #[repr(transparent)]
 pub struct Uuid(uuid::Uuid);
 
+impl Default for Uuid {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Uuid {
     pub fn new() -> Self {
         Self(uuid::Uuid::now_v7())
@@ -16,7 +22,7 @@ impl Uuid {
 
 impl Display for Uuid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0.as_hyphenated().to_string())
+        write!(f, "{}", self.0.as_hyphenated())
     }
 }
 
@@ -174,7 +180,7 @@ impl PasswordHash {
         Argon2::default()
             .verify_password(
                 plain_password.expose_secret().as_bytes(),
-                &argon2::password_hash::PasswordHash::new(&self.0.expose_secret()).unwrap(),
+                &argon2::password_hash::PasswordHash::new(self.0.expose_secret()).unwrap(),
             )
             .is_ok()
     }
