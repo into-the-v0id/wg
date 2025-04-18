@@ -22,6 +22,12 @@
         <label for="points">Points</label>
         <input id="points" name="points" type="number" required />
 
+        <label for="interval_days">
+            Interval (days)
+            <i style="opacity: 0.6;">(optional)</i>
+        </label>
+        <input id="interval_days" name="interval_days" type="number" min="1" step="1" />
+
         <button type="submit">Create</button>
     </form>
 {% endblock %}

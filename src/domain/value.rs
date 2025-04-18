@@ -105,6 +105,18 @@ impl Date {
     pub fn format(&self, fmt: &str) -> String {
         self.0.format(fmt).to_string()
     }
+
+    pub fn is_in_past(&self) -> bool {
+        self.0.lt(&chrono::Utc::now().date_naive())
+    }
+
+    pub fn is_today(&self) -> bool {
+        self.0.eq(&chrono::Utc::now().date_naive())
+    }
+
+    pub fn is_in_future(&self) -> bool {
+        self.0.gt(&chrono::Utc::now().date_naive())
+    }
 }
 
 impl Display for Date {

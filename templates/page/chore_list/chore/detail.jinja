@@ -32,6 +32,22 @@
             <th scope="row">Points</th>
             <td>{{ chore.points }}</td>
         </tr>
+
+        {% if let Some(interval_days) = chore.interval_days %}
+            <tr>
+                <th scope="row">Interval</th>
+                <td>every {{ interval_days }} day(s)</td>
+            </tr>
+        {% endif %}
+
+        {% if let Some(next_due_date) = chore.next_due_date %}
+            <tr>
+                <th scope="row">Next Due Date</th>
+                <td {% if next_due_date.is_today() || next_due_date.is_in_past() %}class="text-danger fw-bold"{% endif %}>
+                    {{ next_due_date.format("%Y-%m-%d") }}
+                </td>
+            </tr>
+        {% endif %}
     </table>
 
     <br>

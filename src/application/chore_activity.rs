@@ -140,7 +140,7 @@ pub async fn create(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chore = match chore::get_by_id(&state.pool, &payload.chore_id).await {
+    let mut chore = match chore::get_by_id(&state.pool, &payload.chore_id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNPROCESSABLE_ENTITY),
         Err(err) => panic!("{}", err),
@@ -177,6 +177,8 @@ pub async fn create(
     };
 
     chore_activity::create(&state.pool, &activity).await.unwrap();
+
+    chore::update_next_due_date(&mut chore, &state.pool, true).await.unwrap();
 
     Ok(Redirect::to(&format!("/chore-lists/{}/activities", chore_list.id)))
 }
@@ -264,7 +266,7 @@ pub async fn update(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -301,6 +303,8 @@ pub async fn update(
 
     chore_activity::update(&state.pool, &activity).await.unwrap();
 
+    chore::update_next_due_date(&mut chore, &state.pool, true).await.unwrap();
+
     Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
 }
 
@@ -322,7 +326,7 @@ pub async fn delete(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -338,6 +342,8 @@ pub async fn delete(
     activity.date_deleted = Some(DateTime::now());
 
     chore_activity::update(&state.pool, &activity).await.unwrap();
+
+    chore::update_next_due_date(&mut chore, &state.pool, true).await.unwrap();
 
     Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
 }
@@ -356,7 +362,7 @@ pub async fn restore(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
+    let mut chore = chore::get_by_id(&state.pool, &activity.chore_id).await.unwrap();
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -372,6 +378,8 @@ pub async fn restore(
     activity.date_deleted = None;
 
     chore_activity::update(&state.pool, &activity).await.unwrap();
+
+    chore::update_next_due_date(&mut chore, &state.pool, true).await.unwrap();
 
     Ok(Redirect::to(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id)))
 }

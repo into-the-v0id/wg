@@ -1,7 +1,8 @@
 use std::sync::Arc;
 use askama::Template;
 use axum::{extract::{Path, State}, http::StatusCode, response::{Html, Redirect}, Form};
-use crate::{domain::value::{DateTime, Uuid}, AppState};
+use chrono::Days;
+use crate::{domain::value::{Date, DateTime, Uuid}, AppState};
 use crate::domain::chore;
 use crate::domain::chore_list;
 use crate::domain::chore_activity;
@@ -85,6 +86,7 @@ pub async fn view_create_form(
 pub struct CreatePayload {
     name: String,
     points: i32,
+    interval_days: Option<u32>,
     description: String,
 }
 
@@ -103,11 +105,19 @@ pub async fn create(
         return Err(StatusCode::FORBIDDEN);
     }
 
+    let next_due_date = if let Some(interval_days) = payload.interval_days {
+        Some(Date::from(Date::now().as_ref().checked_add_days(Days::new(interval_days.into())).unwrap()))
+    } else {
+        None
+    };
+
     let chore = chore::Chore {
         id: Uuid::new(),
         chore_list_id: chore_list.id,
         name: payload.name,
         points: payload.points,
+        interval_days: payload.interval_days,
+        next_due_date,
         description: match payload.description.trim() {
             "" => None,
             description => Some(description.to_string()),
@@ -158,6 +168,7 @@ pub async fn view_update_form(
 pub struct UpdatePayload {
     name: String,
     points: i32,
+    interval_days: Option<u32>,
     description: String,
 }
 
@@ -186,10 +197,13 @@ pub async fn update(
 
     chore.name = payload.name;
     chore.points = payload.points;
+    chore.interval_days = payload.interval_days;
     chore.description = match payload.description.trim() {
         "" => None,
         description => Some(description.to_string()),
     };
+
+    chore::update_next_due_date(&mut chore, &state.pool, false).await.unwrap();
 
     chore::update(&state.pool, &chore).await.unwrap();
 

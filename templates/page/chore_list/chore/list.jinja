@@ -23,6 +23,11 @@
             {% if !chore.is_deleted() %}
                 <li>
                     <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a>&nbsp;({{ chore.points }}P)
+                    {% if let Some(next_due_date) = chore.next_due_date %}
+                        {% if next_due_date.is_today() || next_due_date.is_in_past() %}
+                            <span class="text-danger fw-bold">Due!</span>
+                        {% endif %}
+                    {% endif %}
                 </li>
             {% endif %}
         {% endfor %}

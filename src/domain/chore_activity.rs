@@ -30,6 +30,10 @@ pub async fn get_all_for_chore(pool: &sqlx::sqlite::SqlitePool, chore_id: &Uuid)
     sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? ORDER BY date DESC, date_created DESC").bind(chore_id).fetch_all(pool).await
 }
 
+pub async fn get_latest_not_deleted_for_chore(pool: &sqlx::sqlite::SqlitePool, chore_id: &Uuid) -> Result<ChoreActivity, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? AND date_deleted IS NULL ORDER BY date DESC, date_created DESC LIMIT 1").bind(chore_id).fetch_one(pool).await
+}
+
 pub async fn get_all_for_chore_list(pool: &sqlx::sqlite::SqlitePool, chore_list_id: &Uuid) -> Result<Vec<ChoreActivity>, sqlx::Error> {
     sqlx::query_as("
         SELECT chore_activities.* FROM chore_activities
