@@ -16,12 +16,6 @@ use sqlx::{
 #[repr(transparent)]
 pub struct Uuid(uuid::Uuid);
 
-impl Default for Uuid {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Uuid {
     pub fn new() -> Self {
         Self(uuid::Uuid::now_v7())
