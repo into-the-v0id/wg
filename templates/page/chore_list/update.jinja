@@ -20,12 +20,13 @@
         <textarea id="description" name="description">{{ chore_list.description.clone().unwrap_or("".to_string()) }}</textarea>
 
         <label for="score_reset_interval">Score Reset Interval</label>
-        <select id="score_reset_interval" name="score_reset_interval" required>
+        <select id="score_reset_interval" name="score_reset_interval" aria-describedby="score_reset_interval-help-text" required>
             <option disabled hidden value=""></option>
             {% for score_reset_interval in score_reset_intervals %}
                 <option value="{{ score_reset_interval }}" {% if score_reset_interval.clone() == chore_list.score_reset_interval %}selected{% endif %}>{{ score_reset_interval }}</option>
             {% endfor %}
         </select>
+        <small id="score_reset_interval-help-text">Reset the score of all users in the specified interval</small>
 
         <button type="submit">Update</button>
     </form>

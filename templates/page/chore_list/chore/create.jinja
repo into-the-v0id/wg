@@ -27,9 +27,10 @@
             <i style="opacity: 0.6;">(optional)</i>
         </label>
         <div role="group">
-            <input id="interval_days" name="interval_days" type="number" min="1" step="1" />
+            <input id="interval_days" name="interval_days" type="number" min="1" step="1" aria-describedby="interval_days-help-text" />
             <label for="interval_days">days</div>
         </div>
+        <small id="interval_days-help-text">How often the chore should be done</small>
 
         <button type="submit">Create</button>
     </form>
