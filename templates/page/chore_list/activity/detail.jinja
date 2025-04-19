@@ -11,6 +11,21 @@
     <a href="/chore-lists/{{ chore_list.id }}/activities" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
+{% block meta_actions %}
+    {% if activity.is_deleted() %}
+        <button type="submit" form="activity_restore" class="link secondary text-decoration-none underline-on-hover mb-0">⮌ Restore</button>
+        <form id="activity_restore" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/restore"></form>
+    {% else if !chore.is_deleted() && !chore_list.is_deleted() && activity.user_id == auth_session.user_id %}
+        <button type="submit" form="activity_delete" class="link secondary text-decoration-none underline-on-hover mb-0">✗ Delete</button>
+
+        {% if allow_edit %}
+            <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" class="secondary text-decoration-none underline-on-hover" style="margin-left: 1.25rem;">✎ Edit</a>
+        {% endif %}
+
+        <form id="activity_delete" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/delete"></form>
+    {% endif %}
+{% endblock %}
+
 {% block navigation %}
     <ul>
         <li><a href="/chore-lists/{{ chore_list.id }}/activities" aria-current="page">
@@ -61,23 +76,4 @@
             </tr>
         {% endif %}
     </table>
-
-    <br>
-
-    {% if activity.is_deleted() %}
-        <div>
-            <button type="submit" form="activity_restore" style="width: auto;">⮌ Restore</button>
-            <form id="activity_restore" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/restore"></form>
-        </div>
-    {% else if !chore.is_deleted() && !chore_list.is_deleted() && activity.user_id == auth_session.user_id %}
-        <div>
-            {% if allow_edit %}
-                <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" role="button">✎ Edit</a>
-            {% endif %}
-
-            <button type="submit" form="activity_delete" class="outline danger" style="width: auto;">✗ Delete</button>
-
-            <form id="activity_delete" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/delete"></form>
-        </div>
-    {% endif %}
 {% endblock %}

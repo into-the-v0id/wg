@@ -56,3 +56,19 @@ main {
 .text-align-center {
     text-align: center;
 }
+
+.underline-only-on-hover {
+    &:not(:hover):not(:focus-visible) {
+        text-decoration: none;
+    }
+}
+
+.text-decoration-none {
+    text-decoration: none !important;
+}
+
+.underline-on-hover {
+    &:hover, &:focus-visible {
+        text-decoration: underline !important;
+    }
+}

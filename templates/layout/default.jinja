@@ -27,8 +27,13 @@
         <div class="container layout py-block">
             <div class="layout-left"></div>
             <header class="layout-center">
-                <div>
-                    {% block back_link %}&nbsp;{% endblock %}
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        {% block back_link %}&nbsp;{% endblock %}
+                    </div>
+                    <div>
+                        {% block meta_actions %}&nbsp;{% endblock %}
+                    </div>
                 </div>
 
                 <br>

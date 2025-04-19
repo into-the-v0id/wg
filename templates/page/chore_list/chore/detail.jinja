@@ -18,6 +18,19 @@
     <a href="/chore-lists/{{ chore_list.id }}/chores" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
+{% block meta_actions %}
+    {% if chore.is_deleted() %}
+        <button type="submit" form="chore_restore" class="link secondary text-decoration-none underline-on-hover mb-0">⮌ Restore</button>
+        <form id="chore_restore" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/restore"></form>
+    {% else if !chore_list.is_deleted() %}
+        <button type="submit" form="chore_delete" class="link secondary text-decoration-none underline-on-hover mb-0">✗ Delete</button>
+
+        <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/update" class="secondary text-decoration-none underline-on-hover" style="margin-left: 1.25rem;">✎ Edit</a>
+
+        <form id="chore_delete" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/delete"></form>
+    {% endif %}
+{% endblock %}
+
 {% block navigation %}
     <ul>
         <li><a href="/chore-lists/{{ chore_list.id }}/activities">
@@ -70,22 +83,6 @@
             </tr>
         {% endif %}
     </table>
-
-    <br>
-
-    {% if chore.is_deleted() %}
-        <div>
-            <button type="submit" form="chore_restore" style="width: auto;">⮌ Restore</button>
-            <form id="chore_restore" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/restore"></form>
-        </div>
-    {% else if !chore_list.is_deleted() %}
-        <div>
-            <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/update" role="button">✎ Edit</a>
-            <button type="submit" form="chore_delete" class="outline danger" style="width: auto;">✗ Delete</button>
-
-            <form id="chore_delete" method="post" action="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}/delete"></form>
-        </div>
-    {% endif %}
 
     <br>
 
