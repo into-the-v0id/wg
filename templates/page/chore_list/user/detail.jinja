@@ -41,15 +41,13 @@
         <br>
     {% endif %}
 
-    <aside>
-        <nav>
-            <ul class="card-container collapse">
-                <li>
-                    <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}/activities" class="card">
-                        <div class="title">✅&nbsp;Activities</div>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </aside>
+    <nav>
+        <ul class="card-container collapse">
+            <li>
+                <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}/activities" class="card">
+                    <div class="title">✅&nbsp;Activities</div>
+                </a>
+            </li>
+        </ul>
+    </nav>
 {% endblock %}

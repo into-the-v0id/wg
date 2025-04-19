@@ -33,30 +33,28 @@
 {% endblock %}
 
 {% block content %}
-    <aside>
-        <nav>
-            <ul class="card-container collapse">
-                {% if chore_list.is_deleted() %}
-                    <li>
-                        <button type="submit" form="chore_list_restore" class="card text-align-left mb-0">
-                            <div class="title">♻️&nbsp;Restore Chore List</div>
-                        </button>
-                        <form id="chore_list_restore" method="post" action="/chore-lists/{{ chore_list.id }}/restore"></form>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="/chore-lists/{{ chore_list.id }}/update" class="card">
-                            <div class="title">✏️&nbsp;Edit Chore List</div>
-                        </a>
-                    </li>
-                    <li>
-                        <button type="submit" form="chore_list_delete" class="card text-align-left mb-0">
-                            <div class="title text-danger">🗑️&nbsp;Delete Chore List</div>
-                        </button>
-                        <form id="chore_list_delete" method="post" action="/chore-lists/{{ chore_list.id }}/delete"></form>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-    </aside>
+    <nav>
+        <ul class="card-container collapse">
+            {% if chore_list.is_deleted() %}
+                <li>
+                    <button type="submit" form="chore_list_restore" class="card text-align-left mb-0">
+                        <div class="title">♻️&nbsp;Restore Chore List</div>
+                    </button>
+                    <form id="chore_list_restore" method="post" action="/chore-lists/{{ chore_list.id }}/restore"></form>
+                </li>
+            {% else %}
+                <li>
+                    <a href="/chore-lists/{{ chore_list.id }}/update" class="card">
+                        <div class="title">✏️&nbsp;Edit Chore List</div>
+                    </a>
+                </li>
+                <li>
+                    <button type="submit" form="chore_list_delete" class="card text-align-left mb-0">
+                        <div class="title text-danger">🗑️&nbsp;Delete Chore List</div>
+                    </button>
+                    <form id="chore_list_delete" method="post" action="/chore-lists/{{ chore_list.id }}/delete"></form>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 {% endblock %}
