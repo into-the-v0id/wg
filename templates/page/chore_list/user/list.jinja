@@ -33,15 +33,20 @@
 {% endblock %}
 
 {% block content %}
-    <ol>
+    <ol class="card-container collapse">
         {% for (user_id, score) in scores_by_user %}
             <li>
-                {% for user in users %}
-                    {% if user.id|as_ref == user_id %}
-                        <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}">{{ user.name }}</a>
-                    {% endif %}
-                {% endfor %}
-                (Score: {{ score }})
+                <a href="/chore-lists/{{ chore_list.id }}/users/{{ user_id }}" class="card">
+                    {% for user in users %}
+                        {% if user.id|as_ref == user_id %}
+                            <div class="title">{{ user.name }}</div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <small class="text-muted">
+                        Score: {{ score }}
+                    </small>
+                </a>
             </li>
         {% endfor %}
     </ol>
@@ -52,10 +57,12 @@
 
         <div>
             <h4>Past 👤&nbsp;Users</h4>
-            <ul>
+            <ul class="card-container collapse">
                 {% for user in deleted_users %}
                     <li>
-                        <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}">{{ user.name }}</a>
+                        <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}" class="card">
+                            <div class="title">{{ user.name }}</div>
+                        </a>
                     </li>
                 {% endfor %}
             </ul>

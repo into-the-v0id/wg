@@ -1,6 +1,7 @@
 @use "./layout";
 @use "./nav-bar";
 @use "./side-nav";
+@use "./card";
 
 :root {
     hyphens: auto;
@@ -18,6 +19,10 @@ main {
 
 .text-danger {
     color: var(--pico-danger-color);
+}
+
+.text-muted {
+    color: var(--pico-muted-color);
 }
 
 .fw-bold {

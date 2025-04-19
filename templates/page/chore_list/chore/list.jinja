@@ -39,15 +39,21 @@
 
     <br>
 
-    <ul>
+    <ul class="card-container collapse">
         {% for chore in chores %}
             <li>
-                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a>&nbsp;({{ chore.points }}P)
-                {% if let Some(next_due_date) = chore.next_due_date %}
-                    {% if next_due_date.is_today() || next_due_date.is_in_past() %}
-                        <span class="text-danger fw-bold">Due!</span>
-                    {% endif %}
-                {% endif %}
+                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="card">
+                    <div class="title">{{ chore.name }}</div>
+                    <small class="text-muted">
+                        {{ chore.points }}P
+
+                        {% if let Some(next_due_date) = chore.next_due_date %}
+                            {% if next_due_date.is_today() || next_due_date.is_in_past() %}
+                                –&nbsp;<span class="text-danger fw-bold">Due!</span>
+                            {% endif %}
+                        {% endif %}
+                    </small>
+                </a>
             </li>
         {% endfor %}
     </ul>
@@ -58,10 +64,13 @@
 
         <div>
             <h4>Deleted 🧹&nbsp;Chores</h4>
-            <ul>
+            <ul class="card-container">
                 {% for chore in deleted_chores %}
                     <li>
-                        <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a>&nbsp;({{ chore.points }}P)
+                        <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="card">
+                            <div class="title">{{ chore.name }}</div>
+                            <small class="text-muted">{{ chore.points }}P</small>
+                        </a>
                     </li>
                 {% endfor %}
             </ul>

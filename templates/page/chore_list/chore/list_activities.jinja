@@ -39,17 +39,19 @@
 
     <br>
 
-    <ul>
+    <ul class="card-container collapse">
         {% for activity in activities %}
             <li>
-                <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
-                    {{ activity.date.format("%Y-%m-%d") }}
-
+                <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}" class="card">
                     {% for user in users %}
                         {% if user.id == activity.user_id %}
-                            by {{ user.name }}
+                            <div class="title">{{ user.name }}</div>
                         {% endif %}
                     {% endfor %}
+
+                    <small class="text-muted">
+                        {{ activity.date.format("%Y-%m-%d") }}
+                    </small>
                 </a>
             </li>
         {% endfor %}
@@ -61,17 +63,19 @@
 
         <div>
             <h4>Deleted ✅&nbsp;Activities</h4>
-            <ul>
+            <ul class="card-container collapse">
                 {% for activity in deleted_activities %}
                     <li>
-                        <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
-                            {{ activity.date.format("%Y-%m-%d") }}
-
+                        <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}" class="card">
                             {% for user in users %}
                                 {% if user.id == activity.user_id %}
-                                    by {{ user.name }}
+                                    <div class="title">{{ user.name }}</div>
                                 {% endif %}
                             {% endfor %}
+
+                            <small class="text-muted">
+                                {{ activity.date.format("%Y-%m-%d") }}
+                            </small>
                         </a>
                     </li>
                 {% endfor %}

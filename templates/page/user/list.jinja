@@ -27,10 +27,12 @@
 
     <br>
 
-    <ul>
+    <ul class="card-container collapse">
         {% for user in users %}
             <li>
-                <a href="/users/{{ user.id }}">{{ user.name }}</a>
+                <a href="/users/{{ user.id }}" class="card">
+                    <div class="title">{{ user.name }}</div>
+                </a>
             </li>
         {% endfor %}
     </ul>
@@ -41,10 +43,12 @@
 
         <div>
             <h4>Past 👤&nbsp;Users</h4>
-            <ul>
+            <ul class="card-container collapse">
                 {% for user in deleted_users %}
                     <li>
-                        <a href="/users/{{ user.id }}">{{ user.name }}</a>
+                        <a href="/users/{{ user.id }}" class="card">
+                            <div class="title">{{ user.name }}</div>
+                        </a>
                     </li>
                 {% endfor %}
             </ul>

@@ -23,10 +23,12 @@
 
     <br>
 
-    <ul>
+    <ul class="card-container collapse">
         {% for chore_list in chore_lists %}
             <li>
-                <a href="/chore-lists/{{ chore_list.id }}/activities">{{ chore_list.name }}</a>
+                <a href="/chore-lists/{{ chore_list.id }}/activities" class="card">
+                    <div class="title">{{ chore_list.name }}</div>
+                </a>
             </li>
         {% endfor %}
     </ul>
@@ -37,10 +39,12 @@
 
         <div>
             <h4>Deleted 📋&nbsp;Chore Lists</h4>
-            <ul>
+            <ul class="card-container">
                 {% for chore_list in deleted_chore_lists %}
                     <li>
-                        <a href="/chore-lists/{{ chore_list.id }}/activities">{{ chore_list.name }}</a>
+                        <a href="/chore-lists/{{ chore_list.id }}/activities" class="card">
+                            <div class="title">{{ chore_list.name }}</div>
+                        </a>
                     </li>
                 {% endfor %}
             </ul>
