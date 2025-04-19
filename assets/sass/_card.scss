@@ -17,12 +17,18 @@ a, button {
         text-decoration: none;
         padding-right: calc(var(--pico-block-spacing-horizontal) * 2.5);
 
-        &:hover {
+        &:hover, &:focus-visible {
             text-decoration: none;
 
             .title {
                 text-decoration: underline;
             }
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: var(--pico-card-box-shadow), 0 0 0 var(--pico-outline-width) var(--pico-primary-focus);
+            z-index: 2;
         }
 
         &::after {
@@ -69,8 +75,11 @@ a, button {
 }
 
 .card-container.collapse {
+    box-shadow: var(--pico-card-box-shadow);
+
     > .card {
         margin-bottom: 0;
+        box-shadow: none;
 
         &:not(:first-child) {
             border-top-left-radius: 0;
@@ -83,10 +92,20 @@ a, button {
             border-bottom-right-radius: 0;
         }
     }
+
+    > a, button {
+        &.card:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus);
+            z-index: 2;
+        }
+    }
 }
 
 ul, ol {
     &.card-container.collapse {
+        box-shadow: var(--pico-card-box-shadow);
+
         > li {
             margin-bottom: 0;
 
@@ -106,7 +125,16 @@ ul, ol {
             }
 
             > .card {
+                box-shadow: none;
                 margin-bottom: 0;
+            }
+
+            > a, button {
+                &.card:focus-visible {
+                    outline: none;
+                    box-shadow: 0 0 0 var(--pico-outline-width) var(--pico-primary-focus);
+                    z-index: 2;
+                }
             }
         }
     }
