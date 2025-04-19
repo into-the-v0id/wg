@@ -33,7 +33,7 @@
             justify-content: center;
             text-decoration: none;
 
-            &:hover {
+            &:hover, &:focus-visible {
                 .label {
                     text-decoration: underline;
                     text-decoration-color: currentColor;
