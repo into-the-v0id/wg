@@ -4,7 +4,7 @@
 {% block title %}{{ chore.name }}{% endblock %}
 
 {% block teaser %}
-    Of <a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a>
+    Of 📋&nbsp;{{ chore_list.name }}
 
     {% if let Some(description) = chore.description.clone() %}
         <br>
@@ -31,6 +31,10 @@
         <li><a href="/chore-lists/{{ chore_list.id }}/users">
             <div class="icon">👤</div>
             <div class="label">Users</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/settings">
+            <div class="icon">⚙️</div>
+            <div class="label">Settings</div>
         </a></li>
     </ul>
 {% endblock %}

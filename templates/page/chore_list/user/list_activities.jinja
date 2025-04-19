@@ -5,7 +5,7 @@
 
 {% block teaser %}
     Of <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}" class="secondary">👤&nbsp;{{ user.name }}</a>
-    in <a href="/chore-lists/{{ chore_list.id }}" class="secondary">📋&nbsp;{{ chore_list.name }}</a>
+    in 📋&nbsp;{{ chore_list.name }}
 {% endblock %}
 
 {% block back_link %}
@@ -25,6 +25,10 @@
         <li><a href="/chore-lists/{{ chore_list.id }}/users" aria-current="page">
             <div class="icon">👤</div>
             <div class="label">Users</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/settings">
+            <div class="icon">⚙️</div>
+            <div class="label">Settings</div>
         </a></li>
     </ul>
 {% endblock %}

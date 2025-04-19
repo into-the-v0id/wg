@@ -35,26 +35,6 @@ pub async fn view_list(
 }
 
 #[derive(Template)]
-#[template(path = "page/chore_list/detail.jinja")]
-struct DetailTemplate {
-    chore_list: chore_list::ChoreList,
-}
-
-pub async fn view_detail(
-    Path(id): Path<Uuid>,
-    State(state): State<Arc<AppState>>,
-    _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-
-    Ok(Html(DetailTemplate { chore_list }.render().unwrap()))
-}
-
-#[derive(Template)]
 #[template(path = "page/chore_list/create.jinja")]
 struct CreateTemplate {
     score_reset_intervals: Vec<chore_list::ScoreResetInterval>,
@@ -99,7 +79,7 @@ pub async fn create(
 
     chore_list::create(&state.pool, &chore_list).await.unwrap();
 
-    Redirect::to(&format!("/chore-lists/{}", chore_list.id))
+    Redirect::to(&format!("/chore-lists/{}/activities", chore_list.id))
 }
 
 #[derive(Template)]
@@ -167,7 +147,7 @@ pub async fn update(
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}", chore_list.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/settings", chore_list.id)))
 }
 
 pub async fn delete(
@@ -188,7 +168,7 @@ pub async fn delete(
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}", chore_list.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/settings", chore_list.id)))
 }
 
 pub async fn restore(
@@ -209,5 +189,25 @@ pub async fn restore(
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}", chore_list.id)))
+    Ok(Redirect::to(&format!("/chore-lists/{}/settings", chore_list.id)))
+}
+
+#[derive(Template)]
+#[template(path = "page/chore_list/settings.jinja")]
+struct SettingsTemplate {
+    chore_list: chore_list::ChoreList,
+}
+
+pub async fn view_settings(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+    _auth_session: AuthenticationSession,
+) -> Result<Html<String>, StatusCode> {
+    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
+        Ok(chore_list) => chore_list,
+        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+        Err(err) => panic!("{}", err),
+    };
+
+    Ok(Html(SettingsTemplate { chore_list }.render().unwrap()))
 }

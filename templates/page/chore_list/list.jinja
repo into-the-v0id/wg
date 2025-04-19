@@ -26,7 +26,7 @@
     <ul>
         {% for chore_list in chore_lists %}
             <li>
-                <a href="/chore-lists/{{ chore_list.id }}">{{ chore_list.name }}</a>
+                <a href="/chore-lists/{{ chore_list.id }}/activities">{{ chore_list.name }}</a>
             </li>
         {% endfor %}
     </ul>
@@ -40,7 +40,7 @@
             <ul>
                 {% for chore_list in deleted_chore_lists %}
                     <li>
-                        <a href="/chore-lists/{{ chore_list.id }}">{{ chore_list.name }}</a>
+                        <a href="/chore-lists/{{ chore_list.id }}/activities">{{ chore_list.name }}</a>
                     </li>
                 {% endfor %}
             </ul>

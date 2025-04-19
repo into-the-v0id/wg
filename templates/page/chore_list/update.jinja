@@ -5,7 +5,7 @@
 {% block headline %}Update 📋&nbsp;Chore List{% endblock %}
 
 {% block back_link %}
-    <a href="/chore-lists/{{ chore_list.id }}" rel="parent" class="secondary">&larr; Back</a>
+    <a href="/chore-lists/{{ chore_list.id }}/settings" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
 {% block navigation %}
@@ -21,6 +21,10 @@
         <li><a href="/chore-lists/{{ chore_list.id }}/users">
             <div class="icon">👤</div>
             <div class="label">Users</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/settings" aria-current="page">
+            <div class="icon">⚙️</div>
+            <div class="label">Settings</div>
         </a></li>
     </ul>
 {% endblock %}

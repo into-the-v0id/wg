@@ -1,0 +1,56 @@
+{% extends "layout/default.jinja" %}
+
+{% block icon %}⚙️{% endblock %}
+{% block title %}Settings{% endblock %}
+
+{% block teaser %}
+    Of 📋&nbsp;{{ chore_list.name }}
+{% endblock %}
+
+{% block back_link %}
+    <a href="/chore-lists" rel="parent" class="secondary">&larr; Back</a>
+{% endblock %}
+
+{% block navigation %}
+    <ul>
+        <li><a href="/chore-lists/{{ chore_list.id }}/activities">
+            <div class="icon">✅</div>
+            <div class="label">Activities</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/chores">
+            <div class="icon">🧹</div>
+            <div class="label">Chores</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/users">
+            <div class="icon">👤</div>
+            <div class="label">Users</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/settings" aria-current="page">
+            <div class="icon">⚙️</div>
+            <div class="label">Settings</div>
+        </a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <aside>
+        <nav>
+            <ul>
+                {% if chore_list.is_deleted() %}
+                    <li>
+                        <form action="/chore-lists/{{ chore_list.id }}/restore" method="post">
+                            <button type="submit" class="link danger mb-0">♻️&nbsp;Restore Chore List</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="/chore-lists/{{ chore_list.id }}/update">✏️&nbsp;Edit Chore List</a></li>
+                    <li>
+                        <form action="/chore-lists/{{ chore_list.id }}/delete" method="post">
+                            <button type="submit" class="link danger mb-0">🗑️&nbsp;Delete Chore List</button>
+                        </form>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </aside>
+{% endblock %}

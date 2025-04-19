@@ -74,7 +74,7 @@ async fn main() {
         .route("/users/{user_id}/restore", post(application::user::restore))
         .route("/chore-lists", get(application::chore_list::view_list))
         .route("/chore-lists/create", get(application::chore_list::view_create_form).post(application::chore_list::create))
-        .route("/chore-lists/{chore_list_id}", get(application::chore_list::view_detail))
+        .route("/chore-lists/{chore_list_id}/settings", get(application::chore_list::view_settings))
         .route("/chore-lists/{chore_list_id}/update", get(application::chore_list::view_update_form).post(application::chore_list::update))
         .route("/chore-lists/{chore_list_id}/delete", post(application::chore_list::delete))
         .route("/chore-lists/{chore_list_id}/restore", post(application::chore_list::restore))
