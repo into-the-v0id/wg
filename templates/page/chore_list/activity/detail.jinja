@@ -13,7 +13,7 @@
 
 {% block meta_actions %}
     {% if activity.is_deleted() %}
-        <button type="submit" form="activity_restore" class="link secondary text-decoration-none underline-on-hover mb-0">⮌ Restore</button>
+        <button type="submit" form="activity_restore" class="link secondary text-decoration-none underline-on-hover mb-0">↻ Restore</button>
         <form id="activity_restore" method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/restore"></form>
     {% else if !chore.is_deleted() && !chore_list.is_deleted() && activity.user_id == auth_session.user_id %}
         <button type="submit" form="activity_delete" class="link secondary text-decoration-none underline-on-hover mb-0">✗ Delete</button>

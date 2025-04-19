@@ -9,7 +9,7 @@
 
 {% block meta_actions %}
     {% if user.is_deleted() %}
-        <button type="submit" form="user_restore" class="link secondary text-decoration-none underline-on-hover mb-0">⮌ Restore</button>
+        <button type="submit" form="user_restore" class="link secondary text-decoration-none underline-on-hover mb-0">↻ Restore</button>
         <form id="user_restore" method="post" action="/users/{{ user.id }}/restore"></form>
     {% else %}
         <button type="submit" form="user_delete" class="link secondary text-decoration-none underline-on-hover mb-0">✗ Delete</button>
