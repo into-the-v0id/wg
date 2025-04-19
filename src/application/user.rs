@@ -21,15 +21,20 @@ use std::sync::Arc;
 #[template(path = "page/user/list.jinja")]
 struct ListTemplate {
     users: Vec<user::User>,
+    deleted_users: Vec<user::User>,
 }
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Html<String> {
-    let users = user::get_all(&state.pool).await.unwrap();
+    let (users, deleted_users) = user::get_all(&state.pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .partition(|user| !user.is_deleted());
 
-    Html(ListTemplate { users }.render().unwrap())
+    Html(ListTemplate { users, deleted_users }.render().unwrap())
 }
 
 #[derive(Template)]

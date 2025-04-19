@@ -16,27 +16,25 @@
 
     <ul>
         {% for user in users %}
-            {% if !user.is_deleted() %}
-                <li>
-                    <a href="/users/{{ user.id }}">{{ user.name }}</a>
-                </li>
-            {% endif %}
+            <li>
+                <a href="/users/{{ user.id }}">{{ user.name }}</a>
+            </li>
         {% endfor %}
     </ul>
 
-    <br>
-    <br>
+    {% if ! deleted_users.is_empty() %}
+        <br>
+        <br>
 
-    <div>
-        <h4>Past 👤&nbsp;Users</h4>
-        <ul>
-            {% for user in users %}
-                {% if user.is_deleted() %}
+        <div>
+            <h4>Past 👤&nbsp;Users</h4>
+            <ul>
+                {% for user in deleted_users %}
                     <li>
                         <a href="/users/{{ user.id }}">{{ user.name }}</a>
                     </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}

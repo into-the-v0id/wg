@@ -22,6 +22,7 @@ use std::sync::Arc;
 struct ListTemplate {
     chore_list: chore_list::ChoreList,
     chores: Vec<chore::Chore>,
+    deleted_chores: Vec<chore::Chore>,
 }
 
 pub async fn view_list(
@@ -35,11 +36,13 @@ pub async fn view_list(
         Err(err) => panic!("{}", err),
     };
 
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
+    let (chores, deleted_chores) = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
         .await
-        .unwrap();
+        .unwrap()
+        .into_iter()
+        .partition(|chore| !chore.is_deleted());
 
-    Ok(Html(ListTemplate { chore_list, chores }.render().unwrap()))
+    Ok(Html(ListTemplate { chore_list, chores, deleted_chores }.render().unwrap()))
 }
 
 #[derive(Template)]
@@ -306,6 +309,7 @@ struct ActivityListTemplate {
     chore: chore::Chore,
     chore_list: chore_list::ChoreList,
     activities: Vec<chore_activity::ChoreActivity>,
+    deleted_activities: Vec<chore_activity::ChoreActivity>,
     users: Vec<user::User>,
 }
 
@@ -323,19 +327,22 @@ pub async fn view_activity_list(
         return Err(StatusCode::NOT_FOUND);
     }
 
+    let users = user::get_all(&state.pool).await.unwrap();
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
         .await
         .unwrap();
-    let activities = chore_activity::get_all_for_chore(&state.pool, &chore.id)
+    let (activities, deleted_activities) = chore_activity::get_all_for_chore(&state.pool, &chore.id)
         .await
-        .unwrap();
-    let users = user::get_all(&state.pool).await.unwrap();
+        .unwrap()
+        .into_iter()
+        .partition(|activity| !activity.is_deleted());
 
     Ok(Html(
         ActivityListTemplate {
             chore,
             chore_list,
             activities,
+            deleted_activities,
             users,
         }
         .render()

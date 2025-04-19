@@ -18,15 +18,20 @@ use strum::IntoEnumIterator;
 #[template(path = "page/chore_list/list.jinja")]
 struct ListTemplate {
     chore_lists: Vec<chore_list::ChoreList>,
+    deleted_chore_lists: Vec<chore_list::ChoreList>,
 }
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Html<String> {
-    let chore_lists = chore_list::get_all(&state.pool).await.unwrap();
+    let (chore_lists, deleted_chore_lists) = chore_list::get_all(&state.pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .partition(|chore_list| !chore_list.is_deleted());
 
-    Html(ListTemplate { chore_lists }.render().unwrap())
+    Html(ListTemplate { chore_lists, deleted_chore_lists }.render().unwrap())
 }
 
 #[derive(Template)]

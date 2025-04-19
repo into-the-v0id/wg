@@ -20,6 +20,7 @@ use std::sync::Arc;
 struct ListTemplate {
     chore_list: chore_list::ChoreList,
     users: Vec<user::User>,
+    deleted_users: Vec<user::User>,
     scores_by_user: Vec<(Uuid, i32)>,
 }
 
@@ -34,7 +35,11 @@ pub async fn view_list(
         Err(err) => panic!("{}", err),
     };
 
-    let users = user::get_all(&state.pool).await.unwrap();
+    let (users, deleted_users) = user::get_all(&state.pool)
+        .await
+        .unwrap()
+        .into_iter()
+        .partition(|user| !user.is_deleted());
     let scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list)
         .await
         .unwrap();
@@ -43,6 +48,7 @@ pub async fn view_list(
         ListTemplate {
             chore_list,
             users,
+            deleted_users,
             scores_by_user,
         }
         .render()
@@ -81,7 +87,7 @@ struct ActivityListTemplate<'a> {
     user: user::User,
     chore_list: chore_list::ChoreList,
     activities_by_date: Vec<(Date, Vec<&'a chore_activity::ChoreActivity>)>,
-    deleted_activities: Vec<&'a chore_activity::ChoreActivity>,
+    deleted_activities: Vec<chore_activity::ChoreActivity>,
     chores: Vec<chore::Chore>,
 }
 
@@ -102,19 +108,13 @@ pub async fn view_activity_list(
     let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
         .await
         .unwrap();
-    let all_activities =
-        chore_activity::get_all_for_chore_list_and_user(&state.pool, &chore_list_id, &user.id)
-            .await
-            .unwrap();
-    let activities = all_activities
-        .iter()
-        .filter(|a| !a.is_deleted())
-        .collect::<Vec<&chore_activity::ChoreActivity>>();
-    let activities_by_date = chore_activity::group_and_sort_by_date(activities, true);
-    let deleted_activities = all_activities
-        .iter()
-        .filter(|a| a.is_deleted())
-        .collect::<Vec<&chore_activity::ChoreActivity>>();
+
+    let (activities, deleted_activities): (Vec<_>, Vec<_>) = chore_activity::get_all_for_chore_list_and_user(&state.pool, &chore_list_id, &user.id)
+        .await
+        .unwrap()
+        .into_iter()
+        .partition(|activity| !activity.is_deleted());
+    let activities_by_date = chore_activity::group_and_sort_by_date(activities.iter().collect(), true);
 
     Ok(Html(
         ActivityListTemplate {

@@ -21,40 +21,38 @@
     {% for (date, activities_of_date) in activities_by_date %}
         <h6>{{ date.format("%Y-%m-%d") }}</h6>
         {% for activity in activities_of_date %}
-            {% if !activity.is_deleted() %}
-                <ul>
-                    <li>
-                        <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
-                            {% for chore in chores %}
-                                {% if chore.id == activity.chore_id %}
-                                    <span style="display: inline-block; text-decoration: inherit;">
-                                        {{ chore.name }}&nbsp;({{ chore.points }}P)
-                                    </span>
-                                {% endif %}
-                            {% endfor %}
+            <ul>
+                <li>
+                    <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
+                        {% for chore in chores %}
+                            {% if chore.id == activity.chore_id %}
+                                <span style="display: inline-block; text-decoration: inherit;">
+                                    {{ chore.name }}&nbsp;({{ chore.points }}P)
+                                </span>
+                            {% endif %}
+                        {% endfor %}
 
-                            {% for user in users %}
-                                {% if user.id == activity.user_id %}
-                                    <span style="display: inline-block; text-decoration: inherit;">
-                                        by {{ user.name }}
-                                    </span>
-                                {% endif %}
-                            {% endfor %}
-                        </a>
-                    </li>
-                </ul>
-            {% endif %}
+                        {% for user in users %}
+                            {% if user.id == activity.user_id %}
+                                <span style="display: inline-block; text-decoration: inherit;">
+                                    by {{ user.name }}
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                    </a>
+                </li>
+            </ul>
         {% endfor %}
     {% endfor %}
 
-    <br>
-    <br>
+    {% if ! deleted_activities.is_empty() %}
+        <br>
+        <br>
 
-    <div>
-        <h4>Deleted ✅&nbsp;Activities</h4>
-        <ul>
-            {% for activity in deleted_activities %}
-                {% if activity.is_deleted() %}
+        <div>
+            <h4>Deleted ✅&nbsp;Activities</h4>
+            <ul>
+                {% for activity in deleted_activities %}
                     <li>
                         <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
                             {% for chore in chores %}
@@ -78,8 +76,8 @@
                             </span>
                         </a>
                     </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -20,32 +20,30 @@
 
     <ul>
         {% for chore in chores %}
-            {% if !chore.is_deleted() %}
-                <li>
-                    <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a>&nbsp;({{ chore.points }}P)
-                    {% if let Some(next_due_date) = chore.next_due_date %}
-                        {% if next_due_date.is_today() || next_due_date.is_in_past() %}
-                            <span class="text-danger fw-bold">Due!</span>
-                        {% endif %}
+            <li>
+                <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a>&nbsp;({{ chore.points }}P)
+                {% if let Some(next_due_date) = chore.next_due_date %}
+                    {% if next_due_date.is_today() || next_due_date.is_in_past() %}
+                        <span class="text-danger fw-bold">Due!</span>
                     {% endif %}
-                </li>
-            {% endif %}
+                {% endif %}
+            </li>
         {% endfor %}
     </ul>
 
-    <br>
-    <br>
+    {% if ! deleted_chores.is_empty() %}
+        <br>
+        <br>
 
-    <div>
-        <h4>Deleted 🧹&nbsp;Chores</h4>
-        <ul>
-            {% for chore in chores %}
-                {% if chore.is_deleted() %}
+        <div>
+            <h4>Deleted 🧹&nbsp;Chores</h4>
+            <ul>
+                {% for chore in deleted_chores %}
                     <li>
-                        <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a>
+                        <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}">{{ chore.name }}</a>&nbsp;({{ chore.points }}P)
                     </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -20,30 +20,28 @@
 
     <ul>
         {% for activity in activities %}
-            {% if !activity.is_deleted() %}
-                <li>
-                    <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
-                        {{ activity.date.format("%Y-%m-%d") }}
+            <li>
+                <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
+                    {{ activity.date.format("%Y-%m-%d") }}
 
-                        {% for user in users %}
-                            {% if user.id == activity.user_id %}
-                                by {{ user.name }}
-                            {% endif %}
-                        {% endfor %}
-                    </a>
-                </li>
-            {% endif %}
+                    {% for user in users %}
+                        {% if user.id == activity.user_id %}
+                            by {{ user.name }}
+                        {% endif %}
+                    {% endfor %}
+                </a>
+            </li>
         {% endfor %}
     </ul>
 
-    <br>
-    <br>
+    {% if ! deleted_activities.is_empty() %}
+        <br>
+        <br>
 
-    <div>
-        <h4>Deleted ✅&nbsp;Activities</h4>
-        <ul>
-            {% for activity in activities %}
-                {% if activity.is_deleted() %}
+        <div>
+            <h4>Deleted ✅&nbsp;Activities</h4>
+            <ul>
+                {% for activity in deleted_activities %}
                     <li>
                         <a href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}">
                             {{ activity.date.format("%Y-%m-%d") }}
@@ -55,8 +53,8 @@
                             {% endfor %}
                         </a>
                     </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}

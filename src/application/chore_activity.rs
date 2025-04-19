@@ -22,7 +22,7 @@ use std::sync::Arc;
 struct ListTemplate<'a> {
     chore_list: chore_list::ChoreList,
     activities_by_date: Vec<(Date, Vec<&'a chore_activity::ChoreActivity>)>,
-    deleted_activities: Vec<&'a chore_activity::ChoreActivity>,
+    deleted_activities: Vec<chore_activity::ChoreActivity>,
     chores: Vec<chore::Chore>,
     users: Vec<user::User>,
 }
@@ -43,18 +43,12 @@ pub async fn view_list(
         .unwrap();
     let users = user::get_all(&state.pool).await.unwrap();
 
-    let all_activities = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id)
+    let (activities, deleted_activities): (Vec<_>, Vec<_>) = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id)
         .await
-        .unwrap();
-    let activities = all_activities
-        .iter()
-        .filter(|a| !a.is_deleted())
-        .collect::<Vec<&chore_activity::ChoreActivity>>();
-    let activities_by_date = chore_activity::group_and_sort_by_date(activities, true);
-    let deleted_activities = all_activities
-        .iter()
-        .filter(|a| a.is_deleted())
-        .collect::<Vec<&chore_activity::ChoreActivity>>();
+        .unwrap()
+        .into_iter()
+        .partition(|activity| !activity.is_deleted());
+    let activities_by_date = chore_activity::group_and_sort_by_date(activities.iter().collect(), true);
 
     Ok(Html(
         ListTemplate {

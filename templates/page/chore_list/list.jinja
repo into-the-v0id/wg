@@ -16,27 +16,25 @@
 
     <ul>
         {% for chore_list in chore_lists %}
-            {% if !chore_list.is_deleted() %}
-                <li>
-                    <a href="/chore-lists/{{ chore_list.id }}">{{ chore_list.name }}</a>
-                </li>
-            {% endif %}
+            <li>
+                <a href="/chore-lists/{{ chore_list.id }}">{{ chore_list.name }}</a>
+            </li>
         {% endfor %}
     </ul>
 
-    <br>
-    <br>
+    {% if ! deleted_chore_lists.is_empty() %}
+        <br>
+        <br>
 
-    <div>
-        <h4>Deleted 📋&nbsp;Chore Lists</h4>
-        <ul>
-            {% for chore_list in chore_lists %}
-                {% if chore_list.is_deleted() %}
+        <div>
+            <h4>Deleted 📋&nbsp;Chore Lists</h4>
+            <ul>
+                {% for chore_list in deleted_chore_lists %}
                     <li>
                         <a href="/chore-lists/{{ chore_list.id }}">{{ chore_list.name }}</a>
                     </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}
