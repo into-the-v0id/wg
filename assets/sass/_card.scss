@@ -6,7 +6,7 @@
     border-radius: var(--pico-border-radius);
     background: var(--pico-card-background-color);
     box-shadow: var(--pico-card-box-shadow);
-    border: var(--pico-border-width) solid var(--pico-muted-border-color);
+    border: var(--pico-border-width) solid var(--pico-form-element-border-color);
     margin: 0 0 calc(var(--pico-block-spacing-vertical) / 2) 0;
     padding: calc(var(--pico-block-spacing-vertical) * 0.75) calc(var(--pico-block-spacing-horizontal) * 0.75);
     color: var(--pico-h1-color);

@@ -8,7 +8,7 @@
     background-color: var(--pico-card-background-color);
     box-shadow: var(--pico-card-box-shadow);
     padding: calc(var(--pico-block-spacing-vertical) / 2) var(--pico-block-spacing-horizontal);
-    border-top: var(--pico-border-width) solid var(--pico-muted-border-color);
+    border-top: var(--pico-border-width) solid var(--pico-form-element-border-color);
 
     ul {
         width: 100%;
