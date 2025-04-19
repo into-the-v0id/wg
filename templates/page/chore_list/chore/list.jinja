@@ -62,7 +62,7 @@
 
         <div>
             <h4>Deleted 🧹&nbsp;Chores</h4>
-            <ul class="card-container">
+            <ul class="card-container collapse">
                 {% for chore in deleted_chores %}
                     <li>
                         <a href="/chore-lists/{{ chore_list.id }}/chores/{{ chore.id }}" class="card">
