@@ -1,0 +1,43 @@
+{% extends "layout/default.jinja" %}
+
+{% block icon %}⚙️{% endblock %}
+{% block title %}Settings{% endblock %}
+
+{% block navigation %}
+    <ul>
+        <li><a href="/chore-lists">
+            <div class="icon">📋</div>
+            <div class="label">Chore Lists</div>
+        </a></li>
+        <li><a href="/settings" aria-current="page">
+            <div class="icon">⚙️</div>
+            <div class="label">Settings</div>
+        </a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <aside>
+        <nav>
+            <h4>Profile</h4>
+            <ul>
+                <li><a href="/users/{{ auth_session.user_id }}/update">🪪&nbsp;Edit Profile</a></li>
+                <li>
+                    <form action="/logout" method="post">
+                        <button type="submit" class="link mb-0">🚪&nbsp;Logout</button>
+                    </form>
+                </li>
+            </ul>
+
+            <h4>Instance</h4>
+            <ul>
+                <li><a href="/users">👤&nbsp;Users</a></li>
+            </ul>
+
+            <h4>Legal</h4>
+            <ul>
+                <li><a href="/legal/privacy-policy" rel="privacy-policy" target="_blank">📜&nbsp;Privacy Policy</a></li>
+            </ul>
+        </nav>
+    </aside>
+{% endblock %}
