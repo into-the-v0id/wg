@@ -23,10 +23,13 @@
         <input id="points" name="points" type="number" min="1" step="1" required value="{{ chore.points }}" />
 
         <label for="interval_days">
-            Interval (days)
+            Interval
             <i style="opacity: 0.6;">(optional)</i>
         </label>
-        <input id="interval_days" name="interval_days" type="number" min="1" step="1" value="{% if let Some(interval_days) = chore.interval_days %}{{ interval_days }}{% endif %}" />
+        <div role="group">
+            <input id="interval_days" name="interval_days" type="number" min="1" step="1" value="{% if let Some(interval_days) = chore.interval_days %}{{ interval_days }}{% endif %}" />
+            <label for="interval_days">days</div>
+        </div>
 
         <button type="submit">Update</button>
     </form>

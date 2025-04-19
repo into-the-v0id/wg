@@ -23,10 +23,13 @@
         <input id="points" name="points" type="number" min="1" step="1" required />
 
         <label for="interval_days">
-            Interval (days)
+            Interval
             <i style="opacity: 0.6;">(optional)</i>
         </label>
-        <input id="interval_days" name="interval_days" type="number" min="1" step="1" />
+        <div role="group">
+            <input id="interval_days" name="interval_days" type="number" min="1" step="1" />
+            <label for="interval_days">days</div>
+        </div>
 
         <button type="submit">Create</button>
     </form>

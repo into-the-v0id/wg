@@ -80,3 +80,25 @@ td, th {
 .fw-bold {
     font-weight: bold;
 }
+
+[role="group"] {
+    > label {
+        --pico-border-color: var(--pico-form-element-border-color);
+        --pico-color: var(--pico-form-element-color);
+        padding: 0 var(--pico-form-element-spacing-horizontal);
+        border: var(--pico-border-width) solid var(--pico-border-color);
+        border-radius: var(--pico-border-radius);
+        color: var(--pico-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:not(:first-child) {
+            margin-left: calc(var(--pico-border-width) * -1);
+        }
+
+        &:not(:last-child) {
+            margin-right: calc(var(--pico-border-width) * -1);
+        }
+    }
+}
