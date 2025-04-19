@@ -35,19 +35,25 @@
 {% block content %}
     <aside>
         <nav>
-            <ul>
+            <ul class="card-container collapse">
                 {% if chore_list.is_deleted() %}
                     <li>
-                        <form action="/chore-lists/{{ chore_list.id }}/restore" method="post">
-                            <button type="submit" class="link danger mb-0">♻️&nbsp;Restore Chore List</button>
-                        </form>
+                        <button type="submit" form="chore_list_restore" class="card text-align-left mb-0">
+                            <div class="title">♻️&nbsp;Restore Chore List</div>
+                        </button>
+                        <form id="chore_list_restore" method="post" action="/chore-lists/{{ chore_list.id }}/restore"></form>
                     </li>
                 {% else %}
-                    <li><a href="/chore-lists/{{ chore_list.id }}/update">✏️&nbsp;Edit Chore List</a></li>
                     <li>
-                        <form action="/chore-lists/{{ chore_list.id }}/delete" method="post">
-                            <button type="submit" class="link danger mb-0">🗑️&nbsp;Delete Chore List</button>
-                        </form>
+                        <a href="/chore-lists/{{ chore_list.id }}/update" class="card">
+                            <div class="title">✏️&nbsp;Edit Chore List</div>
+                        </a>
+                    </li>
+                    <li>
+                        <button type="submit" form="chore_list_delete" class="card text-align-left danger mb-0">
+                            <div class="title">🗑️&nbsp;Delete Chore List</div>
+                        </button>
+                        <form id="chore_list_delete" method="post" action="/chore-lists/{{ chore_list.id }}/delete"></form>
                     </li>
                 {% endif %}
             </ul>

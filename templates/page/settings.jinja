@@ -20,23 +20,36 @@
     <aside>
         <nav>
             <h4>Profile</h4>
-            <ul>
-                <li><a href="/users/{{ auth_session.user_id }}/update">🪪&nbsp;Edit Profile</a></li>
+            <ul class="card-container collapse">
                 <li>
-                    <form action="/logout" method="post">
-                        <button type="submit" class="link mb-0">🚪&nbsp;Logout</button>
-                    </form>
+                    <a href="/users/{{ auth_session.user_id }}/update" class="card">
+                        <div class="title">🪪&nbsp;Edit Profile</div>
+                    </a>
+                </li>
+                <li>
+                    <button type="submit" form="logout" class="card text-align-left mb-0">
+                        <div class="title">🚪&nbsp;Logout</div>
+                    </button>
+                    <form id="logout" method="post" action="/logout"></form>
                 </li>
             </ul>
 
             <h4>Instance</h4>
-            <ul>
-                <li><a href="/users">👤&nbsp;Users</a></li>
+            <ul class="card-container collapse">
+                <li>
+                    <a href="/users" class="card">
+                        <div class="title">👤&nbsp;Users</div>
+                    </a>
+                </li>
             </ul>
 
             <h4>Legal</h4>
-            <ul>
-                <li><a href="/legal/privacy-policy" rel="privacy-policy" target="_blank">📜&nbsp;Privacy Policy</a></li>
+            <ul class="card-container collapse">
+                <li>
+                    <a href="/legal/privacy-policy" rel="privacy-policy" target="_blank" class="card">
+                        <div class="title">📜&nbsp;Privacy Policy</div>
+                    </a>
+                </li>
             </ul>
         </nav>
     </aside>

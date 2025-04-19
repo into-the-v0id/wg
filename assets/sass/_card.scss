@@ -12,30 +12,32 @@
     color: var(--pico-h1-color);
 }
 
-a.card {
-    text-decoration: none;
-    padding-right: calc(var(--pico-block-spacing-horizontal) * 2.5);
-
-    &:hover {
+a, button {
+    &.card {
         text-decoration: none;
+        padding-right: calc(var(--pico-block-spacing-horizontal) * 2.5);
 
-        .title {
-            text-decoration: underline;
+        &:hover {
+            text-decoration: none;
+
+            .title {
+                text-decoration: underline;
+            }
         }
-    }
 
-    &::after {
-        width: 1.25rem;
-        height: 1.25rem;
-        position: absolute;
-        right: 0.75rem;
-        top: calc(50% - (1.25rem / 2) + 0.5px);
-        background-image: var(--pico-icon-chevron);
-        background-position: right center;
-        background-size: 1.25rem auto;
-        background-repeat: no-repeat;
-        transform: rotate(-90deg);
-        content: "";
+        &::after {
+            width: 1.25rem;
+            height: 1.25rem;
+            position: absolute;
+            right: 0.75rem;
+            top: calc(50% - (1.25rem / 2) + 0.5px);
+            background-image: var(--pico-icon-chevron);
+            background-position: right center;
+            background-size: 1.25rem auto;
+            background-repeat: no-repeat;
+            transform: rotate(-90deg);
+            content: "";
+        }
     }
 }
 
@@ -45,6 +47,10 @@ ul, ol {
         list-style: none;
 
         > li {
+            margin-top: 0;
+            margin-right: 0;
+            margin-left: 0;
+            padding: 0;
             list-style: none;
         }
     }
