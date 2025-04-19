@@ -35,3 +35,7 @@ main {
         display: none !important;
     }
 }
+
+.py-block {
+    padding-block: var(--pico-block-spacing-vertical);
+}
