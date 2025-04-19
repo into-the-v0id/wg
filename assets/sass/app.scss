@@ -1,0 +1,37 @@
+@use "./layout";
+@use "./nav-bar";
+@use "./side-nav";
+
+:root {
+    hyphens: auto;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+}
+
+.text-danger {
+    color: var(--pico-danger-color);
+}
+
+.fw-bold {
+    font-weight: bold;
+}
+
+.mobile-only {
+    @media (min-width: 1024px) {
+        display: none !important;
+    }
+}
+
+.desktop-only {
+    @media (max-width: 1023px) {
+        display: none !important;
+    }
+}

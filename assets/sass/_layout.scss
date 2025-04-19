@@ -1,0 +1,21 @@
+.layout {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+
+    &-left, &-right {
+        width: 20%;
+        flex-grow: 0;
+        flex-shrink: 0;
+
+        @media (max-width: 1023px) {
+            display: none;
+        }
+    }
+
+    &-center {
+        max-width: 100%;
+        flex-grow: 1;
+        flex-shrink: 0;
+    }
+}

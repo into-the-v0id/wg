@@ -8,6 +8,23 @@
     <a href="/chore-lists/{{ chore_list.id }}/activities" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
+{% block navigation %}
+    <ul>
+        <li><a href="/chore-lists/{{ chore_list.id }}/activities" aria-current="page">
+            <div class="icon">✅</div>
+            <div class="label">Activities</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/chores">
+            <div class="icon">🧹</div>
+            <div class="label">Chores</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/users">
+            <div class="icon">👤</div>
+            <div class="label">Users</div>
+        </a></li>
+    </ul>
+{% endblock %}
+
 {% block content %}
     <form method="post">
         <label for="chore_id">Chore</label>

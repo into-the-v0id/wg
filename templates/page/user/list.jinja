@@ -7,6 +7,19 @@
     <a href="/" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
+{% block navigation %}
+    <ul>
+        <li><a href="/chore-lists">
+            <div class="icon">📋</div>
+            <div class="label">Chore Lists</div>
+        </a></li>
+        <li><a href="/users" aria-current="page">
+            <div class="icon">👤</div>
+            <div class="label">Users</div>
+        </a></li>
+    </ul>
+{% endblock %}
+
 {% block content %}
     <div>
         <a href="/users/create" role="button">+ Add User</a>

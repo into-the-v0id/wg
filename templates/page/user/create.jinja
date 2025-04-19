@@ -8,6 +8,19 @@
     <a href="/users" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
+{% block navigation %}
+    <ul>
+        <li><a href="/chore-lists">
+            <div class="icon">📋</div>
+            <div class="label">Chore Lists</div>
+        </a></li>
+        <li><a href="/users" aria-current="page">
+            <div class="icon">👤</div>
+            <div class="label">Users</div>
+        </a></li>
+    </ul>
+{% endblock %}
+
 {% block content %}
     <form method="post">
         <label for="name">Name</label>

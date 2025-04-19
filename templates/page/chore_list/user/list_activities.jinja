@@ -12,6 +12,23 @@
     <a href="/chore-lists/{{ chore_list.id }}/users/{{ user.id }}" rel="parent" class="secondary">&larr; Back</a>
 {% endblock %}
 
+{% block navigation %}
+    <ul>
+        <li><a href="/chore-lists/{{ chore_list.id }}/activities">
+            <div class="icon">✅</div>
+            <div class="label">Activities</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/chores">
+            <div class="icon">🧹</div>
+            <div class="label">Chores</div>
+        </a></li>
+        <li><a href="/chore-lists/{{ chore_list.id }}/users" aria-current="page">
+            <div class="icon">👤</div>
+            <div class="label">Users</div>
+        </a></li>
+    </ul>
+{% endblock %}
+
 {% block content %}
     {% for (date, activities_of_date) in activities_by_date %}
         <h6>{{ date.format("%Y-%m-%d") }}</h6>

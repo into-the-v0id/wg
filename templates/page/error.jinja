@@ -16,6 +16,9 @@
     <a href="/" class="secondary">&larr; Back</a>
 {% endblock %}
 
+{% block mobile_navigation %}{% endblock %}
+{% block desktop_navigation %}{% endblock %}
+
 {% block content %}
     {% if let Some(request_id) = request_id %}
         <small style="color: var(--pico-muted-color);">
