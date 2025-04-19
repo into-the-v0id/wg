@@ -47,18 +47,23 @@ a, button {
     flex-direction: column;
 }
 
-ul, ol {
-    &.card-container {
-        padding: 0;
-        list-style: none;
-
-        > li {
-            width: 100%;
+:root, nav {
+    ul, ol {
+        &.card-container {
             margin-top: 0;
             margin-right: 0;
             margin-left: 0;
             padding: 0;
             list-style: none;
+
+            > li {
+                width: 100%;
+                margin-top: 0;
+                margin-right: 0;
+                margin-left: 0;
+                padding: 0;
+                list-style: none;
+            }
         }
     }
 }
