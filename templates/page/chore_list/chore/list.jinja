@@ -11,6 +11,10 @@
     <a href="/chore-lists" rel="parent" class="secondary text-decoration-none underline-on-hover">&larr; Back</a>
 {% endblock %}
 
+{% block meta_actions %}
+    <a href="/chore-lists/{{ chore_list.id }}/chores/create" class="secondary text-decoration-none underline-on-hover">+ Add</a>
+{% endblock %}
+
 {% block navigation %}
     <ul>
         <li><a href="/chore-lists/{{ chore_list.id }}/activities">
@@ -33,12 +37,6 @@
 {% endblock %}
 
 {% block content %}
-    <div>
-        <a href="/chore-lists/{{ chore_list.id }}/chores/create" role="button">+ Create Chore</a>
-    </div>
-
-    <br>
-
     <ul class="card-container collapse">
         {% for chore in chores %}
             <li>

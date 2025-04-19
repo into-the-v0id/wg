@@ -3,6 +3,10 @@
 {% block icon %}📋{% endblock %}
 {% block title %}Chore Lists{% endblock %}
 
+{% block meta_actions %}
+    <a href="/chore-lists/create" class="secondary text-decoration-none underline-on-hover">+ Add</a>
+{% endblock %}
+
 {% block navigation %}
     <ul>
         <li><a href="/chore-lists" aria-current="page">
@@ -17,12 +21,6 @@
 {% endblock %}
 
 {% block content %}
-    <div>
-        <a href="/chore-lists/create" role="button">+ Create List</a>
-    </div>
-
-    <br>
-
     <ul class="card-container collapse">
         {% for chore_list in chore_lists %}
             <li>

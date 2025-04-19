@@ -7,6 +7,10 @@
     <a href="/settings" rel="parent" class="secondary text-decoration-none underline-on-hover">&larr; Back</a>
 {% endblock %}
 
+{% block meta_actions %}
+    <a href="/users/create" class="secondary text-decoration-none underline-on-hover">+ Add</a>
+{% endblock %}
+
 {% block navigation %}
     <ul>
         <li><a href="/chore-lists">
@@ -21,12 +25,6 @@
 {% endblock %}
 
 {% block content %}
-    <div>
-        <a href="/users/create" role="button">+ Add User</a>
-    </div>
-
-    <br>
-
     <ul class="card-container collapse">
         {% for user in users %}
             <li>
