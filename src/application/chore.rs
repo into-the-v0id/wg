@@ -305,10 +305,10 @@ pub async fn restore(
 
 #[derive(Template)]
 #[template(path = "page/chore_list/chore/list_activities.jinja")]
-struct ActivityListTemplate {
+struct ActivityListTemplate<'a> {
     chore: chore::Chore,
     chore_list: chore_list::ChoreList,
-    activities: Vec<chore_activity::ChoreActivity>,
+    activities_by_date: Vec<(Date, Vec<&'a chore_activity::ChoreActivity>)>,
     deleted_activities: Vec<chore_activity::ChoreActivity>,
     users: Vec<user::User>,
 }
@@ -331,17 +331,18 @@ pub async fn view_activity_list(
     let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
         .await
         .unwrap();
-    let (activities, deleted_activities) = chore_activity::get_all_for_chore(&state.pool, &chore.id)
+    let (activities, deleted_activities): (Vec<_>, Vec<_>) = chore_activity::get_all_for_chore(&state.pool, &chore.id)
         .await
         .unwrap()
         .into_iter()
         .partition(|activity| !activity.is_deleted());
+    let activities_by_date = chore_activity::group_and_sort_by_date(activities.iter().collect(), true);
 
     Ok(Html(
         ActivityListTemplate {
             chore,
             chore_list,
-            activities,
+            activities_by_date,
             deleted_activities,
             users,
         }
