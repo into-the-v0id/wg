@@ -1,0 +1,16 @@
+.timeline {
+    > .timeline-date-separator {
+        width: 100%;
+        text-align: center;
+        color: var(--pico-muted-color);
+        font-size: .875em;
+
+        &:not(:first-child) {
+            margin-top: var(--pico-spacing);
+        }
+
+        &:not(:last-child) {
+            margin-bottom: var(--pico-spacing);
+        }
+    }
+}
