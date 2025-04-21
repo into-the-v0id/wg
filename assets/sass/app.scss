@@ -18,11 +18,11 @@ main {
 }
 
 .text-danger {
-    color: var(--pico-danger-color);
+    color: var(--pico-danger-color) !important;
 }
 
 .text-muted {
-    color: var(--pico-muted-color);
+    color: var(--pico-muted-color) !important;
 }
 
 .fw-bold {

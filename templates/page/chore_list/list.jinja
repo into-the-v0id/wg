@@ -33,10 +33,9 @@
 
     {% if ! deleted_chore_lists.is_empty() %}
         <br>
-        <br>
 
-        <div>
-            <h4>Deleted 📋&nbsp;Chore Lists</h4>
+        <details>
+            <summary class="arrow-left text-muted">Deleted Chore Lists</summary>
             <ul class="card-container collapse">
                 {% for chore_list in deleted_chore_lists %}
                     <li>
@@ -46,6 +45,6 @@
                     </li>
                 {% endfor %}
             </ul>
-        </div>
+        </details>
     {% endif %}
 {% endblock %}

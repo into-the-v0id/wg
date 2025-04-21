@@ -91,3 +91,25 @@ td, th {
         color: var(--pico-muted-color);
     }
 }
+
+details {
+    summary.arrow-left {
+        &::after {
+            margin-inline-start: 0;
+            margin-inline-end: calc(var(--pico-spacing, 1rem) * 0.5);
+            background-position: left center;
+            float: left;
+        }
+    }
+}
+
+[dir="rtl"] {
+    details {
+        summary.arrow-left {
+            &::after {
+                float: right;
+                background-position: right center;
+            }
+        }
+    }
+}
