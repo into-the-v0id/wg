@@ -26,6 +26,12 @@
             <li>
                 <a href="/chore-lists/{{ chore_list.id }}/activities" class="card">
                     <div class="title">{{ chore_list.name }}</div>
+
+                    {% if let Some(description) = chore_list.description %}
+                        <small class="text-muted text-elipsis">
+                            {{ description }}
+                        </small>
+                    {% endif %}
                 </a>
             </li>
         {% endfor %}

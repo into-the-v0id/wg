@@ -58,6 +58,12 @@ main {
     text-align: center;
 }
 
+.text-elipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
 .underline-only-on-hover {
     &:not(:hover):not(:focus-visible) {
         text-decoration: none;
