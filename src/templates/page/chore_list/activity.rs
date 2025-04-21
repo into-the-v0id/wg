@@ -271,7 +271,7 @@ pub fn create(
 
                 label for="comment" {
                     "Comment"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 textarea #comment name="comment" { }
 
@@ -343,7 +343,7 @@ pub fn update(
 
                 label for="comment" {
                     "Comment"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 textarea #comment name="comment" {
                     @if let Some(comment) = activity.comment {

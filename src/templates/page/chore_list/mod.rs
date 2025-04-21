@@ -102,7 +102,7 @@ pub fn create() -> Markup {
 
                 label for="description" {
                     "Description"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 textarea #description name="description" { }
 
@@ -164,7 +164,7 @@ pub fn update(chore_list: chore_list::ChoreList) -> Markup {
 
                 label for="description" {
                     "Description"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 textarea #description name="description" {
                     @if let Some(description) = chore_list.description {

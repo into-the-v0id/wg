@@ -181,7 +181,7 @@ pub fn update(user: user::User) -> Markup {
 
                 label for="password" {
                     "New Password"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 input #password name="password" type="password" minlength="5" autocomplete="new-password" value="";
 

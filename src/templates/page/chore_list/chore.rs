@@ -244,7 +244,7 @@ pub fn create(
 
                 label for="description" {
                     "Description"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 textarea #description name="description" { }
 
@@ -253,7 +253,7 @@ pub fn create(
 
                 label for="interval_days" {
                     "Interval"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 div role="group" {
                     input #interval_days name="interval_days" type="number" min="1" step="1" aria-describedby="interval_days-help-text";
@@ -313,7 +313,7 @@ pub fn update(
 
                 label for="description" {
                     "Description"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 textarea #description name="description" {
                     @if let Some(description) = chore.description {
@@ -326,7 +326,7 @@ pub fn update(
 
                 label for="interval_days" {
                     "Interval"
-                    i style="opacity: 0.6;" { "(optional)" }
+                    i.text-muted { "(optional)" }
                 }
                 div role="group" {
                     input #interval_days name="interval_days" type="number" min="1" step="1" aria-describedby="interval_days-help-text" value=[chore.interval_days];
