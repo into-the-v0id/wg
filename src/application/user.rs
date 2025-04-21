@@ -1,5 +1,6 @@
 use crate::domain::authentication_session::AuthenticationSession;
 use crate::domain::user;
+use crate::templates;
 use crate::{
     AppState,
     domain::{
@@ -7,64 +8,45 @@ use crate::{
         value::{DateTime, PasswordHash, Uuid},
     },
 };
-use askama::Template;
 use axum::{
     Form,
     extract::{Path, State},
     http::StatusCode,
-    response::{Html, Redirect},
+    response::Redirect,
 };
+use maud::Markup;
 use secrecy::{ExposeSecret, SecretString};
 use std::sync::Arc;
-
-#[derive(Template)]
-#[template(path = "page/user/list.jinja")]
-struct ListTemplate {
-    users: Vec<user::User>,
-    deleted_users: Vec<user::User>,
-}
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Html<String> {
+) -> Markup {
     let (users, deleted_users) = user::get_all(&state.pool)
         .await
         .unwrap()
         .into_iter()
         .partition(|user| !user.is_deleted());
 
-    Html(ListTemplate { users, deleted_users }.render().unwrap())
-}
-
-#[derive(Template)]
-#[template(path = "page/user/detail.jinja")]
-struct DetailTemplate {
-    user: user::User,
+    templates::page::user::list(users, deleted_users)
 }
 
 pub async fn view_detail(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
 
-    Ok(Html(
-        DetailTemplate { user }.render().unwrap(),
-    ))
+    Ok(templates::page::user::detail(user))
 }
 
-#[derive(Template)]
-#[template(path = "page/user/create.jinja")]
-struct CreateTemplate();
-
-pub async fn view_create_form(_auth_session: AuthenticationSession) -> Html<String> {
-    Html(CreateTemplate().render().unwrap())
+pub async fn view_create_form(_auth_session: AuthenticationSession) -> Markup {
+    templates::page::user::create()
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -94,17 +76,11 @@ pub async fn create(
     Redirect::to(&format!("/users/{}", user.id))
 }
 
-#[derive(Template)]
-#[template(path = "page/user/update.jinja")]
-struct UpdateTemplate {
-    user: user::User,
-}
-
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
     auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let user = match user::get_by_id(&state.pool, &id).await {
         Ok(user) => user,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
@@ -118,7 +94,7 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    Ok(Html(UpdateTemplate { user }.render().unwrap()))
+    Ok(templates::page::user::update(user))
 }
 
 #[derive(serde::Deserialize, Debug)]

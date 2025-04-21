@@ -3,33 +3,26 @@ use crate::domain::chore;
 use crate::domain::chore_activity;
 use crate::domain::chore_list;
 use crate::domain::user;
+use crate::templates;
 use crate::{
     AppState,
     domain::value::{Date, DateTime, Uuid},
 };
-use askama::Template;
 use axum::{
     Form,
     extract::{Path, State},
     http::StatusCode,
-    response::{Html, Redirect},
+    response::Redirect,
 };
 use chrono::Days;
+use maud::Markup;
 use std::sync::Arc;
-
-#[derive(Template)]
-#[template(path = "page/chore_list/chore/list.jinja")]
-struct ListTemplate {
-    chore_list: chore_list::ChoreList,
-    chores: Vec<chore::Chore>,
-    deleted_chores: Vec<chore::Chore>,
-}
 
 pub async fn view_list(
     Path(chore_list_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
@@ -42,21 +35,14 @@ pub async fn view_list(
         .into_iter()
         .partition(|chore| !chore.is_deleted());
 
-    Ok(Html(ListTemplate { chore_list, chores, deleted_chores }.render().unwrap()))
-}
-
-#[derive(Template)]
-#[template(path = "page/chore_list/chore/detail.jinja")]
-struct DetailTemplate {
-    chore: chore::Chore,
-    chore_list: chore_list::ChoreList,
+    Ok(templates::page::chore_list::chore::list(chore_list, chores, deleted_chores))
 }
 
 pub async fn view_detail(
     Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
@@ -70,20 +56,14 @@ pub async fn view_detail(
         .await
         .unwrap();
 
-    Ok(Html(DetailTemplate { chore, chore_list }.render().unwrap()))
-}
-
-#[derive(Template)]
-#[template(path = "page/chore_list/chore/create.jinja")]
-struct CreateTemplate {
-    chore_list: chore_list::ChoreList,
+    Ok(templates::page::chore_list::chore::detail(chore, chore_list))
 }
 
 pub async fn view_create_form(
     Path(chore_list_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
@@ -93,7 +73,7 @@ pub async fn view_create_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    Ok(Html(CreateTemplate { chore_list }.render().unwrap()))
+    Ok(templates::page::chore_list::chore::create(chore_list))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -147,18 +127,11 @@ pub async fn create(
     )))
 }
 
-#[derive(Template)]
-#[template(path = "page/chore_list/chore/update.jinja")]
-struct UpdateTemplate {
-    chore: chore::Chore,
-    chore_list: chore_list::ChoreList,
-}
-
 pub async fn view_update_form(
     Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
@@ -178,7 +151,7 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    Ok(Html(UpdateTemplate { chore, chore_list }.render().unwrap()))
+    Ok(templates::page::chore_list::chore::update(chore, chore_list))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -303,21 +276,11 @@ pub async fn restore(
     )))
 }
 
-#[derive(Template)]
-#[template(path = "page/chore_list/chore/list_activities.jinja")]
-struct ActivityListTemplate<'a> {
-    chore: chore::Chore,
-    chore_list: chore_list::ChoreList,
-    activities_by_date: Vec<(Date, Vec<&'a chore_activity::ChoreActivity>)>,
-    deleted_activities: Vec<chore_activity::ChoreActivity>,
-    users: Vec<user::User>,
-}
-
 pub async fn view_activity_list(
     Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let chore = match chore::get_by_id(&state.pool, &id).await {
         Ok(chore) => chore,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
@@ -338,15 +301,11 @@ pub async fn view_activity_list(
         .partition(|activity| !activity.is_deleted());
     let activities_by_date = chore_activity::group_and_sort_by_date(activities.iter().collect(), true);
 
-    Ok(Html(
-        ActivityListTemplate {
-            chore,
-            chore_list,
-            activities_by_date,
-            deleted_activities,
-            users,
-        }
-        .render()
-        .unwrap(),
+    Ok(templates::page::chore_list::chore::list_activities(
+        chore,
+        chore_list,
+        activities_by_date,
+        deleted_activities,
+        users,
     ))
 }

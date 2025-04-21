@@ -1,55 +1,34 @@
 use crate::domain::authentication_session::AuthenticationSession;
 use crate::domain::chore_list;
+use crate::templates;
 use crate::{
     AppState,
     domain::value::{DateTime, Uuid},
 };
-use askama::Template;
 use axum::{
     Form,
     extract::{Path, State},
     http::StatusCode,
-    response::{Html, Redirect},
+    response::Redirect,
 };
+use maud::Markup;
 use std::sync::Arc;
-use strum::IntoEnumIterator;
-
-#[derive(Template)]
-#[template(path = "page/chore_list/list.jinja")]
-struct ListTemplate {
-    chore_lists: Vec<chore_list::ChoreList>,
-    deleted_chore_lists: Vec<chore_list::ChoreList>,
-}
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Html<String> {
+) -> Markup {
     let (chore_lists, deleted_chore_lists) = chore_list::get_all(&state.pool)
         .await
         .unwrap()
         .into_iter()
         .partition(|chore_list| !chore_list.is_deleted());
 
-    Html(ListTemplate { chore_lists, deleted_chore_lists }.render().unwrap())
+    templates::page::chore_list::list(chore_lists, deleted_chore_lists)
 }
 
-#[derive(Template)]
-#[template(path = "page/chore_list/create.jinja")]
-struct CreateTemplate {
-    score_reset_intervals: Vec<chore_list::ScoreResetInterval>,
-}
-
-pub async fn view_create_form(_auth_session: AuthenticationSession) -> Html<String> {
-    let score_reset_intervals = chore_list::ScoreResetInterval::iter().collect();
-
-    Html(
-        CreateTemplate {
-            score_reset_intervals,
-        }
-        .render()
-        .unwrap(),
-    )
+pub async fn view_create_form(_auth_session: AuthenticationSession) -> Markup {
+    templates::page::chore_list::create()
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -82,18 +61,11 @@ pub async fn create(
     Redirect::to(&format!("/chore-lists/{}/activities", chore_list.id))
 }
 
-#[derive(Template)]
-#[template(path = "page/chore_list/update.jinja")]
-struct UpdateTemplate {
-    chore_list: chore_list::ChoreList,
-    score_reset_intervals: Vec<chore_list::ScoreResetInterval>,
-}
-
 pub async fn view_update_form(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
@@ -103,16 +75,7 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let score_reset_intervals = chore_list::ScoreResetInterval::iter().collect();
-
-    Ok(Html(
-        UpdateTemplate {
-            chore_list,
-            score_reset_intervals,
-        }
-        .render()
-        .unwrap(),
-    ))
+    Ok(templates::page::chore_list::update(chore_list))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -192,22 +155,16 @@ pub async fn restore(
     Ok(Redirect::to(&format!("/chore-lists/{}/settings", chore_list.id)))
 }
 
-#[derive(Template)]
-#[template(path = "page/chore_list/settings.jinja")]
-struct SettingsTemplate {
-    chore_list: chore_list::ChoreList,
-}
-
 pub async fn view_settings(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
-) -> Result<Html<String>, StatusCode> {
+) -> Result<Markup, StatusCode> {
     let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
         Ok(chore_list) => chore_list,
         Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
         Err(err) => panic!("{}", err),
     };
 
-    Ok(Html(SettingsTemplate { chore_list }.render().unwrap()))
+    Ok(templates::page::chore_list::settings(chore_list))
 }

@@ -12,10 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pub mod application;
 pub mod domain;
+pub mod application;
+pub mod templates;
 
-use askama::Template;
 use axum::{
     RequestExt, Router,
     body::Body,
@@ -113,7 +113,7 @@ async fn main() {
                 );
                 response_parts.headers.remove(header::CONTENT_LENGTH);
                 response_parts.headers.remove(header::CONTENT_ENCODING);
-                let body = Body::from(ErrorTemplate {status_code, request_id}.render().unwrap());
+                let body = Body::from(templates::page::error::http_error(status_code, request_id).into_string());
 
                 return Response::from_parts(response_parts, body);
             }
@@ -278,11 +278,4 @@ async fn create_user_if_necessary(pool: &sqlx::sqlite::SqlitePool) {
         "Created user with handle '{}' and password '{}'",
         user.handle, plain_password
     );
-}
-
-#[derive(Template)]
-#[template(path = "page/error.jinja")]
-struct ErrorTemplate {
-    status_code: StatusCode,
-    request_id: Option<String>,
 }

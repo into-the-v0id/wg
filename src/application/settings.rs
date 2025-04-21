@@ -1,14 +1,6 @@
-use askama::Template;
-use axum::response::Html;
+use maud::Markup;
+use crate::{domain::authentication_session::AuthenticationSession, templates};
 
-use crate::domain::authentication_session::AuthenticationSession;
-
-#[derive(Template)]
-#[template(path = "page/settings.jinja")]
-struct SettingsTemplate {
-    auth_session: AuthenticationSession,
-}
-
-pub async fn view(auth_session: AuthenticationSession) -> Html<String> {
-    Html(SettingsTemplate { auth_session }.render().unwrap())
+pub async fn view(auth_session: AuthenticationSession) -> Markup {
+    templates::page::settings::settings(auth_session)
 }

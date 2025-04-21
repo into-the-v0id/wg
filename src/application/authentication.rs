@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::templates;
 use crate::domain::user;
 use crate::{
     AppState,
@@ -8,12 +9,11 @@ use crate::{
         value::{DateTime, Uuid},
     },
 };
-use askama::Template;
 use axum::{
     Form, RequestPartsExt,
     extract::{FromRequestParts, OptionalFromRequestParts, State},
     http::{StatusCode, request::Parts},
-    response::{Html, IntoResponse, Redirect},
+    response::{IntoResponse, Redirect},
 };
 use axum_extra::extract::{CookieJar, cookie::Cookie};
 use chrono::Days;
@@ -68,16 +68,12 @@ impl OptionalFromRequestParts<Arc<AppState>> for AuthenticationSession {
     }
 }
 
-#[derive(Template)]
-#[template(path = "page/authentication/login.jinja")]
-struct LoginTemplate();
-
 pub async fn view_login_form(auth_session: Option<AuthenticationSession>) -> impl IntoResponse {
     if auth_session.is_some() {
         return Redirect::to("/").into_response();
     }
 
-    Html(LoginTemplate().render().unwrap()).into_response()
+    templates::page::authentication::login().into_response()
 }
 
 #[derive(serde::Deserialize, Debug)]

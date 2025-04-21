@@ -1,10 +1,6 @@
-use askama::Template;
-use axum::response::Html;
+use maud::Markup;
+use crate::templates;
 
-#[derive(Template)]
-#[template(path = "page/legal/privacy_policy.jinja")]
-struct PrivacyPolicyTemplate();
-
-pub async fn view_privacy_policy() -> Html<String> {
-    Html(PrivacyPolicyTemplate().render().unwrap())
+pub async fn view_privacy_policy() -> Markup {
+    templates::page::legal::privacy_policy()
 }
