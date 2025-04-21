@@ -13,6 +13,14 @@
         }
     }
 
+    &-left {
+        padding-right: var(--pico-spacing);
+    }
+
+    &-right {
+        padding-left: var(--pico-spacing);
+    }
+
     &-center {
         width: 100%;
         flex-grow: 1;
