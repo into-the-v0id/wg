@@ -8,6 +8,9 @@ use crate::{
         value::{DateTime, PasswordHash, Uuid},
     },
 };
+use axum::extract::FromRequestParts;
+use axum::http::request::Parts;
+use axum::RequestPartsExt;
 use axum::{
     Form,
     extract::{Path, State},
@@ -17,6 +20,33 @@ use axum::{
 use maud::Markup;
 use secrecy::{ExposeSecret, SecretString};
 use std::sync::Arc;
+
+#[derive(Debug, Copy, Clone, serde::Deserialize)]
+struct UserPathData {
+    user_id: Uuid,
+}
+
+impl FromRequestParts<Arc<AppState>> for user::User {
+    type Rejection = StatusCode;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
+        let path_data = match parts.extract::<Path<UserPathData>>().await {
+            Ok(path_data) => path_data,
+            Err(_) => return Err(StatusCode::BAD_REQUEST),
+        };
+
+        let user = match user::get_by_id(&state.pool, &path_data.user_id).await {
+            Ok(user) => user,
+            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+            Err(err) => panic!("{}", err),
+        };
+
+        Ok(user)
+    }
+}
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
@@ -32,16 +62,9 @@ pub async fn view_list(
 }
 
 pub async fn view_detail(
-    Path(id): Path<Uuid>,
-    State(state): State<Arc<AppState>>,
+    user: user::User,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let user = match user::get_by_id(&state.pool, &id).await {
-        Ok(user) => user,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-
     Ok(templates::page::user::detail(user))
 }
 
@@ -77,15 +100,9 @@ pub async fn create(
 }
 
 pub async fn view_update_form(
-    Path(id): Path<Uuid>,
-    State(state): State<Arc<AppState>>,
+    user: user::User,
     auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let user = match user::get_by_id(&state.pool, &id).await {
-        Ok(user) => user,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if user.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -106,16 +123,11 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
-    Path(id): Path<Uuid>,
+    mut user: user::User,
     State(state): State<Arc<AppState>>,
     auth_session: AuthenticationSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id).await {
-        Ok(user) => user,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if user.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -137,15 +149,10 @@ pub async fn update(
 }
 
 pub async fn delete(
-    Path(id): Path<Uuid>,
+    mut user: user::User,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id).await {
-        Ok(user) => user,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if user.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -168,15 +175,10 @@ pub async fn delete(
 }
 
 pub async fn restore(
-    Path(id): Path<Uuid>,
+    mut user: user::User,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut user = match user::get_by_id(&state.pool, &id).await {
-        Ok(user) => user,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if !user.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }

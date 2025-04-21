@@ -8,6 +8,9 @@ use crate::{
     AppState,
     domain::value::{Date, DateTime, Uuid},
 };
+use axum::extract::FromRequestParts;
+use axum::http::request::Parts;
+use axum::RequestPartsExt;
 use axum::{
     Form,
     extract::{Path, State},
@@ -18,17 +21,38 @@ use chrono::Days;
 use maud::Markup;
 use std::sync::Arc;
 
+#[derive(Debug, Copy, Clone, serde::Deserialize)]
+struct ChorePathData {
+    chore_id: Uuid,
+}
+
+impl FromRequestParts<Arc<AppState>> for chore::Chore {
+    type Rejection = StatusCode;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
+        let path_data = match parts.extract::<Path<ChorePathData>>().await {
+            Ok(path_data) => path_data,
+            Err(_) => return Err(StatusCode::BAD_REQUEST),
+        };
+
+        let chore = match chore::get_by_id(&state.pool, &path_data.chore_id).await {
+            Ok(chore) => chore,
+            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+            Err(err) => panic!("{}", err),
+        };
+
+        Ok(chore)
+    }
+}
+
 pub async fn view_list(
-    Path(chore_list_id): Path<Uuid>,
+    chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-
     let (chores, deleted_chores) = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
         .await
         .unwrap()
@@ -39,36 +63,21 @@ pub async fn view_list(
 }
 
 pub async fn view_detail(
-    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
-    State(state): State<Arc<AppState>>,
+    chore_list: chore_list::ChoreList,
+    chore: chore::Chore,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chore = match chore::get_by_id(&state.pool, &id).await {
-        Ok(chore) => chore,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-    if chore.chore_list_id != chore_list_id {
+    if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::NOT_FOUND);
     }
-
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
-        .await
-        .unwrap();
 
     Ok(templates::page::chore_list::chore::detail(chore, chore_list))
 }
 
 pub async fn view_create_form(
-    Path(chore_list_id): Path<Uuid>,
-    State(state): State<Arc<AppState>>,
+    chore_list: chore_list::ChoreList,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -86,16 +95,11 @@ pub struct CreatePayload {
 }
 
 pub async fn create(
-    Path(chore_list_id): Path<Uuid>,
+    chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
     Form(payload): Form<CreatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &chore_list_id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -128,27 +132,15 @@ pub async fn create(
 }
 
 pub async fn view_update_form(
-    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
-    State(state): State<Arc<AppState>>,
+    chore_list: chore_list::ChoreList,
+    chore: chore::Chore,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chore = match chore::get_by_id(&state.pool, &id).await {
-        Ok(chore) => chore,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-    if chore.is_deleted() {
+    if chore_list.is_deleted() || chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
-    if chore.chore_list_id != chore_list_id {
+    if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::NOT_FOUND);
-    }
-
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
-        .await
-        .unwrap();
-    if chore_list.is_deleted() {
-        return Err(StatusCode::FORBIDDEN);
     }
 
     Ok(templates::page::chore_list::chore::update(chore, chore_list))
@@ -164,28 +156,17 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
-    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
+    chore_list: chore_list::ChoreList,
+    mut chore: chore::Chore,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore = match chore::get_by_id(&state.pool, &id).await {
-        Ok(chore) => chore,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-    if chore.is_deleted() {
+    if chore_list.is_deleted() || chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
-    if chore.chore_list_id != chore_list_id {
+    if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::NOT_FOUND);
-    }
-
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
-        .await
-        .unwrap();
-    if chore_list.is_deleted() {
-        return Err(StatusCode::FORBIDDEN);
     }
 
     chore.name = payload.name;
@@ -209,27 +190,16 @@ pub async fn update(
 }
 
 pub async fn delete(
-    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
+    chore_list: chore_list::ChoreList,
+    mut chore: chore::Chore,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore = match chore::get_by_id(&state.pool, &id).await {
-        Ok(chore) => chore,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-    if chore.is_deleted() {
+    if chore_list.is_deleted() || chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
-    if chore.chore_list_id != chore_list_id {
+    if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::NOT_FOUND);
-    }
-
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
-        .await
-        .unwrap();
-    if chore_list.is_deleted() {
-        return Err(StatusCode::FORBIDDEN);
     }
 
     chore.date_deleted = Some(DateTime::now());
@@ -243,27 +213,16 @@ pub async fn delete(
 }
 
 pub async fn restore(
-    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
+    chore_list: chore_list::ChoreList,
+    mut chore: chore::Chore,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore = match chore::get_by_id(&state.pool, &id).await {
-        Ok(chore) => chore,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-    if !chore.is_deleted() {
+    if chore_list.is_deleted() || !chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
-    if chore.chore_list_id != chore_list_id {
+    if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::NOT_FOUND);
-    }
-
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
-        .await
-        .unwrap();
-    if chore_list.is_deleted() {
-        return Err(StatusCode::FORBIDDEN);
     }
 
     chore.date_deleted = None;
@@ -277,23 +236,16 @@ pub async fn restore(
 }
 
 pub async fn view_activity_list(
-    Path((chore_list_id, id)): Path<(Uuid, Uuid)>,
+    chore_list: chore_list::ChoreList,
+    chore: chore::Chore,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chore = match chore::get_by_id(&state.pool, &id).await {
-        Ok(chore) => chore,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-    if chore.chore_list_id != chore_list_id {
+    if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::NOT_FOUND);
     }
 
     let users = user::get_all(&state.pool).await.unwrap();
-    let chore_list = chore_list::get_by_id(&state.pool, &chore.chore_list_id)
-        .await
-        .unwrap();
     let (activities, deleted_activities): (Vec<_>, Vec<_>) = chore_activity::get_all_for_chore(&state.pool, &chore.id)
         .await
         .unwrap()

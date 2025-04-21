@@ -5,6 +5,9 @@ use crate::{
     AppState,
     domain::value::{DateTime, Uuid},
 };
+use axum::extract::FromRequestParts;
+use axum::http::request::Parts;
+use axum::RequestPartsExt;
 use axum::{
     Form,
     extract::{Path, State},
@@ -13,6 +16,33 @@ use axum::{
 };
 use maud::Markup;
 use std::sync::Arc;
+
+#[derive(Debug, Copy, Clone, serde::Deserialize)]
+struct ChoreListPathData {
+    chore_list_id: Uuid,
+}
+
+impl FromRequestParts<Arc<AppState>> for chore_list::ChoreList {
+    type Rejection = StatusCode;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
+        let path_data = match parts.extract::<Path<ChoreListPathData>>().await {
+            Ok(path_data) => path_data,
+            Err(_) => return Err(StatusCode::BAD_REQUEST),
+        };
+
+        let chore_list = match chore_list::get_by_id(&state.pool, &path_data.chore_list_id).await {
+            Ok(chore_list) => chore_list,
+            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+            Err(err) => panic!("{}", err),
+        };
+
+        Ok(chore_list)
+    }
+}
 
 pub async fn view_list(
     State(state): State<Arc<AppState>>,
@@ -62,15 +92,9 @@ pub async fn create(
 }
 
 pub async fn view_update_form(
-    Path(id): Path<Uuid>,
-    State(state): State<Arc<AppState>>,
+    chore_list: chore_list::ChoreList,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -87,16 +111,11 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
-    Path(id): Path<Uuid>,
+    mut chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
     Form(payload): Form<UpdatePayload>,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -114,15 +133,10 @@ pub async fn update(
 }
 
 pub async fn delete(
-    Path(id): Path<Uuid>,
+    mut chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -135,15 +149,10 @@ pub async fn delete(
 }
 
 pub async fn restore(
-    Path(id): Path<Uuid>,
+    mut chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Redirect, StatusCode> {
-    let mut chore_list = match chore_list::get_by_id(&state.pool, &id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
     if !chore_list.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -156,15 +165,8 @@ pub async fn restore(
 }
 
 pub async fn view_settings(
-    Path(id): Path<Uuid>,
-    State(state): State<Arc<AppState>>,
+    chore_list: chore_list::ChoreList,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chore_list = match chore_list::get_by_id(&state.pool, &id).await {
-        Ok(chore_list) => chore_list,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-        Err(err) => panic!("{}", err),
-    };
-
     Ok(templates::page::chore_list::settings(chore_list))
 }
