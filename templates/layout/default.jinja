@@ -4,12 +4,12 @@
         <meta charset="utf-8">
         <title>{% block title %}WG{% endblock %}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="dark">
 
         <link rel="stylesheet" href="{{ crate::application::assets::get_url("/css/pico.css").unwrap() }}">
         <link rel="stylesheet" href="{{ crate::application::assets::get_url("/css/app.css").unwrap() }}">
 
         <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2258%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22black%22 style=%22font-size:89px;line-height:1;text-align:center;%22>{% block icon %}🏠{% endblock %}</text></svg>">
-        <meta name="color-scheme" content="dark">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
 
