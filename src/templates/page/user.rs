@@ -1,6 +1,8 @@
 use maud::{html, Markup};
 use crate::domain::user;
 use crate::templates::layout;
+use crate::templates::partial;
+use crate::templates::partial::navigation::GlobalNavigationItem;
 
 pub fn list(
     users: Vec<user::User>,
@@ -15,22 +17,7 @@ pub fn list(
             .meta_actions(html! {
                 a.secondary.text-decoration-none.underline-on-hover href="/users/create" { "+ Add" }
             })
-            .navigation(html! {
-                ul {
-                    li {
-                        a href="/chore-lists" {
-                            div.icon { "📋" }
-                            div.label { "Chore Lists" }
-                        }
-                    }
-                    li {
-                        a href="/settings" aria-current="page" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
             ul.card-container.collapse {
@@ -79,22 +66,7 @@ pub fn detail(user: user::User) -> Markup {
                     form #user_delete method="post" action={ "/users/" (user.id) "/delete" } { }
                 }
             })
-            .navigation(html! {
-                ul {
-                    li {
-                        a href="/chore-lists" {
-                            div.icon { "📋" }
-                            div.label { "Chore Lists" }
-                        }
-                    }
-                    li {
-                        a href="/settings" aria-current="page" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
             @if user.is_deleted() {
@@ -113,22 +85,7 @@ pub fn create() -> Markup {
             .title("Create User")
             .headline("Create 👤 User")
             .back_url("/users")
-            .navigation(html! {
-                ul {
-                    li {
-                        a href="/chore-lists" {
-                            div.icon { "📋" }
-                            div.label { "Chore Lists" }
-                        }
-                    }
-                    li {
-                        a href="/settings" aria-current="page" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
             form method="post" {
@@ -154,22 +111,7 @@ pub fn update(user: user::User) -> Markup {
             .title("Edit Profile")
             .headline("Edit Profile")
             .back_url("/settings")
-            .navigation(html! {
-                ul {
-                    li {
-                        a href="/chore-lists" {
-                            div.icon { "📋" }
-                            div.label { "Chore Lists" }
-                        }
-                    }
-                    li {
-                        a href="/settings" aria-current="page" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
             form method="post" {

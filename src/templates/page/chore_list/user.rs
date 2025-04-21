@@ -6,6 +6,8 @@ use crate::domain::user;
 use crate::domain::value::Date;
 use crate::domain::value::Uuid;
 use crate::templates::layout;
+use crate::templates::partial;
+use crate::templates::partial::navigation::ChoreListNavigationItem;
 
 pub fn list(
     chore_list: chore_list::ChoreList,
@@ -20,34 +22,7 @@ pub fn list(
             .headline("👤 Users")
             .teaser(&format!("Of 📋 {}", chore_list.name))
             .back_url("/chore-lists")
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } aria-current="page" {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
         html! {
             ol.card-container.collapse {
@@ -94,34 +69,7 @@ pub fn detail(
             .headline(&format!("👤 {}", user.name))
             .teaser(&format!("Of 📋 {}", chore_list.name))
             .back_url(&format!("/chore-lists/{}/users", chore_list.id))
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } aria-current="page" {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
         html! {
             @if user.is_deleted() || chore_list.is_deleted() {
@@ -159,34 +107,7 @@ pub fn list_activities(
             .headline("✅ Activities")
             .teaser(&format!("Of 👤 {} in 📋 {}", user.name, chore_list.name))
             .back_url(&format!("/chore-lists/{}/users/{}", chore_list.id, user.id))
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } aria-current="page" {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
         html! {
             div.timeline {

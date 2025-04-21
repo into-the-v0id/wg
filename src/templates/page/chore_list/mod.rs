@@ -5,6 +5,9 @@ pub mod user;
 use maud::{html, Markup};
 use crate::domain::chore_list;
 use crate::templates::layout;
+use crate::templates::partial;
+use crate::templates::partial::navigation::ChoreListNavigationItem;
+use crate::templates::partial::navigation::GlobalNavigationItem;
 use strum::IntoEnumIterator;
 
 pub fn list(
@@ -19,22 +22,7 @@ pub fn list(
             .meta_actions(html! {
                 a.secondary.text-decoration-none.underline-on-hover href="/chore-lists/create" { "+ Add" }
             })
-            .navigation(html! {
-                ul {
-                    li {
-                        a href="/chore-lists" aria-current="page" {
-                            div.icon { "📋" }
-                            div.label { "Chore Lists" }
-                        }
-                    }
-                    li {
-                        a href="/settings" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::global(Some(GlobalNavigationItem::ChoreLists)))
             .build(),
         html! {
             ul.card-container.collapse {
@@ -78,22 +66,7 @@ pub fn create() -> Markup {
             .title("Create Chore List")
             .headline("Create 📋 Chore List")
             .back_url("/chore-lists")
-            .navigation(html! {
-                ul {
-                    li {
-                        a href="/chore-lists" aria-current="page" {
-                            div.icon { "📋" }
-                            div.label { "Chore Lists" }
-                        }
-                    }
-                    li {
-                        a href="/settings" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::global(Some(GlobalNavigationItem::ChoreLists)))
             .build(),
         html! {
             form method="post" {
@@ -128,34 +101,7 @@ pub fn update(chore_list: chore_list::ChoreList) -> Markup {
             .title("Edit Chore List")
             .headline("Edit 📋 Chore List")
             .back_url(&format!("/chore-lists/{}/settings", chore_list.id))
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } aria-current="page" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Settings)))
             .build(),
         html! {
             form method="post" {
@@ -195,34 +141,7 @@ pub fn settings(chore_list: chore_list::ChoreList) -> Markup {
             .headline("⚙️ Settings")
             .teaser(&format!("Of 📋 {}", chore_list.name))
             .back_url("/chore-lists")
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } aria-current="page" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Settings)))
             .build(),
         html! {
             nav style="flex-direction: column;" {

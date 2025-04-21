@@ -7,6 +7,8 @@ use crate::domain::user;
 use crate::domain::value::Date;
 use crate::domain::value::DateTime;
 use crate::templates::layout;
+use crate::templates::partial;
+use crate::templates::partial::navigation::ChoreListNavigationItem;
 
 pub fn list(
     chore_list: chore_list::ChoreList,
@@ -25,34 +27,7 @@ pub fn list(
             .meta_actions(html! {
                 a.secondary.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ Add" }
             })
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } aria-current="page" {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),
         html! {
             div.timeline {
@@ -147,34 +122,7 @@ pub fn detail(
                     form #activity_delete method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/delete" { }
                 }
             })
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } aria-current="page" {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),
         html! {
             @if activity.is_deleted() || chore.is_deleted() || chore_list.is_deleted() {
@@ -226,34 +174,7 @@ pub fn create(
             .title("Create Activity")
             .headline("Create ✅ Activity")
             .back_url(&format!("/chore-lists/{}/activities", chore_list.id))
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } aria-current="page" {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),
         html! {
             form method="post" {
@@ -298,34 +219,7 @@ pub fn update(
             .title("Edit Activity")
             .headline("Edit ✅ Activity")
             .back_url(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id))
-            .navigation(html! {
-                ul {
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/activities" } aria-current="page" {
-                            div.icon { "✅" }
-                            div.label { "Activities" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/chores" } {
-                            div.icon { "🧹" }
-                            div.label { "Chores" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/users" } {
-                            div.icon { "👤" }
-                            div.label { "Users" }
-                        }
-                    }
-                    li {
-                        a href={ "/chore-lists/" (chore_list.id) "/settings" } {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),
         html! {
             form method="post" {

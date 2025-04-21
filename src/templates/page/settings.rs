@@ -1,6 +1,8 @@
 use maud::{html, Markup};
 use crate::domain::authentication_session::AuthenticationSession;
 use crate::templates::layout;
+use crate::templates::partial;
+use crate::templates::partial::navigation::GlobalNavigationItem;
 
 pub fn settings(auth_session: AuthenticationSession) -> Markup {
     layout::default(
@@ -8,22 +10,7 @@ pub fn settings(auth_session: AuthenticationSession) -> Markup {
             .emoji("⚙️")
             .title("Settings")
             .headline("⚙️ Settings")
-            .navigation(html! {
-                ul {
-                    li {
-                        a href="/chore-lists" {
-                            div.icon { "📋" }
-                            div.label { "Chore Lists" }
-                        }
-                    }
-                    li {
-                        a href="/settings" aria-current="page" {
-                            div.icon { "⚙️" }
-                            div.label { "Settings" }
-                        }
-                    }
-                }
-            })
+            .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
             nav style="flex-direction: column;" {
