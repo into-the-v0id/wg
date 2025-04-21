@@ -243,7 +243,7 @@ pub fn create(
                 input #name name="name" type="text" required;
 
                 label for="description" {
-                    "Description"
+                    "Description "
                     i.text-muted { "(optional)" }
                 }
                 textarea #description name="description" { }
@@ -252,7 +252,7 @@ pub fn create(
                 input #points name="points" type="number" min="1" step="1" required;
 
                 label for="interval_days" {
-                    "Interval"
+                    "Interval "
                     i.text-muted { "(optional)" }
                 }
                 div role="group" {
@@ -312,7 +312,7 @@ pub fn update(
                 input #name name="name" type="text" required value=(chore.name);
 
                 label for="description" {
-                    "Description"
+                    "Description "
                     i.text-muted { "(optional)" }
                 }
                 textarea #description name="description" {
@@ -325,7 +325,7 @@ pub fn update(
                 input #points name="points" type="number" min="1" step="1" required value=(chore.points);
 
                 label for="interval_days" {
-                    "Interval"
+                    "Interval "
                     i.text-muted { "(optional)" }
                 }
                 div role="group" {

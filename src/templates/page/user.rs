@@ -180,7 +180,7 @@ pub fn update(user: user::User) -> Markup {
                 input #handle name="handle" type="text" required autocomplete="username" value=(user.handle);
 
                 label for="password" {
-                    "New Password"
+                    "New Password "
                     i.text-muted { "(optional)" }
                 }
                 input #password name="password" type="password" minlength="5" autocomplete="new-password" value="";

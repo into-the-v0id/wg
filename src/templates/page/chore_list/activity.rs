@@ -270,7 +270,7 @@ pub fn create(
                 input #date name="date" type="date" min=(min_date.format("%Y-%m-%d")) max=(max_date.format("%Y-%m-%d")) value=(now.format("%Y-%m-%d")) required;
 
                 label for="comment" {
-                    "Comment"
+                    "Comment "
                     i.text-muted { "(optional)" }
                 }
                 textarea #comment name="comment" { }
@@ -342,7 +342,7 @@ pub fn update(
                 input #date name="date" type="date" min=(min_date.format("%Y-%m-%d")) max=(max_date.format("%Y-%m-%d")) value=(activity.date.format("%Y-%m-%d")) required;
 
                 label for="comment" {
-                    "Comment"
+                    "Comment "
                     i.text-muted { "(optional)" }
                 }
                 textarea #comment name="comment" {

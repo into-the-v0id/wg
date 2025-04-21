@@ -101,7 +101,7 @@ pub fn create() -> Markup {
                 input #name name="name" type="text" required;
 
                 label for="description" {
-                    "Description"
+                    "Description "
                     i.text-muted { "(optional)" }
                 }
                 textarea #description name="description" { }
@@ -163,7 +163,7 @@ pub fn update(chore_list: chore_list::ChoreList) -> Markup {
                 input #name name="name" type="text" required value=(chore_list.name);
 
                 label for="description" {
-                    "Description"
+                    "Description "
                     i.text-muted { "(optional)" }
                 }
                 textarea #description name="description" {
