@@ -62,6 +62,10 @@
                                             –&nbsp;{{ user.name }}
                                     {% endif %}
                                 {% endfor %}
+
+                                {% if activity.comment.is_some() %}
+                                    –&nbsp;Has comment
+                                {% endif %}
                             </small>
                         </a>
                     </li>

@@ -49,6 +49,12 @@
                                     <div class="title">{{ user.name }}</div>
                                 {% endif %}
                             {% endfor %}
+
+                            {% if activity.comment.is_some() %}
+                                <small class="text-muted">
+                                    Has comment
+                                </small>
+                            {% endif %}
                         </a>
                     </li>
                 {% endfor %}

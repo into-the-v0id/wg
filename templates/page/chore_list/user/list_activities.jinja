@@ -53,6 +53,10 @@
                                         {{ chore.points }}P
                                     {% endif %}
                                 {% endfor %}
+
+                                {% if activity.comment.is_some() %}
+                                    –&nbsp;Has comment
+                                {% endif %}
                             </small>
                         </a>
                     </li>
