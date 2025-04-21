@@ -231,6 +231,10 @@ pub fn list_activities(
                                         (chore.points) "P"
 
                                         " – " (activity.date.format("%Y-%m-%d"))
+
+                                        @if activity.comment.is_some() {
+                                            " – Has comment"
+                                        }
                                     }
                                 }
                             }

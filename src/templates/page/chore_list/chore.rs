@@ -423,6 +423,10 @@ pub fn list_activities(
 
                                     small.text-muted {
                                         (activity.date.format("%Y-%m-%d"))
+
+                                        @if activity.comment.is_some() {
+                                            " – Has comment"
+                                        }
                                     }
                                 }
                             }

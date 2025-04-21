@@ -103,6 +103,10 @@ pub fn list(
                                         " – " (user.name)
 
                                         " – " (activity.date.format("%Y-%m-%d"))
+
+                                        @if activity.comment.is_some() {
+                                            " – Has comment"
+                                        }
                                     }
                                 }
                             }
