@@ -35,9 +35,10 @@ pub async fn serve(
 
     (
         [
-            (header::CONTENT_TYPE, mime_type.as_ref()),
-            (header::X_CONTENT_TYPE_OPTIONS, "nosniff"),
-            (header::CACHE_CONTROL, cache_control),
+            (header::CONTENT_TYPE.as_str(), mime_type.as_ref()),
+            (header::X_CONTENT_TYPE_OPTIONS.as_str(), "nosniff"),
+            (header::CACHE_CONTROL.as_str(), cache_control),
+            ("cross-origin-resource-policy", "cross-origin"),
         ],
         file.data,
     )
