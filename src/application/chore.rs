@@ -19,6 +19,7 @@ use axum::{
 };
 use chrono::Days;
 use maud::Markup;
+use serde_with::serde_as;
 use std::sync::Arc;
 
 #[derive(Debug, Copy, Clone, serde::Deserialize)]
@@ -85,11 +86,13 @@ pub async fn view_create_form(
     Ok(templates::page::chore_list::chore::create(chore_list))
 }
 
+#[serde_as]
 #[derive(serde::Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct CreatePayload {
     name: String,
     points: u32,
+    #[serde_as(as = "serde_with::NoneAsEmptyString")]
     interval_days: Option<u32>,
     description: String,
 }
@@ -146,11 +149,13 @@ pub async fn view_update_form(
     Ok(templates::page::chore_list::chore::update(chore, chore_list))
 }
 
+#[serde_as]
 #[derive(serde::Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct UpdatePayload {
     name: String,
     points: u32,
+    #[serde_as(as = "serde_with::NoneAsEmptyString")]
     interval_days: Option<u32>,
     description: String,
 }
