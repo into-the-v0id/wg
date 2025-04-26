@@ -243,9 +243,9 @@ pub fn list_activities(
 ) -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
-            .emoji("🧹")
-            .title("Edit Activities")
-            .headline("Edit 🧹 Activities")
+            .emoji("✅")
+            .title("Activities")
+            .headline("✅ Activities")
             .teaser(&format!("Of 🧹 {}", chore.name))
             .back_url(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id))
             .meta_actions(html! {
