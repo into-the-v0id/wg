@@ -103,37 +103,30 @@ pub fn detail(
                 br;
             }
 
-            table {
-                tr {
-                    th scope="row" { "Points" }
-                    td { (chore.points) }
-                }
-
-                @if let Some(description) = chore.description {
-                    tr {
-                        th scope="row" { "Description" }
-                        td { (description) }
-                    }
-                }
+            dl {
+                dt { "Points" }
+                dd { (chore.points) }
 
                 @if let Some(interval_days) = chore.interval_days {
-                    tr {
-                        th scope="row" { "Interval" }
-                        td { "every " (interval_days) " day(s)" }
-                    }
+                    dt { "Interval" }
+                    dd { "every " (interval_days) " day(s)" }
                 }
 
                 @if let Some(next_due_date) = chore.next_due_date {
                     @let is_due = next_due_date.is_today() || next_due_date.is_in_past();
-                    tr {
-                        th scope="row" { "Next Due Date" }
-                        td.text-danger[is_due].fw-bold[is_due] {
-                            (next_due_date.format("%Y-%m-%d"))
-                        }
+                    dt { "Next Due Date" }
+                    dd.text-danger[is_due].fw-bold[is_due] {
+                        (next_due_date.format("%Y-%m-%d"))
                     }
+                }
+
+                @if let Some(description) = chore.description {
+                    dt { "Description" }
+                    dd { (description) }
                 }
             }
 
+            br;
             br;
 
             nav style="flex-direction: column;" {

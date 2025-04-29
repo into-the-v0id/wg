@@ -135,28 +135,23 @@ pub fn detail(
                 br;
             }
 
-            table {
-                tr {
-                    th scope="row" { "Date" }
-                    td { (activity.date.format("%Y-%m-%d")) }
-                }
-                tr {
-                    th scope="row" { "User" }
-                    td { a.secondary href={ "/chore-lists/" (chore_list.id) "/users/" (user.id) } { "👤 " (user.name) } }
-                }
-                tr {
-                    th scope="row" { "Chore" }
-                    td {
-                        a.secondary href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
-                            "🧹 " (chore.name) " (" (chore.points) "P)"
-                        }
+            dl {
+                dt { "Date" }
+                dd { (activity.date.format("%Y-%m-%d")) }
+
+                dt { "User" }
+                dd { a.inherit.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/users/" (user.id) } { "👤 " (user.name) } }
+
+                dt { "Chore" }
+                dd {
+                    a.inherit.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
+                        "🧹 " (chore.name) " (" (chore.points) "P)"
                     }
                 }
+
                 @if let Some(comment) = activity.comment {
-                    tr {
-                        th scope="row" { "Comment" }
-                        td { (comment) }
-                    }
+                    dt { "Comment" }
+                    dd { (comment) }
                 }
             }
         },
