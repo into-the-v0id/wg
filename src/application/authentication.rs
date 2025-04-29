@@ -77,7 +77,6 @@ pub async fn view_login_form(auth_session: Option<AuthenticationSession>) -> imp
 }
 
 #[derive(serde::Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct LoginPayload {
     handle: String,
     password: SecretString,

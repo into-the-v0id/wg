@@ -130,7 +130,6 @@ pub async fn view_create_form(
 }
 
 #[derive(serde::Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct CreatePayload {
     chore_id: Uuid,
     date: Date,
@@ -238,7 +237,6 @@ pub async fn view_update_form(
 }
 
 #[derive(serde::Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct UpdatePayload {
     chore_id: Uuid,
     date: Date,

@@ -88,7 +88,6 @@ pub async fn view_create_form(
 
 #[serde_as]
 #[derive(serde::Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct CreatePayload {
     name: String,
     points: u32,
@@ -151,7 +150,6 @@ pub async fn view_update_form(
 
 #[serde_as]
 #[derive(serde::Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct UpdatePayload {
     name: String,
     points: u32,

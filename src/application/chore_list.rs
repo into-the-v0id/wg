@@ -62,7 +62,6 @@ pub async fn view_create_form(_auth_session: AuthenticationSession) -> Markup {
 }
 
 #[derive(serde::Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct CreatePayload {
     name: String,
     description: String,
@@ -103,7 +102,6 @@ pub async fn view_update_form(
 }
 
 #[derive(serde::Deserialize, Debug)]
-#[allow(dead_code)]
 pub struct UpdatePayload {
     name: String,
     description: String,
