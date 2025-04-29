@@ -25,7 +25,9 @@ pub fn list(
             .teaser(&format!("Of 📋 {}", chore_list.name))
             .back_url("/chore-lists")
             .meta_actions(html! {
-                a.secondary.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ Add" }
+                @if !chore_list.is_deleted() {
+                    a.secondary.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ Add" }
+                }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),
