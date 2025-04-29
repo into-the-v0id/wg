@@ -26,7 +26,7 @@ pub fn list(
             .back_url("/chore-lists")
             .meta_actions(html! {
                 @if !chore_list.is_deleted() {
-                    a.secondary.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ Add" }
+                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ Add" }
                 }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
@@ -112,13 +112,13 @@ pub fn detail(
             .back_url(&format!("/chore-lists/{}/activities", chore_list.id))
             .meta_actions(html! {
                 @if activity.is_deleted() {
-                    button.link.secondary.text-decoration-none.underline-on-hover.mb-0 type="submit" form="activity_restore" { "↻ Restore" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="activity_restore" { "↻ Restore" }
                     form #activity_restore method="post" action={ "/chore-lists/" (chore_list.id) "/activities/" (activity.id) "/restore" } { }
                 } @else if !chore.is_deleted() && !chore_list.is_deleted() && activity.user_id == auth_session.user_id {
-                    button.link.secondary.text-decoration-none.underline-on-hover.mb-0 type="submit" form="activity_delete" { "✗ Delete" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="activity_delete" { "✗ Delete" }
 
                     @if allow_edit {
-                        a.secondary.text-decoration-none.underline-on-hover href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" style="margin-left: 1.25rem;" { "✎ Edit" }
+                        a.secondary.subtle href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" style="margin-left: 1.25rem;" { "✎ Edit" }
                     }
 
                     form #activity_delete method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/delete" { }
@@ -140,11 +140,11 @@ pub fn detail(
                 dd { (activity.date.format("%Y-%m-%d")) }
 
                 dt { "User" }
-                dd { a.inherit.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/users/" (user.id) } { "👤 " (user.name) } }
+                dd { a.inherit.subtle href={ "/chore-lists/" (chore_list.id) "/users/" (user.id) } { "👤 " (user.name) } }
 
                 dt { "Chore" }
                 dd {
-                    a.inherit.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
+                    a.inherit.subtle href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
                         "🧹 " (chore.name) " (" (chore.points) "P)"
                     }
                 }

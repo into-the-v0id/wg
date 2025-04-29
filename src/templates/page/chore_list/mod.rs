@@ -20,7 +20,7 @@ pub fn list(
             .title("Chore Lists")
             .headline("📋 Chore Lists")
             .meta_actions(html! {
-                a.secondary.text-decoration-none.underline-on-hover href="/chore-lists/create" { "+ Add" }
+                a.secondary.subtle href="/chore-lists/create" { "+ Add" }
             })
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::ChoreLists)))
             .build(),

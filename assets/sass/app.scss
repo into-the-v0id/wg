@@ -70,13 +70,3 @@ main {
         text-decoration: none;
     }
 }
-
-.text-decoration-none {
-    text-decoration: none !important;
-}
-
-.underline-on-hover {
-    &:hover, &:focus-visible {
-        text-decoration: underline !important;
-    }
-}

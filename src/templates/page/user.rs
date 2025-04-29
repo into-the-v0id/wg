@@ -15,7 +15,7 @@ pub fn list(
             .headline("👤 Users")
             .back_url("/settings")
             .meta_actions(html! {
-                a.secondary.text-decoration-none.underline-on-hover href="/users/create" { "+ Add" }
+                a.secondary.subtle href="/users/create" { "+ Add" }
             })
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
@@ -59,10 +59,10 @@ pub fn detail(user: user::User) -> Markup {
             .back_url("/users")
             .meta_actions(html! {
                 @if user.is_deleted() {
-                    button.link.secondary.text-decoration-none.underline-on-hover.mb-0 type="submit" form="user_restore" { "↻ Restore" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="user_restore" { "↻ Restore" }
                     form #user_restore method="post" action={ "/users/" (user.id) "/restore" } { }
                 } @else {
-                    button.link.secondary.text-decoration-none.underline-on-hover.mb-0 type="submit" form="user_delete" { "✗ Delete" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="user_delete" { "✗ Delete" }
                     form #user_delete method="post" action={ "/users/" (user.id) "/delete" } { }
                 }
             })

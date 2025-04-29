@@ -93,6 +93,14 @@ td, th {
 }
 
 a:not([role="button"]), [role="link"] {
+    &.subtle {
+        text-decoration: none;
+
+        &:is([aria-current]:not([aria-current="false"]), :hover, :active, :focus) {
+            text-decoration: underline;
+        }
+    }
+
     &.inherit {
         --pico-color: inherit;
         --pico-underline: currentColor;

@@ -22,7 +22,7 @@ pub fn list(
             .back_url("/chore-lists")
             .meta_actions(html! {
                 @if !chore_list.is_deleted() {
-                    a.secondary.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/chores/create" } { "+ Add" }
+                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/chores/create" } { "+ Add" }
                 }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
@@ -82,12 +82,12 @@ pub fn detail(
             .back_url(&format!("/chore-lists/{}/chores", chore_list.id))
             .meta_actions(html! {
                 @if chore.is_deleted() {
-                    button.link.secondary.text-decoration-none.underline-on-hover.mb-0 type="submit" form="chore_restore" { "↻ Restore" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="chore_restore" { "↻ Restore" }
                     form #chore_restore method="post" action={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/restore" } { }
                 } @else if !chore_list.is_deleted() {
-                    button.link.secondary.text-decoration-none.underline-on-hover.mb-0 type="submit" form="chore_delete" { "✗ Delete" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="chore_delete" { "✗ Delete" }
 
-                    a.secondary.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/update" } style="margin-left: 1.25rem;" { "✎ Edit" }
+                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/update" } style="margin-left: 1.25rem;" { "✎ Edit" }
 
                     form #chore_delete method="post" action={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/delete" } { }
                 }
@@ -244,7 +244,7 @@ pub fn list_activities(
             .teaser(&format!("Of 🧹 {}", chore.name))
             .back_url(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id))
             .meta_actions(html! {
-                a.secondary.text-decoration-none.underline-on-hover href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ Add" }
+                a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ Add" }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),

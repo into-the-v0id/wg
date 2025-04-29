@@ -87,7 +87,7 @@ pub fn default(
                     div style="display: flex; justify-content: space-between;" {
                         div {
                             @if let Some(back_url) = options.back_url {
-                                a.secondary.text-decoration-none.underline-on-hover href=(back_url) rel="parent" {
+                                a.secondary.subtle href=(back_url) rel="parent" {
                                     (PreEscaped("&larr;")) " Back"
                                 }
                             } @else {
