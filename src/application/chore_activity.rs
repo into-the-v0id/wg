@@ -53,14 +53,13 @@ pub async fn view_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
-        .await
-        .unwrap();
-    let users = user::get_all(&state.pool).await.unwrap();
+    let (chores, users, all_activities) = tokio::try_join!(
+        chore::get_all_for_chore_list(&state.pool, &chore_list.id),
+        user::get_all(&state.pool),
+        chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id),
+    ).unwrap();
 
-    let (activities, deleted_activities): (Vec<_>, Vec<_>) = chore_activity::get_all_for_chore_list(&state.pool, &chore_list.id)
-        .await
-        .unwrap()
+    let (activities, deleted_activities): (Vec<_>, Vec<_>) = all_activities
         .into_iter()
         .partition(|activity| !activity.is_deleted());
     let activities_by_date = chore_activity::group_and_sort_by_date(activities.iter().collect(), true);
@@ -80,16 +79,14 @@ pub async fn view_detail(
     State(state): State<Arc<AppState>>,
     auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chore = chore::get_by_id(&state.pool, &activity.chore_id)
-        .await
-        .unwrap();
+    let (chore, user) = tokio::try_join!(
+        chore::get_by_id(&state.pool, &activity.chore_id),
+        user::get_by_id(&state.pool, &activity.user_id),
+    ).unwrap();
+
     if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::NOT_FOUND);
     }
-
-    let user = user::get_by_id(&state.pool, &activity.user_id)
-        .await
-        .unwrap();
 
     let min_date = (chrono::Utc::now() - Days::new(2)).date_naive();
     let allow_edit = activity.date.as_ref() >= &min_date;
@@ -206,9 +203,11 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chore = chore::get_by_id(&state.pool, &activity.chore_id)
-        .await
-        .unwrap();
+    let (chore, all_chores) = tokio::try_join!(
+        chore::get_by_id(&state.pool, &activity.chore_id),
+        chore::get_all_for_chore_list(&state.pool, &chore_list.id),
+    ).unwrap();
+
     if chore.is_deleted() {
         return Err(StatusCode::FORBIDDEN);
     }
@@ -221,15 +220,12 @@ pub async fn view_update_form(
         return Err(StatusCode::FORBIDDEN);
     }
 
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
-        .await
-        .unwrap();
     let min_date = Date::from(min_date);
     let max_date = Date::now();
 
     Ok(templates::page::chore_list::activity::update(
         activity,
-        chores,
+        all_chores,
         chore_list,
         min_date,
         max_date,

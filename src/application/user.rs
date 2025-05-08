@@ -163,11 +163,10 @@ pub async fn delete(
     let auth_sessions = authentication_session::get_all_for_user(&state.pool, &user.id)
         .await
         .unwrap();
-    for auth_session in auth_sessions.iter() {
-        authentication_session::delete(&state.pool, auth_session)
-            .await
-            .unwrap();
-    }
+    let auth_session_deletions = auth_sessions
+        .iter()
+        .map(|auth_session| authentication_session::delete(&state.pool, auth_session));
+    futures::future::join_all(auth_session_deletions).await;
 
     Ok(Redirect::to(&format!("/users/{}", user.id)))
 }

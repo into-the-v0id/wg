@@ -17,14 +17,14 @@ pub async fn view_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let (users, deleted_users) = user::get_all(&state.pool)
-        .await
-        .unwrap()
+    let (all_users, scores_by_user) = tokio::try_join!(
+        user::get_all(&state.pool),
+        chore_list::get_score_per_user(&state.pool, &chore_list),
+    ).unwrap();
+
+    let (users, deleted_users) = all_users
         .into_iter()
         .partition(|user| !user.is_deleted());
-    let scores_by_user = chore_list::get_score_per_user(&state.pool, &chore_list)
-        .await
-        .unwrap();
 
     Ok(templates::page::chore_list::user::list(
         chore_list,
@@ -48,13 +48,12 @@ pub async fn view_activity_list(
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
-    let chores = chore::get_all_for_chore_list(&state.pool, &chore_list.id)
-        .await
-        .unwrap();
+    let (chores, all_activities) = tokio::try_join!(
+        chore::get_all_for_chore_list(&state.pool, &chore_list.id),
+        chore_activity::get_all_for_chore_list_and_user(&state.pool, &chore_list.id, &user.id),
+    ).unwrap();
 
-    let (activities, deleted_activities): (Vec<_>, Vec<_>) = chore_activity::get_all_for_chore_list_and_user(&state.pool, &chore_list.id, &user.id)
-        .await
-        .unwrap()
+    let (activities, deleted_activities): (Vec<_>, Vec<_>) = all_activities
         .into_iter()
         .partition(|activity| !activity.is_deleted());
     let activities_by_date = chore_activity::group_and_sort_by_date(activities.iter().collect(), true);

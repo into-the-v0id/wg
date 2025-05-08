@@ -248,10 +248,12 @@ pub async fn view_activity_list(
         return Err(StatusCode::NOT_FOUND);
     }
 
-    let users = user::get_all(&state.pool).await.unwrap();
-    let (activities, deleted_activities): (Vec<_>, Vec<_>) = chore_activity::get_all_for_chore(&state.pool, &chore.id)
-        .await
-        .unwrap()
+    let (users, all_activities) = tokio::try_join!(
+        user::get_all(&state.pool),
+        chore_activity::get_all_for_chore(&state.pool, &chore.id),
+    ).unwrap();
+
+    let (activities, deleted_activities): (Vec<_>, Vec<_>) = all_activities
         .into_iter()
         .partition(|activity| !activity.is_deleted());
     let activities_by_date = chore_activity::group_and_sort_by_date(activities.iter().collect(), true);
