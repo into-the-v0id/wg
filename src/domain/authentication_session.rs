@@ -1,6 +1,6 @@
 use super::value::{DateTime, Uuid};
 
-#[derive(sqlx::FromRow)]
+#[derive(Clone, sqlx::FromRow)]
 pub struct AuthenticationSession {
     pub id: Uuid,
     pub token: String,

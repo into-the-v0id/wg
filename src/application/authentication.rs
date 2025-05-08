@@ -28,6 +28,14 @@ impl FromRequestParts<Arc<AppState>> for AuthenticationSession {
         parts: &mut Parts,
         state: &Arc<AppState>,
     ) -> Result<Self, Self::Rejection> {
+        if let Some(auth_session) = parts.extensions.get::<AuthenticationSession>() {
+            if auth_session.is_expired() {
+                return Err(StatusCode::UNAUTHORIZED);
+            }
+
+            return Ok(auth_session.clone());
+        };
+
         let cookie_jar = parts.extract::<CookieJar>().await.unwrap();
 
         let auth_token = match cookie_jar.get(COOKIE_NAME) {
@@ -44,6 +52,8 @@ impl FromRequestParts<Arc<AppState>> for AuthenticationSession {
         if auth_session.is_expired() {
             return Err(StatusCode::UNAUTHORIZED);
         }
+
+        parts.extensions.insert::<AuthenticationSession>(auth_session.clone());
 
         Ok(auth_session)
     }
