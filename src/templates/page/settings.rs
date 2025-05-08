@@ -2,6 +2,7 @@ use maud::{html, Markup};
 use strum::IntoEnumIterator;
 use crate::application::language::Language;
 use crate::application::language::LanguageSelection;
+use crate::application::theme::Theme;
 use crate::domain::authentication_session::AuthenticationSession;
 use crate::templates::helper::t;
 use crate::templates::layout;
@@ -59,7 +60,10 @@ pub fn settings(auth_session: AuthenticationSession) -> Markup {
     )
 }
 
-pub fn appearence(language_selection: LanguageSelection) -> Markup {
+pub fn appearence(
+    language_selection: LanguageSelection,
+    theme_seleciton: Theme,
+) -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("✨")
@@ -70,8 +74,8 @@ pub fn appearence(language_selection: LanguageSelection) -> Markup {
             .build(),
         html! {
             form method="post" {
-                label for="language" { (t().language()) }
-                select.auto-submit #language name="language" required {
+                label for="language-selection" { (t().language()) }
+                select.auto-submit #language-selection name="language" required {
                     option value=(LanguageSelection::Auto.to_string()) selected[language_selection == LanguageSelection::Auto] {
                         (t().langauge_auto())
                     }
@@ -80,6 +84,19 @@ pub fn appearence(language_selection: LanguageSelection) -> Markup {
                             @match language {
                                 Language::EN => "English",
                                 Language::DE => "Deutsch",
+                            }
+                        }
+                    }
+                }
+
+                label for="theme-selection" { (t().theme()) }
+                select.auto-submit #theme-selection name="theme" required {
+                    @for theme in Theme::iter() {
+                        option value=(theme) selected[theme_seleciton == theme] {
+                            @match theme {
+                                Theme::Auto => (t().theme_auto()),
+                                Theme::Light => (t().theme_light()),
+                                Theme::Dark => (t().theme_dark()),
                             }
                         }
                     }

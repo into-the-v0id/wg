@@ -16,7 +16,7 @@ pub mod domain;
 pub mod application;
 pub mod templates;
 
-use application::language::Language;
+use application::{language::Language, theme::Theme};
 use axum::{
     RequestExt, Router,
     body::Body,
@@ -58,6 +58,7 @@ pub struct Translations;
 task_local! {
     pub static LANGUAGE: Language;
     pub static TRANSLATIONS: Translations;
+    pub static THEME: Theme;
 }
 
 pub struct AppState {
@@ -138,6 +139,11 @@ async fn main() {
             }
 
             response
+        }))
+        .layer(axum::middleware::from_fn(async |mut request: axum::extract::Request, next: Next| -> Response {
+            let theme = request.extract_parts::<Theme>().await.unwrap();
+
+            THEME.scope(theme, next.run(request)).await
         }))
         .layer(axum::middleware::from_fn(async |mut request: axum::extract::Request, next: Next| -> Response {
             let language = request.extract_parts::<Language>().await.unwrap();

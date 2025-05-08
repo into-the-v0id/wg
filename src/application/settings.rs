@@ -3,7 +3,7 @@ use axum_extra::extract::{cookie::Cookie, CookieJar};
 use maud::Markup;
 use serde_with::serde_as;
 use crate::{domain::authentication_session::AuthenticationSession, templates};
-use super::language::{self, LanguageSelection};
+use super::{language::{self, LanguageSelection}, theme::{self, Theme}};
 
 pub async fn view(auth_session: AuthenticationSession) -> Markup {
     templates::page::settings::settings(auth_session)
@@ -11,9 +11,10 @@ pub async fn view(auth_session: AuthenticationSession) -> Markup {
 
 pub async fn view_appearance_form(
     language_selection: LanguageSelection,
+    theme_selection: Theme,
     _auth_session: AuthenticationSession,
 ) -> Markup {
-    templates::page::settings::appearence(language_selection)
+    templates::page::settings::appearence(language_selection, theme_selection)
 }
 
 #[serde_as]
@@ -21,6 +22,8 @@ pub async fn view_appearance_form(
 pub struct AppearancePayload {
     #[serde_as(as = "serde_with::DisplayFromStr")]
     language: LanguageSelection,
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    theme: Theme,
 }
 
 pub async fn update_appearance(
@@ -35,6 +38,14 @@ pub async fn update_appearance(
         .build();
     cookie_jar = cookie_jar.remove(language::COOKIE_NAME);
     cookie_jar = cookie_jar.add(language_cookie);
+
+    let theme_cookie = Cookie::build((theme::COOKIE_NAME, payload.theme.to_string()))
+        .secure(true)
+        .same_site(axum_extra::extract::cookie::SameSite::Lax)
+        .permanent()
+        .build();
+    cookie_jar = cookie_jar.remove(theme::COOKIE_NAME);
+    cookie_jar = cookie_jar.add(theme_cookie);
 
     (cookie_jar, Redirect::to("/settings/appearance"))
 }

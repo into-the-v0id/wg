@@ -1,7 +1,8 @@
 use bon::Builder;
 use maud::{html, Markup, PreEscaped};
+use crate::application::theme::Theme;
 use crate::templates::helper::t;
-use crate::{application::assets, LANGUAGE};
+use crate::{application::assets, LANGUAGE, THEME};
 
 fn emoji_favicon(emoji: &str) -> Markup {
     html! {
@@ -24,14 +25,20 @@ pub fn blank(
     options: BlankLayoutOptions,
     content: Markup,
 ) -> Markup {
+    let theme = THEME.get();
+
     html! {
         (maud::DOCTYPE)
-        html lang=(LANGUAGE.get().to_string()) data-theme="dark" {
+        html lang=(LANGUAGE.get().to_string()) data-theme=[if theme == Theme::Auto { None } else { Some(theme) }] {
             head {
                 meta charset="utf-8";
                 title { (options.title) }
                 meta name="viewport" content="width=device-width, initial-scale=1";
-                meta name="color-scheme" content="dark";
+                @match theme {
+                    Theme::Auto => meta name="color-scheme" content="dark light";
+                    Theme::Light => meta name="color-scheme" content="light";
+                    Theme::Dark => meta name="color-scheme" content="dark";
+                }
 
                 link rel="preload" href=(assets::get_url("/css/pico.css").unwrap()) as="style";
                 link rel="preload" href=(assets::get_url("/css/app.css").unwrap()) as="style";

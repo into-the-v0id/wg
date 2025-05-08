@@ -10,3 +10,4 @@ pub mod legal;
 pub mod user;
 pub mod settings;
 pub mod language;
+pub mod theme;
