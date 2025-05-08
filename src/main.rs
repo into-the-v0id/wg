@@ -84,6 +84,7 @@ async fn main() {
         .route("/logout", post(application::authentication::logout))
         .route("/", get(application::entry::redirect))
         .route("/settings", get(application::settings::view))
+        .route("/settings/appearance", get(application::settings::view_appearance_form).post(application::settings::update_appearance))
         .route("/users", get(application::user::view_list))
         .route("/users/create", get(application::user::view_create_form).post(application::user::create))
         .route("/users/{user_id}", get(application::user::view_detail))
@@ -161,7 +162,7 @@ async fn main() {
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::CONTENT_SECURITY_POLICY,
-            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' 'self'; img-src data: 'self'; frame-ancestors 'none'; form-action 'self'; manifest-src 'self';"),
+            HeaderValue::from_static("default-src 'none'; style-src 'unsafe-inline' 'self'; img-src data: 'self'; script-src 'self'; frame-ancestors 'none'; form-action 'self'; manifest-src 'self';"),
         ))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::X_FRAME_OPTIONS,

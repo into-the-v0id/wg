@@ -33,6 +33,10 @@ pub fn blank(
                 meta name="viewport" content="width=device-width, initial-scale=1";
                 meta name="color-scheme" content="dark";
 
+                link rel="preload" href=(assets::get_url("/css/pico.css").unwrap()) as="style";
+                link rel="preload" href=(assets::get_url("/css/app.css").unwrap()) as="style";
+                link rel="preload" href=(assets::get_url("/js/app.js").unwrap()) as="script";
+
                 link rel="stylesheet" href=(assets::get_url("/css/pico.css").unwrap());
                 link rel="stylesheet" href=(assets::get_url("/css/app.css").unwrap());
 
@@ -54,6 +58,8 @@ pub fn blank(
             }
             body {
                 (content)
+
+                script src=(assets::get_url("/js/app.js").unwrap()) defer {}
             }
         }
     }

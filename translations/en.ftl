@@ -65,6 +65,9 @@ edit_activity = Edit Activity
 ## Settings
 
 settings = Settings
+appearance = Appearance
+language = Language
+langauge_auto = Auto
 profile = Profile
 edit_profile = Edit Profile
 instance = Instance

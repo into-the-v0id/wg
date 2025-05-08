@@ -65,6 +65,9 @@ edit_activity = Aktivität bearbeiten
 ## Settings
 
 settings = Einstellungen
+appearance = Darstellung
+language = Sprache
+langauge_auto = Auto
 profile = Profil
 edit_profile = Profil bearbeiten
 instance = Instanz
