@@ -135,6 +135,7 @@ pub async fn login(
         .secure(true)
         .http_only(true)
         .same_site(axum_extra::extract::cookie::SameSite::Lax)
+        .path("/")
         .expires(
             time::OffsetDateTime::from_unix_timestamp(
                 auth_session.date_expires.as_ref().timestamp(),

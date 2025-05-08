@@ -34,6 +34,7 @@ pub async fn update_appearance(
     let language_cookie = Cookie::build((language::COOKIE_NAME, payload.language.to_string()))
         .secure(true)
         .same_site(axum_extra::extract::cookie::SameSite::Lax)
+        .path("/")
         .permanent()
         .build();
     cookie_jar = cookie_jar.remove(language::COOKIE_NAME);
@@ -42,6 +43,7 @@ pub async fn update_appearance(
     let theme_cookie = Cookie::build((theme::COOKIE_NAME, payload.theme.to_string()))
         .secure(true)
         .same_site(axum_extra::extract::cookie::SameSite::Lax)
+        .path("/")
         .permanent()
         .build();
     cookie_jar = cookie_jar.remove(theme::COOKIE_NAME);
