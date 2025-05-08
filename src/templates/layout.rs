@@ -1,6 +1,7 @@
 use bon::Builder;
 use maud::{html, Markup, PreEscaped};
-use crate::application::assets;
+use crate::templates::helper::t;
+use crate::{application::assets, LANGUAGE};
 
 fn emoji_favicon(emoji: &str) -> Markup {
     html! {
@@ -25,7 +26,7 @@ pub fn blank(
 ) -> Markup {
     html! {
         (maud::DOCTYPE)
-        html lang="en" data-theme="dark" {
+        html lang=(LANGUAGE.get().to_string()) data-theme="dark" {
             head {
                 meta charset="utf-8";
                 title { (options.title) }
@@ -88,7 +89,7 @@ pub fn default(
                         div {
                             @if let Some(back_url) = options.back_url {
                                 a.secondary.subtle href=(back_url) rel="parent" {
-                                    (PreEscaped("&larr;")) " Back"
+                                    (PreEscaped("&larr;")) " " (t().back_action())
                                 }
                             } @else {
                                 (PreEscaped("&nbsp;"))

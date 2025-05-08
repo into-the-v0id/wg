@@ -5,6 +5,7 @@ use crate::domain::chore;
 use crate::domain::user;
 use crate::domain::value::Date;
 use crate::domain::value::Uuid;
+use crate::templates::helper::t;
 use crate::templates::layout;
 use crate::templates::partial;
 use crate::templates::partial::navigation::ChoreListNavigationItem;
@@ -18,9 +19,9 @@ pub fn list(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("👤")
-            .title("Users")
-            .headline("👤 Users")
-            .teaser(&format!("Of 📋 {}", chore_list.name))
+            .title(&t().users())
+            .headline(&format!("👤 {}", t().users()))
+            .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url("/chore-lists")
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
@@ -32,7 +33,7 @@ pub fn list(
                     li {
                         a.card href={ "/chore-lists/" (chore_list.id) "/users/" (user_id) } {
                             div.title { (user.name) }
-                            small.text-muted { "Score: " (score) }
+                            small.text-muted { (t().score_value(score)) }
                         }
                     }
                 }
@@ -42,7 +43,7 @@ pub fn list(
                 br;
 
                 details {
-                    summary.arrow-left.text-muted { "Past Users" }
+                    summary.arrow-left.text-muted { (t().past_users()) }
                     ul.card-container.collapse {
                         @for user in deleted_users {
                             li {
@@ -67,14 +68,14 @@ pub fn detail(
             .emoji("👤")
             .title(&user.name)
             .headline(&format!("👤 {}", user.name))
-            .teaser(&format!("Of 📋 {}", chore_list.name))
+            .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(&format!("/chore-lists/{}/users", chore_list.id))
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
         html! {
             @if user.is_deleted() || chore_list.is_deleted() {
                 div {
-                    em { "This user has been deleted" }
+                    em { (t().user_has_been_deleted()) }
                 }
 
                 br;
@@ -84,7 +85,7 @@ pub fn detail(
                 ul.card-container.collapse {
                     li {
                         a.card href={ "/chore-lists/" (chore_list.id) "/users/" (user.id) "/activities" } {
-                            div.title { "✅ Activities" }
+                            div.title { "✅ " (t().activities()) }
                         }
                     }
                 }
@@ -103,9 +104,12 @@ pub fn list_activities(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("✅")
-            .title("Activities")
-            .headline("✅ Activities")
-            .teaser(&format!("Of 👤 {} in 📋 {}", user.name, chore_list.name))
+            .title(&t().activities())
+            .headline(&format!("✅ {}", t().activities()))
+            .teaser(&t().of_x_in_y(
+                format!("👤 {}", user.name),
+                format!("📋 {}", chore_list.name)
+            ))
             .back_url(&format!("/chore-lists/{}/users/{}", chore_list.id, user.id))
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
@@ -122,10 +126,10 @@ pub fn list_activities(
                                     div.title { (chore.name) }
 
                                     small.text-muted {
-                                        (chore.points) "P"
+                                        (t().points_value_short(chore.points))
 
                                         @if activity.comment.is_some() {
-                                            " – Has comment"
+                                            " – " (t().has_comment())
                                         }
                                     }
                                 }
@@ -139,7 +143,7 @@ pub fn list_activities(
                 br;
 
                 details {
-                    summary.arrow-left.text-muted { "Deleted Activities" }
+                    summary.arrow-left.text-muted { (t().deleted_activities()) }
                     ul.card-container.collapse {
                         @for activity in deleted_activities {
                             @let chore = chores.iter().find(|chore| chore.id == activity.chore_id).unwrap();
@@ -149,12 +153,12 @@ pub fn list_activities(
                                     div.title { (chore.name) }
 
                                     small.text-muted {
-                                        (chore.points) "P"
+                                        (t().points_value_short(chore.points))
 
                                         " – " (activity.date.format("%Y-%m-%d"))
 
                                         @if activity.comment.is_some() {
-                                            " – Has comment"
+                                            " – " (t().has_comment())
                                         }
                                     }
                                 }

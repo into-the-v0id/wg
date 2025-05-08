@@ -16,6 +16,7 @@ pub mod domain;
 pub mod application;
 pub mod templates;
 
+use application::language::Language;
 use axum::{
     RequestExt, Router,
     body::Body,
@@ -32,6 +33,7 @@ use domain::{
 use sqlx::migrate::MigrateDatabase;
 use std::{any::Any, sync::Arc};
 use tokio::signal;
+use tokio::task_local;
 use tower_http::{
     catch_panic::CatchPanicLayer,
     request_id,
@@ -41,6 +43,22 @@ use tower_http::{
 use tracing::Instrument;
 use tracing::Level;
 use tracing_subscriber::EnvFilter;
+use fluent_static::message_bundle;
+use fluent_static::MessageBundle;
+
+#[message_bundle(
+    resources = [
+        ("translations/en.ftl", "en"),
+        ("translations/de.ftl", "de"),
+    ],
+    default_language = "en",
+)]
+pub struct Translations;
+
+task_local! {
+    pub static LANGUAGE: Language;
+    pub static TRANSLATIONS: Translations;
+}
 
 pub struct AppState {
     pub pool: sqlx::sqlite::SqlitePool,
@@ -119,6 +137,15 @@ async fn main() {
             }
 
             response
+        }))
+        .layer(axum::middleware::from_fn(async |mut request: axum::extract::Request, next: Next| -> Response {
+            let language = request.extract_parts::<Language>().await.unwrap();
+            LANGUAGE.scope(language, async {
+                let translations = Translations::get(&language.to_string()).unwrap();
+                TRANSLATIONS.scope(translations, async {
+                    next.run(request).await
+                }).await
+            }).await
         }))
         .layer(SetResponseHeaderLayer::if_not_present(
             header::CACHE_CONTROL,

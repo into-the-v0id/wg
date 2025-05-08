@@ -1,5 +1,6 @@
 use maud::{html, Markup};
 use crate::domain::user;
+use crate::templates::helper::t;
 use crate::templates::layout;
 use crate::templates::partial;
 use crate::templates::partial::navigation::GlobalNavigationItem;
@@ -11,11 +12,11 @@ pub fn list(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("👤")
-            .title("Users")
-            .headline("👤 Users")
+            .title(&t().users())
+            .headline(&format!("👤 {}", t().users()))
             .back_url("/settings")
             .meta_actions(html! {
-                a.secondary.subtle href="/users/create" { "+ Add" }
+                a.secondary.subtle href="/users/create" { "+ " (t().add_action()) }
             })
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
@@ -34,7 +35,7 @@ pub fn list(
                 br;
 
                 details {
-                    summary.arrow-left.text-muted { "Past Users" }
+                    summary.arrow-left.text-muted { (t().past_users()) }
                     ul.card-container.collapse {
                         @for user in deleted_users {
                             li {
@@ -59,10 +60,10 @@ pub fn detail(user: user::User) -> Markup {
             .back_url("/users")
             .meta_actions(html! {
                 @if user.is_deleted() {
-                    button.link.secondary.subtle.mb-0 type="submit" form="user_restore" { "↻ Restore" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="user_restore" { "↻ " (t().restore_action()) }
                     form #user_restore method="post" action={ "/users/" (user.id) "/restore" } { }
                 } @else {
-                    button.link.secondary.subtle.mb-0 type="submit" form="user_delete" { "✗ Delete" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="user_delete" { "✗ " (t().delete_action()) }
                     form #user_delete method="post" action={ "/users/" (user.id) "/delete" } { }
                 }
             })
@@ -71,7 +72,7 @@ pub fn detail(user: user::User) -> Markup {
         html! {
             @if user.is_deleted() {
                 div {
-                    em { "This user has been deleted" }
+                    em { (t().user_has_been_deleted()) }
                 }
             }
         },
@@ -82,23 +83,23 @@ pub fn create() -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("👤")
-            .title("Create User")
-            .headline("Create 👤 User")
+            .title(&t().create_user())
+            .headline(&format!("👤 {}", t().create_user()))
             .back_url("/users")
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
             form method="post" {
-                label for="name" { "Name" }
+                label for="name" { (t().name()) }
                 input #name name="name" type="text" required autocomplete="given-name";
 
-                label for="handle" { "Handle" }
+                label for="handle" { (t().username()) }
                 input #handle name="handle" type="text" required autocomplete="username";
 
-                label for="password" { "Password" }
+                label for="password" { (t().password()) }
                 input #password name="password" type="password" required minlength="5" autocomplete="current-password";
 
-                button type="submit" { "Create" }
+                button type="submit" { (t().create_action()) }
             }
         },
     )
@@ -108,26 +109,27 @@ pub fn update(user: user::User) -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("🪪")
-            .title("Edit Profile")
-            .headline("Edit Profile")
+            .title(&t().edit_profile())
+            .headline(&t().edit_profile())
             .back_url("/settings")
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
             form method="post" {
-                label for="name" { "Name" }
+                label for="name" { (t().name()) }
                 input #name name="name" type="text" required autocomplete="given-name" value=(user.name);
 
-                label for="handle" { "Handle" }
+                label for="handle" { (t().username()) }
                 input #handle name="handle" type="text" required autocomplete="username" value=(user.handle);
 
                 label for="password" {
-                    "New Password "
-                    i.text-muted { "(optional)" }
+                    (t().new_password())
+                    " "
+                    i.text-muted { "(" (t().optional()) ")" }
                 }
                 input #password name="password" type="password" minlength="5" autocomplete="new-password" value="";
 
-                button type="submit" { "Update" }
+                button type="submit" { (t().update_action()) }
             }
         },
     )

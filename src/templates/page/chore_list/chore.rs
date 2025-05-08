@@ -4,6 +4,7 @@ use crate::domain::chore_activity;
 use crate::domain::chore;
 use crate::domain::user;
 use crate::domain::value::Date;
+use crate::templates::helper::t;
 use crate::templates::layout;
 use crate::templates::partial;
 use crate::templates::partial::navigation::ChoreListNavigationItem;
@@ -16,13 +17,13 @@ pub fn list(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("🧹")
-            .title("Chores")
-            .headline("🧹 Chores")
-            .teaser(&format!("Of 📋 {}", chore_list.name))
+            .title(&t().chores())
+            .headline(&format!("🧹 {}", t().chores()))
+            .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url("/chore-lists")
             .meta_actions(html! {
                 @if !chore_list.is_deleted() {
-                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/chores/create" } { "+ Add" }
+                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/chores/create" } { "+ " (t().add_action()) }
                 }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
@@ -34,12 +35,12 @@ pub fn list(
                         a.card href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
                             div.title { (chore.name) }
                             small.text-muted {
-                                (chore.points) "P"
+                                (t().points_value_short(chore.points))
 
                                 @if let Some(next_due_date) = chore.next_due_date {
                                     @if next_due_date.is_today() || next_due_date.is_in_past() {
                                         " – "
-                                        span.text-danger.fw-bold { "Due!" }
+                                        span.text-danger.fw-bold { (t().due_hint()) }
                                     }
                                 }
                             }
@@ -52,13 +53,13 @@ pub fn list(
                 br;
 
                 details {
-                    summary.arrow-left.text-muted { "Deleted Chores" }
+                    summary.arrow-left.text-muted { (t().deleted_chores()) }
                     ul.card-container.collapse {
                         @for chore in deleted_chores {
                             li {
                                 a.card href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
                                     div.title { (chore.name) }
-                                    small.text-muted { (chore.points) "P" }
+                                    small.text-muted { (t().points_value_short(chore.points)) }
                                 }
                             }
                         }
@@ -78,16 +79,16 @@ pub fn detail(
             .emoji("🧹")
             .title(&chore.name)
             .headline(&format!("🧹 {}", chore.name))
-            .teaser(&format!("Of 📋 {}", chore_list.name))
+            .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(&format!("/chore-lists/{}/chores", chore_list.id))
             .meta_actions(html! {
                 @if chore.is_deleted() {
-                    button.link.secondary.subtle.mb-0 type="submit" form="chore_restore" { "↻ Restore" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="chore_restore" { "↻ " (t().restore_action()) }
                     form #chore_restore method="post" action={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/restore" } { }
                 } @else if !chore_list.is_deleted() {
-                    button.link.secondary.subtle.mb-0 type="submit" form="chore_delete" { "✗ Delete" }
+                    button.link.secondary.subtle.mb-0 type="submit" form="chore_delete" { "✗ " (t().delete_action()) }
 
-                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/update" } style="margin-left: 1.25rem;" { "✎ Edit" }
+                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/update" } style="margin-left: 1.25rem;" { "✎ " (t().edit_action()) }
 
                     form #chore_delete method="post" action={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/delete" } { }
                 }
@@ -97,31 +98,31 @@ pub fn detail(
         html! {
             @if chore.is_deleted() || chore_list.is_deleted() {
                 div {
-                    em { "This chore has been deleted" }
+                    em { (t().chore_has_been_deleted()) }
                 }
 
                 br;
             }
 
             dl {
-                dt { "Points" }
+                dt { (t().points()) }
                 dd { (chore.points) }
 
                 @if let Some(interval_days) = chore.interval_days {
-                    dt { "Interval" }
-                    dd { "every " (interval_days) " day(s)" }
+                    dt { (t().interval()) }
+                    dd { (t().every_n_days(interval_days)) }
                 }
 
                 @if let Some(next_due_date) = chore.next_due_date {
                     @let is_due = next_due_date.is_today() || next_due_date.is_in_past();
-                    dt { "Next Due Date" }
+                    dt { (t().next_due_date()) }
                     dd.text-danger[is_due].fw-bold[is_due] {
                         (next_due_date.format("%Y-%m-%d"))
                     }
                 }
 
                 @if let Some(description) = chore.description {
-                    dt { "Description" }
+                    dt { (t().description()) }
                     dd { (description) }
                 }
             }
@@ -133,7 +134,7 @@ pub fn detail(
                 ul.card-container.collapse {
                     li {
                         a.card href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/activities" } {
-                            div.title { "✅ Activities" }
+                            div.title { "✅ " (t().activities()) }
                         }
                     }
                 }
@@ -148,36 +149,38 @@ pub fn create(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("🧹")
-            .title("Create Chore")
-            .headline("Create 🧹 Chore")
+            .title(&t().create_chore())
+            .headline(&format!("🧹 {}", t().create_chore()))
             .back_url(&format!("/chore-lists/{}/chores", chore_list.id))
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),
         html! {
             form method="post" {
-                label for="name" { "Name" }
+                label for="name" { (t().name()) }
                 input #name name="name" type="text" required;
 
                 label for="description" {
-                    "Description "
-                    i.text-muted { "(optional)" }
+                    (t().description())
+                    " "
+                    i.text-muted { "(" (t().optional()) ")" }
                 }
                 textarea #description name="description" { }
 
-                label for="points" { "Points" }
+                label for="points" { (t().points()) }
                 input #points name="points" type="number" min="1" step="1" required;
 
                 label for="interval_days" {
-                    "Interval "
-                    i.text-muted { "(optional)" }
+                    (t().interval())
+                    " "
+                    i.text-muted { "(" (t().optional()) ")" }
                 }
                 div role="group" {
                     input #interval_days name="interval_days" type="number" min="1" step="1" aria-describedby="interval_days-help-text";
-                    label for="interval_days" { "days" }
+                    label for="interval_days" { (t().days()) }
                 }
-                small #interval_days-help-text { "How often the chore should be done" }
+                small #interval_days-help-text { (t().chore_interval_help_text()) }
 
-                button type="submit" { "Create" }
+                button type="submit" { (t().create_action()) }
             }
         },
     )
@@ -190,19 +193,20 @@ pub fn update(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("🧹")
-            .title("Edit Chore")
-            .headline("Edit 🧹 Chore")
+            .title(&t().edit_chore())
+            .headline(&format!("🧹 {}", t().edit_chore()))
             .back_url(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id))
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),
         html! {
             form method="post" {
-                label for="name" { "Name" }
+                label for="name" { (t().name()) }
                 input #name name="name" type="text" required value=(chore.name);
 
                 label for="description" {
-                    "Description "
-                    i.text-muted { "(optional)" }
+                    (t().description())
+                    " "
+                    i.text-muted { "(" (t().optional()) ")" }
                 }
                 textarea #description name="description" {
                     @if let Some(description) = chore.description {
@@ -210,20 +214,21 @@ pub fn update(
                     }
                 }
 
-                label for="points" { "Points" }
+                label for="points" { (t().points()) }
                 input #points name="points" type="number" min="1" step="1" required value=(chore.points);
 
                 label for="interval_days" {
-                    "Interval "
-                    i.text-muted { "(optional)" }
+                    (t().interval())
+                    " "
+                    i.text-muted { "(" (t().optional()) ")" }
                 }
                 div role="group" {
                     input #interval_days name="interval_days" type="number" min="1" step="1" aria-describedby="interval_days-help-text" value=[chore.interval_days];
-                    label for="interval_days" { "days" }
+                    label for="interval_days" { (t().days()) }
                 }
-                small #interval_days-help-text { "How often the chore should be done" }
+                small #interval_days-help-text { (t().chore_interval_help_text()) }
 
-                button type="submit" { "Update" }
+                button type="submit" { (t().update_action()) }
             }
         },
     )
@@ -239,12 +244,12 @@ pub fn list_activities(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("✅")
-            .title("Activities")
-            .headline("✅ Activities")
-            .teaser(&format!("Of 🧹 {}", chore.name))
+            .title(&t().activities())
+            .headline(&format!("✅ {}", t().activities()))
+            .teaser(&t().of_x(format!("🧹 {}", chore.name)))
             .back_url(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id))
             .meta_actions(html! {
-                a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ Add" }
+                a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ " (t().add_action()) }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),
@@ -261,7 +266,7 @@ pub fn list_activities(
                                     div.title { (user.name) }
 
                                     @if activity.comment.is_some() {
-                                        small.text-muted { "Has comment" }
+                                        small.text-muted { (t().has_comment()) }
                                     }
                                 }
                             }
@@ -274,7 +279,7 @@ pub fn list_activities(
                 br;
 
                 details {
-                    summary.arrow-left.text-muted { "Deleted Activities" }
+                    summary.arrow-left.text-muted { (t().deleted_activities()) }
                     ul.card-container.collapse {
                         @for activity in deleted_activities {
                             @let user = users.iter().find(|user| user.id == activity.user_id).unwrap();
@@ -287,7 +292,7 @@ pub fn list_activities(
                                         (activity.date.format("%Y-%m-%d"))
 
                                         @if activity.comment.is_some() {
-                                            " – Has comment"
+                                            " – " (t().has_comment())
                                         }
                                     }
                                 }
