@@ -3,6 +3,13 @@ pub mod chore;
 pub mod user;
 
 use maud::{html, Markup};
+use crate::application::chore_activity::ChoreActivityIndexPath;
+use crate::application::chore_list::ChoreListCreatePath;
+use crate::application::chore_list::ChoreListDeletePath;
+use crate::application::chore_list::ChoreListIndexPath;
+use crate::application::chore_list::ChoreListRestorePath;
+use crate::application::chore_list::ChoreListSettingsPath;
+use crate::application::chore_list::ChoreListUpdatePath;
 use crate::domain::chore_list;
 use crate::domain::chore_list::ScoreResetInterval;
 use crate::templates::helper::t;
@@ -22,7 +29,7 @@ pub fn list(
             .title(&t().chore_lists())
             .headline(&format!("📋 {}", t().chore_lists()))
             .meta_actions(html! {
-                a.secondary.subtle href="/chore-lists/create" { "+ " (t().add_action()) }
+                a.secondary.subtle href=(ChoreListCreatePath) { "+ " (t().add_action()) }
             })
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::ChoreLists)))
             .build(),
@@ -30,7 +37,7 @@ pub fn list(
             ul.card-container.collapse {
                 @for chore_list in chore_lists {
                     li {
-                        a.card href={ "/chore-lists/" (chore_list.id) "/activities" } {
+                        a.card href=(ChoreActivityIndexPath {chore_list_id:chore_list.id }) {
                             div.title { (chore_list.name) }
 
                             @if let Some(description) = chore_list.description {
@@ -49,7 +56,7 @@ pub fn list(
                     ul.card-container.collapse {
                         @for chore_list in deleted_chore_lists {
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/activities" } {
+                                a.card href=(ChoreActivityIndexPath {chore_list_id: chore_list.id }) {
                                     div.title { (chore_list.name) }
                                 }
                             }
@@ -67,7 +74,7 @@ pub fn create() -> Markup {
             .emoji("📋")
             .title(&t().create_chore_list())
             .headline(&format!("📋 {}", t().create_chore_list()))
-            .back_url("/chore-lists")
+            .back_url(ChoreListIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::ChoreLists)))
             .build(),
         html! {
@@ -111,7 +118,7 @@ pub fn update(chore_list: chore_list::ChoreList) -> Markup {
             .emoji("📋")
             .title(&t().edit_chore_list())
             .headline(&format!("📋 {}", t().edit_chore_list()))
-            .back_url(&format!("/chore-lists/{}/settings", chore_list.id))
+            .back_url(ChoreListSettingsPath { chore_list_id: chore_list.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Settings)))
             .build(),
         html! {
@@ -160,7 +167,7 @@ pub fn settings(chore_list: chore_list::ChoreList) -> Markup {
             .title(&t().settings())
             .headline(&format!("⚙️ {}", t().settings()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
-            .back_url("/chore-lists")
+            .back_url(ChoreListIndexPath.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Settings)))
             .build(),
         html! {
@@ -171,11 +178,11 @@ pub fn settings(chore_list: chore_list::ChoreList) -> Markup {
                             button.card.text-align-left.mb-0 type="submit" form="chore_list_restore" {
                                 div.title { "♻️ " (t().restore_chore_list()) }
                             }
-                            form #chore_list_restore method="post" action={ "/chore-lists/" (chore_list.id) "/restore" } { }
+                            form #chore_list_restore method="post" action=(ChoreListRestorePath { chore_list_id: chore_list.id }) { }
                         }
                     } @else {
                         li {
-                            a.card href={ "/chore-lists/" (chore_list.id) "/update" } {
+                            a.card href=(ChoreListUpdatePath { chore_list_id: chore_list.id }) {
                                 div.title { "✏️ " (t().edit_chore_list()) }
                             }
                         }
@@ -183,7 +190,7 @@ pub fn settings(chore_list: chore_list::ChoreList) -> Markup {
                             button.card.text-align-left.mb-0 type="submit" form="chore_list_delete" {
                                 div.title.text-danger { "🗑️ " (t().delete_chore_list()) }
                             }
-                            form #chore_list_delete method="post" action={ "/chore-lists/" (chore_list.id) "/delete" } { }
+                            form #chore_list_delete method="post" action=(ChoreListDeletePath { chore_list_id: chore_list.id }) { }
                         }
                     }
                 }

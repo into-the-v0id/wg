@@ -17,6 +17,7 @@ use axum::{
     http::StatusCode,
     response::Redirect,
 };
+use axum_extra::routing::TypedPath;
 use maud::Markup;
 use secrecy::{ExposeSecret, SecretString};
 use std::sync::Arc;
@@ -48,7 +49,12 @@ impl FromRequestParts<Arc<AppState>> for user::User {
     }
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/users")]
+pub struct UserIndexPath;
+
 pub async fn view_list(
+    _path: UserIndexPath,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Markup {
@@ -61,14 +67,28 @@ pub async fn view_list(
     templates::page::user::list(users, deleted_users)
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/users/{user_id}")]
+pub struct UserDetailPath {
+    pub user_id: Uuid,
+}
+
 pub async fn view_detail(
+    _path: UserDetailPath,
     user: user::User,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
     Ok(templates::page::user::detail(user))
 }
 
-pub async fn view_create_form(_auth_session: AuthenticationSession) -> Markup {
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/users/create")]
+pub struct UserCreatePath;
+
+pub async fn view_create_form(
+    _path: UserCreatePath,
+    _auth_session: AuthenticationSession,
+) -> Markup {
     templates::page::user::create()
 }
 
@@ -80,6 +100,7 @@ pub struct CreatePayload {
 }
 
 pub async fn create(
+    _path: UserCreatePath,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
     Form(payload): Form<CreatePayload>,
@@ -95,10 +116,19 @@ pub async fn create(
 
     user::create(&state.pool, &user).await.unwrap();
 
-    Redirect::to(&format!("/users/{}", user.id))
+    Redirect::to(UserDetailPath {
+        user_id: user.id,
+    }.to_string().as_str())
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/users/{user_id}/update")]
+pub struct UserUpdatePath {
+    pub user_id: Uuid,
 }
 
 pub async fn view_update_form(
+    _path: UserUpdatePath,
     user: user::User,
     auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
@@ -121,6 +151,7 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
+    _path: UserUpdatePath,
     mut user: user::User,
     State(state): State<Arc<AppState>>,
     auth_session: AuthenticationSession,
@@ -143,10 +174,19 @@ pub async fn update(
 
     user::update(&state.pool, &user).await.unwrap();
 
-    Ok(Redirect::to(&format!("/users/{}", user.id)))
+    Ok(Redirect::to(UserDetailPath {
+        user_id: user.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/users/{user_id}/delete")]
+pub struct UserDeletePath {
+    pub user_id: Uuid,
 }
 
 pub async fn delete(
+    _path: UserDeletePath,
     mut user: user::User,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -168,10 +208,19 @@ pub async fn delete(
         .map(|auth_session| authentication_session::delete(&state.pool, auth_session));
     futures::future::join_all(auth_session_deletions).await;
 
-    Ok(Redirect::to(&format!("/users/{}", user.id)))
+    Ok(Redirect::to(UserDetailPath {
+        user_id: user.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/users/{user_id}/restore")]
+pub struct UserRestorePath {
+    pub user_id: Uuid,
 }
 
 pub async fn restore(
+    _path: UserRestorePath,
     mut user: user::User,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -184,5 +233,7 @@ pub async fn restore(
 
     user::update(&state.pool, &user).await.unwrap();
 
-    Ok(Redirect::to(&format!("/users/{}", user.id)))
+    Ok(Redirect::to(UserDetailPath {
+        user_id: user.id,
+    }.to_string().as_str()))
 }

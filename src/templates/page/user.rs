@@ -1,4 +1,10 @@
 use maud::{html, Markup};
+use crate::application::settings::SettingsIndexPath;
+use crate::application::user::UserCreatePath;
+use crate::application::user::UserDeletePath;
+use crate::application::user::UserDetailPath;
+use crate::application::user::UserIndexPath;
+use crate::application::user::UserRestorePath;
 use crate::domain::user;
 use crate::templates::helper::t;
 use crate::templates::layout;
@@ -14,9 +20,9 @@ pub fn list(
             .emoji("👤")
             .title(&t().users())
             .headline(&format!("👤 {}", t().users()))
-            .back_url("/settings")
+            .back_url(SettingsIndexPath.to_string().as_str())
             .meta_actions(html! {
-                a.secondary.subtle href="/users/create" { "+ " (t().add_action()) }
+                a.secondary.subtle href=(UserCreatePath) { "+ " (t().add_action()) }
             })
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
@@ -24,7 +30,7 @@ pub fn list(
             ul.card-container.collapse {
                 @for user in users {
                     li {
-                        a.card href={ "/users/" (user.id) } {
+                        a.card href=(UserDetailPath { user_id: user.id }) {
                             div.title { (user.name) }
                         }
                     }
@@ -39,7 +45,7 @@ pub fn list(
                     ul.card-container.collapse {
                         @for user in deleted_users {
                             li {
-                                a.card href={ "/users/" (user.id) } {
+                                a.card href=(UserDetailPath { user_id: user.id }) {
                                     div.title { (user.name) }
                                 }
                             }
@@ -57,14 +63,14 @@ pub fn detail(user: user::User) -> Markup {
             .emoji("👤")
             .title(&user.name)
             .headline(&format!("👤 {}", user.name))
-            .back_url("/users")
+            .back_url(UserIndexPath.to_string().as_str())
             .meta_actions(html! {
                 @if user.is_deleted() {
                     button.link.secondary.subtle.mb-0 type="submit" form="user_restore" { "↻ " (t().restore_action()) }
-                    form #user_restore method="post" action={ "/users/" (user.id) "/restore" } { }
+                    form #user_restore method="post" action=(UserRestorePath { user_id: user.id }) { }
                 } @else {
                     button.link.secondary.subtle.mb-0 type="submit" form="user_delete" { "✗ " (t().delete_action()) }
-                    form #user_delete method="post" action={ "/users/" (user.id) "/delete" } { }
+                    form #user_delete method="post" action=(UserDeletePath { user_id: user.id }) { }
                 }
             })
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
@@ -85,7 +91,7 @@ pub fn create() -> Markup {
             .emoji("👤")
             .title(&t().create_user())
             .headline(&format!("👤 {}", t().create_user()))
-            .back_url("/users")
+            .back_url(UserIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
@@ -111,7 +117,7 @@ pub fn update(user: user::User) -> Markup {
             .emoji("🪪")
             .title(&t().edit_profile())
             .headline(&t().edit_profile())
-            .back_url("/settings")
+            .back_url(SettingsIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {

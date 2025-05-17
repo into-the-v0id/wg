@@ -1,6 +1,6 @@
 use axum::http::StatusCode;
 use maud::{html, Markup};
-use crate::templates::layout;
+use crate::{application::authentication::LoginPath, templates::layout};
 
 pub fn http_error(
     status_code: StatusCode,
@@ -16,7 +16,7 @@ pub fn http_error(
             .back_url("/")
             .head(html! {
                 @if status_code.as_u16() == 401 {
-                    meta http-equiv="refresh" content="0; url=/login";
+                    meta http-equiv="refresh" content={ "0; url=" (LoginPath) };
                 }
             })
             .build(),

@@ -17,6 +17,7 @@ use axum::{
     http::StatusCode,
     response::Redirect,
 };
+use axum_extra::routing::TypedPath;
 use chrono::Days;
 use maud::Markup;
 use serde_with::serde_as;
@@ -49,7 +50,14 @@ impl FromRequestParts<Arc<AppState>> for chore::Chore {
     }
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/chores")]
+pub struct ChoreIndexPath {
+    pub chore_list_id: Uuid,
+}
+
 pub async fn view_list(
+    _path: ChoreIndexPath,
     chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -63,7 +71,15 @@ pub async fn view_list(
     Ok(templates::page::chore_list::chore::list(chore_list, chores, deleted_chores))
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}")]
+pub struct ChoreDetailPath {
+    pub chore_list_id: Uuid,
+    pub chore_id: Uuid,
+}
+
 pub async fn view_detail(
+    _path: ChoreDetailPath,
     chore_list: chore_list::ChoreList,
     chore: chore::Chore,
     _auth_session: AuthenticationSession,
@@ -75,7 +91,14 @@ pub async fn view_detail(
     Ok(templates::page::chore_list::chore::detail(chore, chore_list))
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/chores/create")]
+pub struct ChoreCreatePath {
+    pub chore_list_id: Uuid,
+}
+
 pub async fn view_create_form(
+    _path: ChoreCreatePath,
     chore_list: chore_list::ChoreList,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
@@ -97,6 +120,7 @@ pub struct CreatePayload {
 }
 
 pub async fn create(
+    _path: ChoreCreatePath,
     chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -127,13 +151,21 @@ pub async fn create(
 
     chore::create(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!(
-        "/chore-lists/{}/chores/{}",
-        chore_list.id, chore.id
-    )))
+    Ok(Redirect::to(ChoreDetailPath {
+        chore_list_id: chore_list.id,
+        chore_id: chore.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}/update")]
+pub struct ChoreUpdatePath {
+    pub chore_list_id: Uuid,
+    pub chore_id: Uuid,
 }
 
 pub async fn view_update_form(
+    _path: ChoreUpdatePath,
     chore_list: chore_list::ChoreList,
     chore: chore::Chore,
     _auth_session: AuthenticationSession,
@@ -159,6 +191,7 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
+    _path: ChoreUpdatePath,
     chore_list: chore_list::ChoreList,
     mut chore: chore::Chore,
     State(state): State<Arc<AppState>>,
@@ -186,13 +219,21 @@ pub async fn update(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!(
-        "/chore-lists/{}/chores/{}",
-        chore_list.id, chore.id
-    )))
+    Ok(Redirect::to(ChoreDetailPath {
+        chore_list_id: chore_list.id,
+        chore_id: chore.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}/delete")]
+pub struct ChoreDeletePath {
+    pub chore_list_id: Uuid,
+    pub chore_id: Uuid,
 }
 
 pub async fn delete(
+    _path: ChoreDeletePath,
     chore_list: chore_list::ChoreList,
     mut chore: chore::Chore,
     State(state): State<Arc<AppState>>,
@@ -209,13 +250,21 @@ pub async fn delete(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!(
-        "/chore-lists/{}/chores/{}",
-        chore_list.id, chore.id
-    )))
+    Ok(Redirect::to(ChoreDetailPath {
+        chore_list_id: chore_list.id,
+        chore_id: chore.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}/restore")]
+pub struct ChoreRestorePath {
+    pub chore_list_id: Uuid,
+    pub chore_id: Uuid,
 }
 
 pub async fn restore(
+    _path: ChoreRestorePath,
     chore_list: chore_list::ChoreList,
     mut chore: chore::Chore,
     State(state): State<Arc<AppState>>,
@@ -232,13 +281,21 @@ pub async fn restore(
 
     chore::update(&state.pool, &chore).await.unwrap();
 
-    Ok(Redirect::to(&format!(
-        "/chore-lists/{}/chores/{}",
-        chore_list.id, chore.id
-    )))
+    Ok(Redirect::to(ChoreDetailPath {
+        chore_list_id: chore_list.id,
+        chore_id: chore.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}/activities")]
+pub struct ChoreActivitiesPath {
+    pub chore_list_id: Uuid,
+    pub chore_id: Uuid,
 }
 
 pub async fn view_activity_list(
+    _path: ChoreActivitiesPath,
     chore_list: chore_list::ChoreList,
     chore: chore::Chore,
     State(state): State<Arc<AppState>>,

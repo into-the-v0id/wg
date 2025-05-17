@@ -1,8 +1,14 @@
 use maud::{html, Markup};
 use strum::IntoEnumIterator;
+use crate::application::authentication::LogoutPath;
 use crate::application::language::Language;
 use crate::application::language::LanguageSelection;
+use crate::application::legal::PrivacyPolicyPath;
+use crate::application::settings::SettingsAppearancePath;
+use crate::application::settings::SettingsIndexPath;
 use crate::application::theme::Theme;
+use crate::application::user::UserIndexPath;
+use crate::application::user::UserUpdatePath;
 use crate::domain::authentication_session::AuthenticationSession;
 use crate::templates::helper::t;
 use crate::templates::layout;
@@ -21,12 +27,12 @@ pub fn settings(auth_session: AuthenticationSession) -> Markup {
             nav style="flex-direction: column;" {
                 ul.card-container.collapse {
                     li {
-                        a.card href={ "/settings/appearance" } {
+                        a.card href=(SettingsAppearancePath) {
                             div.title { "✨ " (t().appearance()) }
                         }
                     }
                     li {
-                        a.card href={ "/users/" (auth_session.user_id) "/update" } {
+                        a.card href=(UserUpdatePath { user_id: auth_session.user_id }) {
                             div.title { "🪪 " (t().edit_profile()) }
                         }
                     }
@@ -34,14 +40,14 @@ pub fn settings(auth_session: AuthenticationSession) -> Markup {
                         button.card.text-align-left.mb-0 type="submit" form="logout" {
                             div.title { "🚪 " (t().logout_action()) }
                         }
-                        form #logout method="post" action="/logout" { }
+                        form #logout method="post" action=(LogoutPath) { }
                     }
                 }
 
                 h4 { (t().instance()) }
                 ul.card-container.collapse {
                     li {
-                        a.card href="/users" {
+                        a.card href=(UserIndexPath) {
                             div.title { "👤 " (t().users()) }
                         }
                     }
@@ -50,7 +56,7 @@ pub fn settings(auth_session: AuthenticationSession) -> Markup {
                 h4 { (t().legal()) }
                 ul.card-container.collapse {
                     li {
-                        a.card href="/legal/privacy-policy" rel="privacy-policy" target="_blank" {
+                        a.card href=(PrivacyPolicyPath) rel="privacy-policy" target="_blank" {
                             div.title { "📜 " (t().privacy_policy()) }
                         }
                     }
@@ -69,7 +75,7 @@ pub fn appearence(
             .emoji("✨")
             .title(&t().appearance())
             .headline(&t().appearance())
-            .back_url("/settings")
+            .back_url(SettingsIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {

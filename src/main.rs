@@ -24,8 +24,9 @@ use axum::{
     http::{HeaderName, HeaderValue, StatusCode, header},
     middleware::Next,
     response::{IntoResponse, Response},
-    routing::{get, post},
+    routing::get,
 };
+use axum_extra::routing::RouterExt;
 use domain::{
     authentication_session::AuthenticationSession,
     value::{DateTime, PasswordHash, Uuid},
@@ -81,41 +82,68 @@ async fn main() {
     create_user_if_necessary(&app_state.pool).await;
 
     let router = Router::new()
-        .route("/login", get(application::authentication::view_login_form).post(application::authentication::login))
-        .route("/logout", post(application::authentication::logout))
         .route("/", get(application::entry::redirect))
-        .route("/settings", get(application::settings::view))
-        .route("/settings/appearance", get(application::settings::view_appearance_form).post(application::settings::update_appearance))
-        .route("/users", get(application::user::view_list))
-        .route("/users/create", get(application::user::view_create_form).post(application::user::create))
-        .route("/users/{user_id}", get(application::user::view_detail))
-        .route("/users/{user_id}/update", get(application::user::view_update_form).post(application::user::update))
-        .route("/users/{user_id}/delete", post(application::user::delete))
-        .route("/users/{user_id}/restore", post(application::user::restore))
-        .route("/chore-lists", get(application::chore_list::view_list))
-        .route("/chore-lists/create", get(application::chore_list::view_create_form).post(application::chore_list::create))
-        .route("/chore-lists/{chore_list_id}/settings", get(application::chore_list::view_settings))
-        .route("/chore-lists/{chore_list_id}/update", get(application::chore_list::view_update_form).post(application::chore_list::update))
-        .route("/chore-lists/{chore_list_id}/delete", post(application::chore_list::delete))
-        .route("/chore-lists/{chore_list_id}/restore", post(application::chore_list::restore))
-        .route("/chore-lists/{chore_list_id}/chores", get(application::chore::view_list))
-        .route("/chore-lists/{chore_list_id}/chores/create", get(application::chore::view_create_form).post(application::chore::create))
-        .route("/chore-lists/{chore_list_id}/chores/{chore_id}", get(application::chore::view_detail))
-        .route("/chore-lists/{chore_list_id}/chores/{chore_id}/update", get(application::chore::view_update_form).post(application::chore::update))
-        .route("/chore-lists/{chore_list_id}/chores/{chore_id}/delete", post(application::chore::delete))
-        .route("/chore-lists/{chore_list_id}/chores/{chore_id}/restore", post(application::chore::restore))
-        .route("/chore-lists/{chore_list_id}/chores/{chore_id}/activities", get(application::chore::view_activity_list))
-        .route("/chore-lists/{chore_list_id}/activities", get(application::chore_activity::view_list))
-        .route("/chore-lists/{chore_list_id}/activities/create", get(application::chore_activity::view_create_form).post(application::chore_activity::create))
-        .route("/chore-lists/{chore_list_id}/activities/{chore_activity_id}", get(application::chore_activity::view_detail))
-        .route("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/update", get(application::chore_activity::view_update_form).post(application::chore_activity::update))
-        .route("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/delete", post(application::chore_activity::delete))
-        .route("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/restore", post(application::chore_activity::restore))
-        .route("/chore-lists/{chore_list_id}/users", get(application::chore_list_user::view_list))
-        .route("/chore-lists/{chore_list_id}/users/{user_id}", get(application::chore_list_user::view_detail))
-        .route("/chore-lists/{chore_list_id}/users/{user_id}/activities", get(application::chore_list_user::view_activity_list))
-        .route("/legal/privacy-policy", get(application::legal::view_privacy_policy))
         .route("/healthz", get(application::health::check))
+
+        // Authentication
+        .typed_get(application::authentication::view_login_form)
+        .typed_post(application::authentication::login)
+        .typed_post(application::authentication::logout)
+
+        // Settings
+        .typed_get(application::settings::view)
+        .typed_get(application::settings::view_appearance_form)
+        .typed_post(application::settings::update_appearance)
+
+        // User
+        .typed_get(application::user::view_list)
+        .typed_get(application::user::view_create_form)
+        .typed_post(application::user::create)
+        .typed_get(application::user::view_detail)
+        .typed_get(application::user::view_update_form)
+        .typed_post(application::user::update)
+        .typed_post(application::user::delete)
+        .typed_post(application::user::restore)
+
+        // Chore List
+        .typed_get(application::chore_list::view_list)
+        .typed_get(application::chore_list::view_create_form)
+        .typed_post(application::chore_list::create)
+        .typed_get(application::chore_list::view_settings)
+        .typed_get(application::chore_list::view_update_form)
+        .typed_post(application::chore_list::update)
+        .typed_post(application::chore_list::delete)
+        .typed_post(application::chore_list::restore)
+
+        // Chore
+        .typed_get(application::chore::view_list)
+        .typed_get(application::chore::view_create_form)
+        .typed_post(application::chore::create)
+        .typed_get(application::chore::view_detail)
+        .typed_get(application::chore::view_update_form)
+        .typed_post(application::chore::update)
+        .typed_post(application::chore::delete)
+        .typed_post(application::chore::restore)
+        .typed_get(application::chore::view_activity_list)
+
+        // Chore Activity
+        .typed_get(application::chore_activity::view_list)
+        .typed_get(application::chore_activity::view_create_form)
+        .typed_post(application::chore_activity::create)
+        .typed_get(application::chore_activity::view_detail)
+        .typed_get(application::chore_activity::view_update_form)
+        .typed_post(application::chore_activity::update)
+        .typed_post(application::chore_activity::delete)
+        .typed_post(application::chore_activity::restore)
+
+        // Chore List User
+        .typed_get(application::chore_list_user::view_list)
+        .typed_get(application::chore_list_user::view_detail)
+        .typed_get(application::chore_list_user::view_activity_list)
+
+        // Legal
+        .typed_get(application::legal::view_privacy_policy)
+
         .fallback_service(get(application::assets::serve))
         .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
             let request_id = request.headers().get("x-request-id")

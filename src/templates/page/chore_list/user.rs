@@ -1,4 +1,9 @@
 use maud::{html, Markup};
+use crate::application::chore_activity::ChoreActivityDetailPath;
+use crate::application::chore_list::ChoreListIndexPath;
+use crate::application::chore_list_user::ChoreListUserActivitiesPath;
+use crate::application::chore_list_user::ChoreListUserDetailPath;
+use crate::application::chore_list_user::ChoreListUserIndexPath;
 use crate::domain::chore_list;
 use crate::domain::chore_activity;
 use crate::domain::chore;
@@ -22,7 +27,7 @@ pub fn list(
             .title(&t().users())
             .headline(&format!("👤 {}", t().users()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
-            .back_url("/chore-lists")
+            .back_url(ChoreListIndexPath.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
         html! {
@@ -31,7 +36,7 @@ pub fn list(
                     @let user = users.iter().find(|user| user.id == user_id).unwrap();
 
                     li {
-                        a.card href={ "/chore-lists/" (chore_list.id) "/users/" (user_id) } {
+                        a.card href=(ChoreListUserDetailPath { chore_list_id: chore_list.id, user_id: user.id }) {
                             div.title { (user.name) }
                             small.text-muted { (t().score_value(score)) }
                         }
@@ -47,7 +52,7 @@ pub fn list(
                     ul.card-container.collapse {
                         @for user in deleted_users {
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/users/" (user.id) } {
+                                a.card href=(ChoreListUserDetailPath { chore_list_id: chore_list.id, user_id: user.id }) {
                                     div.title { (user.name) }
                                 }
                             }
@@ -69,7 +74,7 @@ pub fn detail(
             .title(&user.name)
             .headline(&format!("👤 {}", user.name))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
-            .back_url(&format!("/chore-lists/{}/users", chore_list.id))
+            .back_url(ChoreListUserIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
         html! {
@@ -84,7 +89,7 @@ pub fn detail(
             nav style="flex-direction: column;" {
                 ul.card-container.collapse {
                     li {
-                        a.card href={ "/chore-lists/" (chore_list.id) "/users/" (user.id) "/activities" } {
+                        a.card href=(ChoreListUserActivitiesPath { chore_list_id: chore_list.id, user_id: user.id }) {
                             div.title { "✅ " (t().activities()) }
                         }
                     }
@@ -110,7 +115,7 @@ pub fn list_activities(
                 format!("👤 {}", user.name),
                 format!("📋 {}", chore_list.name)
             ))
-            .back_url(&format!("/chore-lists/{}/users/{}", chore_list.id, user.id))
+            .back_url(ChoreListUserDetailPath { chore_list_id: chore_list.id, user_id: user.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
             .build(),
         html! {
@@ -122,7 +127,7 @@ pub fn list_activities(
                             @let chore = chores.iter().find(|chore| chore.id == activity.chore_id).unwrap();
 
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/activities/" (activity.id) } {
+                                a.card href=(ChoreActivityDetailPath {chore_list_id: chore_list.id, chore_activity_id: activity.id }) {
                                     div.title { (chore.name) }
 
                                     small.text-muted {
@@ -149,7 +154,7 @@ pub fn list_activities(
                             @let chore = chores.iter().find(|chore| chore.id == activity.chore_id).unwrap();
 
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/activities/" (activity.id) } {
+                                a.card href=(ChoreActivityDetailPath {chore_list_id: chore_list.id, chore_activity_id: activity.id }) {
                                     div.title { (chore.name) }
 
                                     small.text-muted {

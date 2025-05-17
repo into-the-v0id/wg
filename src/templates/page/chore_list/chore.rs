@@ -1,4 +1,14 @@
 use maud::{html, Markup};
+use crate::application::chore::ChoreActivitiesPath;
+use crate::application::chore::ChoreCreatePath;
+use crate::application::chore::ChoreDeletePath;
+use crate::application::chore::ChoreDetailPath;
+use crate::application::chore::ChoreIndexPath;
+use crate::application::chore::ChoreRestorePath;
+use crate::application::chore::ChoreUpdatePath;
+use crate::application::chore_activity::ChoreActivityCreatePath;
+use crate::application::chore_activity::ChoreActivityDetailPath;
+use crate::application::chore_list::ChoreListIndexPath;
 use crate::domain::chore_list;
 use crate::domain::chore_activity;
 use crate::domain::chore;
@@ -20,10 +30,10 @@ pub fn list(
             .title(&t().chores())
             .headline(&format!("🧹 {}", t().chores()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
-            .back_url("/chore-lists")
+            .back_url(ChoreListIndexPath.to_string().as_str())
             .meta_actions(html! {
                 @if !chore_list.is_deleted() {
-                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/chores/create" } { "+ " (t().add_action()) }
+                    a.secondary.subtle href=(ChoreCreatePath { chore_list_id: chore_list.id }) { "+ " (t().add_action()) }
                 }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
@@ -32,7 +42,7 @@ pub fn list(
             ul.card-container.collapse {
                 @for chore in chores {
                     li {
-                        a.card href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
+                        a.card href={ (ChoreDetailPath { chore_list_id: chore_list.id, chore_id: chore.id }) } {
                             div.title { (chore.name) }
                             small.text-muted {
                                 (t().points_value_short(chore.points))
@@ -57,7 +67,7 @@ pub fn list(
                     ul.card-container.collapse {
                         @for chore in deleted_chores {
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
+                                a.card href=(ChoreDetailPath { chore_list_id: chore_list.id, chore_id: chore.id }) {
                                     div.title { (chore.name) }
                                     small.text-muted { (t().points_value_short(chore.points)) }
                                 }
@@ -80,17 +90,17 @@ pub fn detail(
             .title(&chore.name)
             .headline(&format!("🧹 {}", chore.name))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
-            .back_url(&format!("/chore-lists/{}/chores", chore_list.id))
+            .back_url(ChoreIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .meta_actions(html! {
                 @if chore.is_deleted() {
                     button.link.secondary.subtle.mb-0 type="submit" form="chore_restore" { "↻ " (t().restore_action()) }
-                    form #chore_restore method="post" action={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/restore" } { }
+                    form #chore_restore method="post" action=(ChoreRestorePath { chore_list_id: chore_list.id, chore_id: chore.id }) { }
                 } @else if !chore_list.is_deleted() {
                     button.link.secondary.subtle.mb-0 type="submit" form="chore_delete" { "✗ " (t().delete_action()) }
 
-                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/update" } style="margin-left: 1.25rem;" { "✎ " (t().edit_action()) }
+                    a.secondary.subtle href=(ChoreUpdatePath { chore_list_id: chore_list.id, chore_id: chore.id }) style="margin-left: 1.25rem;" { "✎ " (t().edit_action()) }
 
-                    form #chore_delete method="post" action={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/delete" } { }
+                    form #chore_delete method="post" action=(ChoreDeletePath { chore_list_id: chore_list.id, chore_id: chore.id }) { }
                 }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
@@ -133,7 +143,7 @@ pub fn detail(
             nav style="flex-direction: column;" {
                 ul.card-container.collapse {
                     li {
-                        a.card href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) "/activities" } {
+                        a.card href=(ChoreActivitiesPath { chore_list_id: chore_list.id, chore_id: chore.id }) {
                             div.title { "✅ " (t().activities()) }
                         }
                     }
@@ -151,7 +161,7 @@ pub fn create(
             .emoji("🧹")
             .title(&t().create_chore())
             .headline(&format!("🧹 {}", t().create_chore()))
-            .back_url(&format!("/chore-lists/{}/chores", chore_list.id))
+            .back_url(ChoreIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),
         html! {
@@ -195,7 +205,7 @@ pub fn update(
             .emoji("🧹")
             .title(&t().edit_chore())
             .headline(&format!("🧹 {}", t().edit_chore()))
-            .back_url(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id))
+            .back_url(ChoreDetailPath { chore_list_id: chore_list.id, chore_id: chore.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),
         html! {
@@ -247,9 +257,9 @@ pub fn list_activities(
             .title(&t().activities())
             .headline(&format!("✅ {}", t().activities()))
             .teaser(&t().of_x(format!("🧹 {}", chore.name)))
-            .back_url(&format!("/chore-lists/{}/chores/{}", chore_list.id, chore.id))
+            .back_url(ChoreDetailPath { chore_list_id: chore_list.id, chore_id: chore.id }.to_string().as_str())
             .meta_actions(html! {
-                a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ " (t().add_action()) }
+                a.secondary.subtle href=(ChoreActivityCreatePath {chore_list_id:chore_list.id }) { "+ " (t().add_action()) }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),
@@ -262,7 +272,7 @@ pub fn list_activities(
                             @let user = users.iter().find(|user| user.id == activity.user_id).unwrap();
 
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/activities/" (activity.id) } {
+                                a.card href=(ChoreActivityDetailPath {chore_list_id: chore_list.id, chore_activity_id: activity.id }) {
                                     div.title { (user.name) }
 
                                     @if activity.comment.is_some() {
@@ -285,7 +295,7 @@ pub fn list_activities(
                             @let user = users.iter().find(|user| user.id == activity.user_id).unwrap();
 
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/activities/" (activity.id) } {
+                                a.card href=(ChoreActivityDetailPath {chore_list_id: chore_list.id, chore_activity_id: activity.id }) {
                                     div.title { (user.name) }
 
                                     small.text-muted {

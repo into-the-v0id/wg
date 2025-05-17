@@ -17,6 +17,7 @@ use axum::{
     http::StatusCode,
     response::Redirect,
 };
+use axum_extra::routing::TypedPath;
 use chrono::Days;
 use maud::Markup;
 use std::sync::Arc;
@@ -48,7 +49,14 @@ impl FromRequestParts<Arc<AppState>> for chore_activity::ChoreActivity {
     }
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/activities")]
+pub struct ChoreActivityIndexPath {
+    pub chore_list_id: Uuid,
+}
+
 pub async fn view_list(
+    _path: ChoreActivityIndexPath,
     chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -73,7 +81,15 @@ pub async fn view_list(
     ))
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/activities/{chore_activity_id}")]
+pub struct ChoreActivityDetailPath {
+    pub chore_list_id: Uuid,
+    pub chore_activity_id: Uuid,
+}
+
 pub async fn view_detail(
+    _path: ChoreActivityDetailPath,
     chore_list: chore_list::ChoreList,
     activity: chore_activity::ChoreActivity,
     State(state): State<Arc<AppState>>,
@@ -101,7 +117,14 @@ pub async fn view_detail(
     ))
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/activities/create")]
+pub struct ChoreActivityCreatePath {
+    pub chore_list_id: Uuid,
+}
+
 pub async fn view_create_form(
+    _path: ChoreActivityCreatePath,
     chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -134,6 +157,7 @@ pub struct CreatePayload {
 }
 
 pub async fn create(
+    _path: ChoreActivityCreatePath,
     chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     auth_session: AuthenticationSession,
@@ -183,13 +207,20 @@ pub async fn create(
         .await
         .unwrap();
 
-    Ok(Redirect::to(&format!(
-        "/chore-lists/{}/activities",
-        chore_list.id
-    )))
+    Ok(Redirect::to(&ChoreActivityIndexPath {
+        chore_list_id: chore_list.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/update")]
+pub struct ChoreActivityUpdatePath {
+    pub chore_list_id: Uuid,
+    pub chore_activity_id: Uuid,
 }
 
 pub async fn view_update_form(
+    _path: ChoreActivityUpdatePath,
     chore_list: chore_list::ChoreList,
     activity: chore_activity::ChoreActivity,
     State(state): State<Arc<AppState>>,
@@ -240,6 +271,7 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
+    _path: ChoreActivityUpdatePath,
     chore_list: chore_list::ChoreList,
     mut activity: chore_activity::ChoreActivity,
     State(state): State<Arc<AppState>>,
@@ -290,13 +322,21 @@ pub async fn update(
         .await
         .unwrap();
 
-    Ok(Redirect::to(&format!(
-        "/chore-lists/{}/activities/{}",
-        chore_list.id, activity.id
-    )))
+    Ok(Redirect::to(&ChoreActivityDetailPath {
+        chore_list_id: chore_list.id,
+        chore_activity_id: activity.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/delete")]
+pub struct ChoreActivityDeletePath {
+    pub chore_list_id: Uuid,
+    pub chore_activity_id: Uuid,
 }
 
 pub async fn delete(
+    _path: ChoreActivityDeletePath,
     chore_list: chore_list::ChoreList,
     mut activity: chore_activity::ChoreActivity,
     State(state): State<Arc<AppState>>,
@@ -330,13 +370,21 @@ pub async fn delete(
         .await
         .unwrap();
 
-    Ok(Redirect::to(&format!(
-        "/chore-lists/{}/activities/{}",
-        chore_list.id, activity.id
-    )))
+    Ok(Redirect::to(&ChoreActivityDetailPath {
+        chore_list_id: chore_list.id,
+        chore_activity_id: activity.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/activities/{chore_activity_id}/restore")]
+pub struct ChoreActivityRestorePath {
+    pub chore_list_id: Uuid,
+    pub chore_activity_id: Uuid,
 }
 
 pub async fn restore(
+    _path: ChoreActivityRestorePath,
     chore_list: chore_list::ChoreList,
     mut activity: chore_activity::ChoreActivity,
     State(state): State<Arc<AppState>>,
@@ -366,8 +414,8 @@ pub async fn restore(
         .await
         .unwrap();
 
-    Ok(Redirect::to(&format!(
-        "/chore-lists/{}/activities/{}",
-        chore_list.id, activity.id
-    )))
+    Ok(Redirect::to(&ChoreActivityDetailPath {
+        chore_list_id: chore_list.id,
+        chore_activity_id: activity.id,
+    }.to_string().as_str()))
 }

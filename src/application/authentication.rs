@@ -16,6 +16,7 @@ use axum::{
     response::{IntoResponse, Redirect},
 };
 use axum_extra::extract::{CookieJar, cookie::Cookie};
+use axum_extra::routing::TypedPath;
 use chrono::Days;
 use secrecy::SecretString;
 
@@ -78,7 +79,14 @@ impl OptionalFromRequestParts<Arc<AppState>> for AuthenticationSession {
     }
 }
 
-pub async fn view_login_form(auth_session: Option<AuthenticationSession>) -> impl IntoResponse {
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/login")]
+pub struct LoginPath;
+
+pub async fn view_login_form(
+    _path: LoginPath,
+    auth_session: Option<AuthenticationSession>,
+) -> impl IntoResponse {
     if auth_session.is_some() {
         return Redirect::to("/").into_response();
     }
@@ -93,6 +101,7 @@ pub struct LoginPayload {
 }
 
 pub async fn login(
+    _path: LoginPath,
     State(state): State<Arc<AppState>>,
     cookie_jar: CookieJar,
     Form(payload): Form<LoginPayload>,
@@ -148,7 +157,12 @@ pub async fn login(
     Ok((cookie_jar, Redirect::to("/")))
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/logout")]
+pub struct LogoutPath;
+
 pub async fn logout(
+    _path: LogoutPath,
     auth_session: Option<AuthenticationSession>,
     State(state): State<Arc<AppState>>,
     mut cookie_jar: CookieJar,
@@ -163,5 +177,5 @@ pub async fn logout(
         cookie_jar = cookie_jar.remove(COOKIE_NAME);
     }
 
-    (cookie_jar, Redirect::to("/login"))
+    (cookie_jar, Redirect::to(LoginPath.to_string().as_str()))
 }

@@ -1,4 +1,13 @@
 use maud::{html, Markup};
+use crate::application::chore::ChoreDetailPath;
+use crate::application::chore_activity::ChoreActivityCreatePath;
+use crate::application::chore_activity::ChoreActivityDeletePath;
+use crate::application::chore_activity::ChoreActivityDetailPath;
+use crate::application::chore_activity::ChoreActivityIndexPath;
+use crate::application::chore_activity::ChoreActivityRestorePath;
+use crate::application::chore_activity::ChoreActivityUpdatePath;
+use crate::application::chore_list::ChoreListIndexPath;
+use crate::application::chore_list_user::ChoreListUserDetailPath;
 use crate::domain::authentication_session::AuthenticationSession;
 use crate::domain::chore_list;
 use crate::domain::chore_activity;
@@ -24,10 +33,10 @@ pub fn list(
             .title(&t().activities())
             .headline(&format!("✅ {}", t().activities()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
-            .back_url("/chore-lists")
+            .back_url(ChoreListIndexPath.to_string().as_str())
             .meta_actions(html! {
                 @if !chore_list.is_deleted() {
-                    a.secondary.subtle href={ "/chore-lists/" (chore_list.id) "/activities/create" } { "+ " (t().add_action()) }
+                    a.secondary.subtle href=(ChoreActivityCreatePath { chore_list_id: chore_list.id }) { "+ " (t().add_action()) }
                 }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
@@ -42,7 +51,7 @@ pub fn list(
                             @let user = users.iter().find(|user| user.id == activity.user_id).unwrap();
 
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/activities/" (activity.id) } {
+                                a.card href=(ChoreActivityDetailPath {chore_list_id: chore_list.id, chore_activity_id: activity.id }) {
                                     div.title { (chore.name) }
 
                                     small.text-muted {
@@ -72,7 +81,7 @@ pub fn list(
                             @let user = users.iter().find(|user| user.id == activity.user_id).unwrap();
 
                             li {
-                                a.card href={ "/chore-lists/" (chore_list.id) "/activities/" (activity.id) } {
+                                a.card href=(ChoreActivityDetailPath {chore_list_id: chore_list.id, chore_activity_id: activity.id }) {
                                     div.title { (chore.name) }
 
                                     small.text-muted {
@@ -110,19 +119,19 @@ pub fn detail(
             .title(&t().activity())
             .headline(&format!("✅ {}", t().activity()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
-            .back_url(&format!("/chore-lists/{}/activities", chore_list.id))
+            .back_url(ChoreActivityIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .meta_actions(html! {
                 @if activity.is_deleted() {
                     button.link.secondary.subtle.mb-0 type="submit" form="activity_restore" { "↻ " (t().restore_action()) }
-                    form #activity_restore method="post" action={ "/chore-lists/" (chore_list.id) "/activities/" (activity.id) "/restore" } { }
+                    form #activity_restore method="post" action=(ChoreActivityRestorePath {chore_list_id:chore_list.id, chore_activity_id: activity.id }) { }
                 } @else if !chore.is_deleted() && !chore_list.is_deleted() && activity.user_id == auth_session.user_id {
                     button.link.secondary.subtle.mb-0 type="submit" form="activity_delete" { "✗ " (t().delete_action()) }
 
                     @if allow_edit {
-                        a.secondary.subtle href="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/update" style="margin-left: 1.25rem;" { "✎ " (t().edit_action()) }
+                        a.secondary.subtle href=(ChoreActivityUpdatePath {chore_list_id:chore_list.id, chore_activity_id: activity.id }) style="margin-left: 1.25rem;" { "✎ " (t().edit_action()) }
                     }
 
-                    form #activity_delete method="post" action="/chore-lists/{{ chore_list.id }}/activities/{{ activity.id }}/delete" { }
+                    form #activity_delete method="post" action=(ChoreActivityDeletePath {chore_list_id:chore_list.id, chore_activity_id: activity.id }) { }
                 }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
@@ -141,11 +150,11 @@ pub fn detail(
                 dd { (activity.date.format("%Y-%m-%d")) }
 
                 dt { (t().user()) }
-                dd { a.inherit.subtle href={ "/chore-lists/" (chore_list.id) "/users/" (user.id) } { "👤 " (user.name) } }
+                dd { a.inherit.subtle href=(ChoreListUserDetailPath { chore_list_id: chore_list.id, user_id: user.id }) { "👤 " (user.name) } }
 
                 dt { (t().chore()) }
                 dd {
-                    a.inherit.subtle href={ "/chore-lists/" (chore_list.id) "/chores/" (chore.id) } {
+                    a.inherit.subtle href=(ChoreDetailPath { chore_list_id: chore_list.id, chore_id: chore.id }) {
                         "🧹 " (chore.name) " (" (chore.points) "P)"
                     }
                 }
@@ -171,7 +180,7 @@ pub fn create(
             .emoji("✅")
             .title(&t().create_activity())
             .headline(&format!("✅ {}", t().create_activity()))
-            .back_url(&format!("/chore-lists/{}/activities", chore_list.id))
+            .back_url(ChoreActivityIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),
         html! {
@@ -217,7 +226,7 @@ pub fn update(
             .emoji("✅")
             .title(&t().edit_activity())
             .headline(&format!("✅ {}", t().edit_activity()))
-            .back_url(&format!("/chore-lists/{}/activities/{}", chore_list.id, activity.id))
+            .back_url(ChoreActivityDetailPath { chore_list_id: chore_list.id, chore_activity_id: activity.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),
         html! {

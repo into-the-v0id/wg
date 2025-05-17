@@ -1,15 +1,27 @@
 use axum::{response::{IntoResponse, Redirect}, Form};
-use axum_extra::extract::{cookie::Cookie, CookieJar};
+use axum_extra::{extract::{cookie::Cookie, CookieJar}, routing::TypedPath};
 use maud::Markup;
 use serde_with::serde_as;
 use crate::{domain::authentication_session::AuthenticationSession, templates};
 use super::{language::{self, LanguageSelection}, theme::{self, Theme}};
 
-pub async fn view(auth_session: AuthenticationSession) -> Markup {
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/settings")]
+pub struct SettingsIndexPath;
+
+pub async fn view(
+    _path: SettingsIndexPath,
+    auth_session: AuthenticationSession,
+) -> Markup {
     templates::page::settings::settings(auth_session)
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/settings/appearance")]
+pub struct SettingsAppearancePath;
+
 pub async fn view_appearance_form(
+    _path: SettingsAppearancePath,
     language_selection: LanguageSelection,
     theme_selection: Theme,
     _auth_session: AuthenticationSession,
@@ -27,6 +39,7 @@ pub struct AppearancePayload {
 }
 
 pub async fn update_appearance(
+    _path: SettingsAppearancePath,
     mut cookie_jar: CookieJar,
     _auth_session: AuthenticationSession,
     Form(payload): Form<AppearancePayload>,
@@ -49,5 +62,5 @@ pub async fn update_appearance(
     cookie_jar = cookie_jar.remove(theme::COOKIE_NAME);
     cookie_jar = cookie_jar.add(theme_cookie);
 
-    (cookie_jar, Redirect::to("/settings/appearance"))
+    (cookie_jar, Redirect::to(SettingsAppearancePath.to_string().as_str()))
 }

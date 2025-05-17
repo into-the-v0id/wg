@@ -14,8 +14,11 @@ use axum::{
     http::StatusCode,
     response::Redirect,
 };
+use axum_extra::routing::TypedPath;
 use maud::Markup;
 use std::sync::Arc;
+
+use super::chore_activity::ChoreActivityIndexPath;
 
 #[derive(Debug, Copy, Clone, serde::Deserialize)]
 struct ChoreListPathData {
@@ -44,7 +47,12 @@ impl FromRequestParts<Arc<AppState>> for chore_list::ChoreList {
     }
 }
 
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists")]
+pub struct ChoreListIndexPath;
+
 pub async fn view_list(
+    _path: ChoreListIndexPath,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
 ) -> Markup {
@@ -57,7 +65,14 @@ pub async fn view_list(
     templates::page::chore_list::list(chore_lists, deleted_chore_lists)
 }
 
-pub async fn view_create_form(_auth_session: AuthenticationSession) -> Markup {
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/create")]
+pub struct ChoreListCreatePath;
+
+pub async fn view_create_form(
+    _path: ChoreListCreatePath,
+    _auth_session: AuthenticationSession,
+) -> Markup {
     templates::page::chore_list::create()
 }
 
@@ -69,6 +84,7 @@ pub struct CreatePayload {
 }
 
 pub async fn create(
+    _path: ChoreListCreatePath,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
     Form(payload): Form<CreatePayload>,
@@ -87,10 +103,19 @@ pub async fn create(
 
     chore_list::create(&state.pool, &chore_list).await.unwrap();
 
-    Redirect::to(&format!("/chore-lists/{}/activities", chore_list.id))
+    Redirect::to(&ChoreActivityIndexPath {
+        chore_list_id: chore_list.id,
+    }.to_string().as_str())
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/update")]
+pub struct ChoreListUpdatePath {
+    pub chore_list_id: Uuid,
 }
 
 pub async fn view_update_form(
+    _path: ChoreListUpdatePath,
     chore_list: chore_list::ChoreList,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
@@ -109,6 +134,7 @@ pub struct UpdatePayload {
 }
 
 pub async fn update(
+    _path: ChoreListUpdatePath,
     mut chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -127,10 +153,19 @@ pub async fn update(
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/settings", chore_list.id)))
+    Ok(Redirect::to(ChoreListSettingsPath {
+        chore_list_id: chore_list.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/delete")]
+pub struct ChoreListDeletePath {
+    pub chore_list_id: Uuid,
 }
 
 pub async fn delete(
+    _path: ChoreListDeletePath,
     mut chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -143,10 +178,19 @@ pub async fn delete(
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/settings", chore_list.id)))
+    Ok(Redirect::to(ChoreListSettingsPath {
+        chore_list_id: chore_list.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/restore")]
+pub struct ChoreListRestorePath {
+    pub chore_list_id: Uuid,
 }
 
 pub async fn restore(
+    _path: ChoreListRestorePath,
     mut chore_list: chore_list::ChoreList,
     State(state): State<Arc<AppState>>,
     _auth_session: AuthenticationSession,
@@ -159,10 +203,19 @@ pub async fn restore(
 
     chore_list::update(&state.pool, &chore_list).await.unwrap();
 
-    Ok(Redirect::to(&format!("/chore-lists/{}/settings", chore_list.id)))
+    Ok(Redirect::to(ChoreListSettingsPath {
+        chore_list_id: chore_list.id,
+    }.to_string().as_str()))
+}
+
+#[derive(TypedPath, serde::Deserialize)]
+#[typed_path("/chore-lists/{chore_list_id}/settings")]
+pub struct ChoreListSettingsPath {
+    pub chore_list_id: Uuid,
 }
 
 pub async fn view_settings(
+    _path: ChoreListSettingsPath,
     chore_list: chore_list::ChoreList,
     _auth_session: AuthenticationSession,
 ) -> Result<Markup, StatusCode> {
