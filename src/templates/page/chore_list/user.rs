@@ -10,6 +10,8 @@ use crate::domain::chore;
 use crate::domain::user;
 use crate::domain::value::Date;
 use crate::domain::value::Uuid;
+use crate::templates::helper::format_date_long;
+use crate::templates::helper::format_date_long_simple;
 use crate::templates::helper::t;
 use crate::templates::layout;
 use crate::templates::partial;
@@ -121,7 +123,11 @@ pub fn list_activities(
         html! {
             div.timeline {
                 @for (date, activities_of_date) in activities_by_date {
-                    div.timeline-date-separator { (date.format("%Y-%m-%d")) }
+                    div.timeline-date-separator {
+                        time datetime=(date.format("%Y-%m-%d")) title=(date.format("%Y-%m-%d")) {
+                            (format_date_long_simple(date))
+                        }
+                    }
                     ul.card-container.collapse {
                         @for activity in activities_of_date {
                             @let chore = chores.iter().find(|chore| chore.id == activity.chore_id).unwrap();
@@ -160,7 +166,9 @@ pub fn list_activities(
                                     small.text-muted {
                                         (t().points_value_short(chore.points))
 
-                                        " – " (activity.date.format("%Y-%m-%d"))
+                                        " – " time datetime=(activity.date.format("%Y-%m-%d")) title=(activity.date.format("%Y-%m-%d")) {
+                                            (format_date_long(activity.date))
+                                        }
 
                                         @if activity.comment.is_some() {
                                             " – " (t().has_comment())

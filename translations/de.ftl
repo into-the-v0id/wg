@@ -15,6 +15,9 @@ delete_action = Löschen
 restore_action = Wiederherstellen
 of_x = Von {$x}
 of_x_in_y = Von {$x} in {$y}
+today = Heute
+yesterday = Gestern
+tomorrow = Morgen
 
 ## Chore List
 

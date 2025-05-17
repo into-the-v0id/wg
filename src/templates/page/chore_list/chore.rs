@@ -14,6 +14,8 @@ use crate::domain::chore_activity;
 use crate::domain::chore;
 use crate::domain::user;
 use crate::domain::value::Date;
+use crate::templates::helper::format_date_long;
+use crate::templates::helper::format_date_long_simple;
 use crate::templates::helper::t;
 use crate::templates::layout;
 use crate::templates::partial;
@@ -127,7 +129,9 @@ pub fn detail(
                     @let is_due = next_due_date.is_today() || next_due_date.is_in_past();
                     dt { (t().next_due_date()) }
                     dd.text-danger[is_due].fw-bold[is_due] {
-                        (next_due_date.format("%Y-%m-%d"))
+                        time datetime=(next_due_date.format("%Y-%m-%d")) title=(next_due_date.format("%Y-%m-%d")) {
+                            (format_date_long(next_due_date))
+                        }
                     }
                 }
 
@@ -266,7 +270,11 @@ pub fn list_activities(
         html! {
             div.timeline {
                 @for (date, activities_of_date) in activities_by_date {
-                    div.timeline-date-separator { (date.format("%Y-%m-%d")) }
+                    div.timeline-date-separator {
+                        time datetime=(date.format("%Y-%m-%d")) title=(date.format("%Y-%m-%d")) {
+                            (format_date_long_simple(date))
+                        }
+                    }
                     ul.card-container.collapse {
                         @for activity in activities_of_date {
                             @let user = users.iter().find(|user| user.id == activity.user_id).unwrap();
@@ -299,7 +307,9 @@ pub fn list_activities(
                                     div.title { (user.name) }
 
                                     small.text-muted {
-                                        (activity.date.format("%Y-%m-%d"))
+                                        time datetime=(activity.date.format("%Y-%m-%d")) title=(activity.date.format("%Y-%m-%d")) {
+                                            (format_date_long(activity.date))
+                                        }
 
                                         @if activity.comment.is_some() {
                                             " – " (t().has_comment())
