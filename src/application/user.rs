@@ -21,6 +21,7 @@ use axum_extra::routing::TypedPath;
 use maud::Markup;
 use secrecy::{ExposeSecret, SecretString};
 use std::sync::Arc;
+use super::settings::SettingsIndexPath;
 
 #[derive(Debug, Copy, Clone, serde::Deserialize)]
 struct UserPathData {
@@ -174,9 +175,7 @@ pub async fn update(
 
     user::update(&state.pool, &user).await.unwrap();
 
-    Ok(Redirect::to(UserDetailPath {
-        user_id: user.id,
-    }.to_string().as_str()))
+    Ok(Redirect::to(SettingsIndexPath.to_string().as_str()))
 }
 
 #[derive(TypedPath, serde::Deserialize)]
