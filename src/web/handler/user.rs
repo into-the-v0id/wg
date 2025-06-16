@@ -3,7 +3,7 @@ use crate::model::user::{self, UserId};
 use crate::web::template;
 use crate::value::{DateTime, PasswordHash};
 use crate::{
-    AppState,
+    web::AppState,
     model::authentication_session,
 };
 use axum::{

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use crate::{
-    AppState,
+    web::AppState,
     model::{authentication_session::{self, AuthenticationSession}},
 };
 use axum::{

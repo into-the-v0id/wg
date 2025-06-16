@@ -6,7 +6,7 @@ use crate::model::chore_activity::ChoreActivityId;
 use crate::model::chore_list;
 use crate::model::chore_list::ChoreListId;
 use crate::model::user::UserId;
-use crate::AppState;
+use crate::web::AppState;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::RequestPartsExt;

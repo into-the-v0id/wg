@@ -6,7 +6,7 @@ use crate::web::template;
 use crate::model::user;
 use crate::value::DateTime;
 use crate::{
-    AppState,
+    web::AppState,
     model::{authentication_session::{self, AuthenticationSession}},
 };
 use axum::{

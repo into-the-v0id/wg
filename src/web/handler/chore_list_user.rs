@@ -6,7 +6,7 @@ use crate::model::chore_list::ChoreListId;
 use crate::model::user;
 use crate::model::user::UserId;
 use crate::web::template;
-use crate::AppState;
+use crate::web::AppState;
 use axum::{
     extract::State,
     http::StatusCode,

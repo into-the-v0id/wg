@@ -2,7 +2,7 @@ use crate::model::authentication_session::AuthenticationSession;
 use crate::model::chore_list::{self, ChoreListId};
 use crate::web::template;
 use crate::{
-    AppState,
+    web::AppState,
     value::{DateTime},
 };
 use axum::{

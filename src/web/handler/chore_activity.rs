@@ -8,7 +8,7 @@ use crate::model::chore_list::ChoreListId;
 use crate::model::user;
 use crate::web::template;
 use crate::{
-    AppState,
+    web::AppState,
     value::{Date, DateTime},
 };
 use axum::{

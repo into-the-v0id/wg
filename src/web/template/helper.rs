@@ -2,7 +2,8 @@ use chrono::{Datelike, Days};
 use icu_calendar::Gregorian;
 use icu_datetime::{fieldsets, FixedCalendarDateTimeFormatter};
 use icu_locale_core::Locale;
-use crate::{value::Date, Translations, LANGUAGE, TRANSLATIONS};
+use crate::value::Date;
+use crate::web::{Translations, LANGUAGE, TRANSLATIONS};
 
 pub fn t() -> Translations {
     TRANSLATIONS.get()

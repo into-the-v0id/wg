@@ -1,4 +1,4 @@
-use crate::AppState;
+use crate::web::AppState;
 use axum::{extract::State, http::StatusCode};
 use sqlx::Connection;
 use std::sync::Arc;
