@@ -1,11 +1,4 @@
 *
-!assets/
-!migrations/
-!src/
-!static/
-static/css/
-!translations/
-!Cargo.lock
+!wg/
+!wg-*/
 !Cargo.toml
-!package.json
-!package-lock.json

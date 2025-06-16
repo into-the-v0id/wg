@@ -1,0 +1,22 @@
+[package]
+name = "wg"
+version = "0.1.0"
+edition = "2024"
+authors = ["Oliver Amann"]
+license = "AGPL-3.0-only"
+
+[dependencies]
+axum = "0.8.1"
+const-hex = "1.14.0"
+futures = "0.3.31"
+getrandom = "0.2.15"
+sqlx = { version = "0.8.3", features = ["runtime-tokio", "sqlite"] }
+tokio = { version = "1.43.0", features = ["full"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
+wg_core = { path = "../wg-core" }
+wg_web = { path = "../wg-web" }
+
+[profile.release]
+lto = "fat"
+strip = true
