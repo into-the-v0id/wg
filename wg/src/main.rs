@@ -13,6 +13,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use secrecy::ExposeSecret;
+use tokio_util::sync::CancellationToken;
 use wg_core::service;
 use sqlx::migrate::MigrateDatabase;
 use tracing_subscriber::EnvFilter;
@@ -38,18 +39,17 @@ async fn main() {
         );
     }
 
-    let web_router = wg_web::make_router(wg_web::AppState {
-        pool: pool,
+    let cancel_token = CancellationToken::new();
+
+    let cancel_token_shutdown = cancel_token.clone();
+    tokio::spawn(async move {
+        shutdown_signal().await;
+        cancel_token_shutdown.cancel();
     });
 
-    let port = std::env::var("PORT")
-        .map(|raw_port| raw_port.parse::<i32>().unwrap())
-        .unwrap_or(3000);
-    let address = format!("0.0.0.0:{}", port);
-    let listener = tokio::net::TcpListener::bind(address).await.unwrap();
-    println!("Listening on http://{} ...", listener.local_addr().unwrap());
+    let web_future = tokio::spawn(start_web_server(pool, cancel_token.clone()));
 
-    wg_web::start(listener, web_router).await
+    web_future.await.unwrap();
 }
 
 async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
@@ -62,4 +62,39 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
     }
 
     sqlx::sqlite::SqlitePool::connect(&db_url).await.unwrap()
+}
+
+async fn start_web_server(pool: sqlx::sqlite::SqlitePool, cancel_token: CancellationToken) -> () {
+    let web_router = wg_web::make_router(wg_web::AppState {
+        pool: pool,
+    });
+
+    let port = std::env::var("PORT")
+        .map(|raw_port| raw_port.parse::<i32>().unwrap())
+        .unwrap_or(3000);
+    let address = format!("0.0.0.0:{}", port);
+    let listener = tokio::net::TcpListener::bind(address).await.unwrap();
+    println!("Listening on http://{} ...", listener.local_addr().unwrap());
+
+    wg_web::start(listener, web_router, cancel_token).await
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
 }
