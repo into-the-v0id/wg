@@ -12,11 +12,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pub mod domain;
-pub mod application;
-pub mod templates;
+pub mod model;
+pub mod value;
+pub mod web;
 
-use application::{language::Language, theme::Theme};
+use web::application;
+use web::template;
+use web::application::{language::Language, theme::Theme};
 use axum::{
     RequestExt, Router,
     body::Body,
@@ -27,9 +29,8 @@ use axum::{
     routing::get,
 };
 use axum_extra::routing::RouterExt;
-use domain::{
-    authentication_session::AuthenticationSession, user::UserId, value::{DateTime, PasswordHash}
-};
+use model::{authentication_session::AuthenticationSession, user::UserId};
+use value::{DateTime, PasswordHash};
 use sqlx::migrate::MigrateDatabase;
 use std::{any::Any, sync::Arc};
 use tokio::signal;
@@ -160,7 +161,7 @@ async fn main() {
                 );
                 response_parts.headers.remove(header::CONTENT_LENGTH);
                 response_parts.headers.remove(header::CONTENT_ENCODING);
-                let body = Body::from(templates::page::error::http_error(status_code, request_id).into_string());
+                let body = Body::from(template::page::error::http_error(status_code, request_id).into_string());
 
                 return Response::from_parts(response_parts, body);
             }
@@ -316,7 +317,7 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
 /// If no users exist, create a user and print ist credentials.
 /// Mainly used for new-installs without an existing DB.
 async fn create_user_if_necessary(pool: &sqlx::sqlite::SqlitePool) {
-    let users = domain::user::get_all(pool).await.unwrap();
+    let users = model::user::get_all(pool).await.unwrap();
     if !users.is_empty() {
         return;
     }
@@ -325,7 +326,7 @@ async fn create_user_if_necessary(pool: &sqlx::sqlite::SqlitePool) {
     getrandom::getrandom(&mut plain_password_buf).unwrap();
     let plain_password = const_hex::encode(plain_password_buf);
 
-    let user = domain::user::User {
+    let user = model::user::User {
         id: UserId::new(),
         name: "Admin".to_string(),
         handle: "admin".to_string(),
@@ -333,7 +334,7 @@ async fn create_user_if_necessary(pool: &sqlx::sqlite::SqlitePool) {
         date_created: DateTime::now(),
         date_deleted: None,
     };
-    domain::user::create(pool, &user).await.unwrap();
+    model::user::create(pool, &user).await.unwrap();
 
     println!(
         "Created user with handle '{}' and password '{}'",
