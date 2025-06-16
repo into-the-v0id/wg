@@ -1,13 +1,13 @@
 FROM node:22-alpine AS assets
 
-WORKDIR /app
+WORKDIR /app/wg-web
 
-COPY package.json .
-COPY package-lock.json .
-COPY assets/ ./assets/
-COPY static/ ./static/
+COPY wg-web/package.json .
+COPY wg-web/package-lock.json .
+COPY wg-web/assets/ ./assets/
+COPY wg-web/static/ ./static/
 
-RUN --mount=type=cache,target=/app/node_modules npm install && npm run build:sass
+RUN --mount=type=cache,target=/app/wg-web/node_modules npm install && npm run build:sass
 
 FROM rustlang/rust:nightly-slim AS build
 
@@ -16,10 +16,10 @@ WORKDIR /app
 COPY . .
 
 # Install assets
-COPY --from=assets /app/static /app/static
+COPY --from=assets /app/wg-web/static /app/wg-web/static
 
 # Build app
-RUN --mount=type=cache,target=/app/target --mount=type=cache,target=/root/.cargo cargo build --release && cp /app/target/release/wg /app/wg
+RUN --mount=type=cache,target=/app/target --mount=type=cache,target=/root/.cargo cd wg/ && cargo build --release && cp /app/target/release/wg /app/wg
 
 FROM debian:stable-slim
 
