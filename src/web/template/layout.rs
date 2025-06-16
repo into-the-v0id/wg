@@ -1,8 +1,8 @@
 use bon::Builder;
 use maud::{html, Markup, PreEscaped};
-use crate::web::application::theme::Theme;
+use crate::web::extractor::theme::Theme;
 use crate::web::template::helper::t;
-use crate::{web::application::assets, LANGUAGE, THEME};
+use crate::{web::handler::assets, LANGUAGE, THEME};
 
 fn emoji_favicon(emoji: &str) -> Markup {
     html! {

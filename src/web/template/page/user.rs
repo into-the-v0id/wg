@@ -1,10 +1,10 @@
 use maud::{html, Markup};
-use crate::web::application::settings::SettingsIndexPath;
-use crate::web::application::user::UserCreatePath;
-use crate::web::application::user::UserDeletePath;
-use crate::web::application::user::UserDetailPath;
-use crate::web::application::user::UserIndexPath;
-use crate::web::application::user::UserRestorePath;
+use crate::web::handler::settings::SettingsIndexPath;
+use crate::web::handler::user::UserCreatePath;
+use crate::web::handler::user::UserDeletePath;
+use crate::web::handler::user::UserDetailPath;
+use crate::web::handler::user::UserIndexPath;
+use crate::web::handler::user::UserRestorePath;
 use crate::model::user;
 use crate::web::template::helper::t;
 use crate::web::template::layout;

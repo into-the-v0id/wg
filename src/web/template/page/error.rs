@@ -1,6 +1,6 @@
 use axum::http::StatusCode;
 use maud::{html, Markup};
-use crate::web::{application::authentication::LoginPath, template::layout};
+use crate::web::{handler::authentication::LoginPath, template::layout};
 
 pub fn http_error(
     status_code: StatusCode,

@@ -3,7 +3,7 @@ use axum_extra::{extract::{cookie::Cookie, CookieJar}, routing::TypedPath};
 use maud::Markup;
 use serde_with::serde_as;
 use crate::{model::authentication_session::AuthenticationSession, web::template};
-use super::{language::{self, LanguageSelection}, theme::{self, Theme}};
+use crate::web::extractor::{language::{self, LanguageSelection}, theme::{self, Theme}};
 
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/settings")]

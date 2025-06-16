@@ -1,9 +1,9 @@
 use maud::{html, Markup};
-use crate::web::application::chore::ChoreIndexPath;
-use crate::web::application::chore_activity::ChoreActivityIndexPath;
-use crate::web::application::chore_list::{ChoreListIndexPath, ChoreListSettingsPath};
-use crate::web::application::chore_list_user::ChoreListUserIndexPath;
-use crate::web::application::settings::SettingsIndexPath;
+use crate::web::handler::chore::ChoreIndexPath;
+use crate::web::handler::chore_activity::ChoreActivityIndexPath;
+use crate::web::handler::chore_list::{ChoreListIndexPath, ChoreListSettingsPath};
+use crate::web::handler::chore_list_user::ChoreListUserIndexPath;
+use crate::web::handler::settings::SettingsIndexPath;
 use crate::web::template::helper::t;
 use crate::model::chore_list;
 

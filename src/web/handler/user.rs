@@ -6,12 +6,9 @@ use crate::{
     AppState,
     model::authentication_session,
 };
-use axum::extract::FromRequestParts;
-use axum::http::request::Parts;
-use axum::RequestPartsExt;
 use axum::{
     Form,
-    extract::{Path, State},
+    extract::State,
     http::StatusCode,
     response::Redirect,
 };
@@ -20,33 +17,6 @@ use maud::Markup;
 use secrecy::{ExposeSecret, SecretString};
 use std::sync::Arc;
 use super::settings::SettingsIndexPath;
-
-#[derive(Debug, Copy, Clone, serde::Deserialize)]
-struct UserPathData {
-    user_id: UserId,
-}
-
-impl FromRequestParts<Arc<AppState>> for user::User {
-    type Rejection = StatusCode;
-
-    async fn from_request_parts(
-        parts: &mut Parts,
-        state: &Arc<AppState>,
-    ) -> Result<Self, Self::Rejection> {
-        let path_data = match parts.extract::<Path<UserPathData>>().await {
-            Ok(path_data) => path_data,
-            Err(_) => return Err(StatusCode::BAD_REQUEST),
-        };
-
-        let user = match user::get_by_id(&state.pool, &path_data.user_id).await {
-            Ok(user) => user,
-            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-            Err(err) => panic!("{}", err),
-        };
-
-        Ok(user)
-    }
-}
 
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/users")]

@@ -10,12 +10,9 @@ use crate::{
     AppState,
     value::{Date, DateTime},
 };
-use axum::extract::FromRequestParts;
-use axum::http::request::Parts;
-use axum::RequestPartsExt;
 use axum::{
     Form,
-    extract::{Path, State},
+    extract::State,
     http::StatusCode,
     response::Redirect,
 };
@@ -24,33 +21,6 @@ use chrono::Days;
 use maud::Markup;
 use serde_with::serde_as;
 use std::sync::Arc;
-
-#[derive(Debug, Copy, Clone, serde::Deserialize)]
-struct ChorePathData {
-    chore_id: ChoreId,
-}
-
-impl FromRequestParts<Arc<AppState>> for chore::Chore {
-    type Rejection = StatusCode;
-
-    async fn from_request_parts(
-        parts: &mut Parts,
-        state: &Arc<AppState>,
-    ) -> Result<Self, Self::Rejection> {
-        let path_data = match parts.extract::<Path<ChorePathData>>().await {
-            Ok(path_data) => path_data,
-            Err(_) => return Err(StatusCode::BAD_REQUEST),
-        };
-
-        let chore = match chore::get_by_id(&state.pool, &path_data.chore_id).await {
-            Ok(chore) => chore,
-            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
-            Err(err) => panic!("{}", err),
-        };
-
-        Ok(chore)
-    }
-}
 
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/chores")]

@@ -16,9 +16,9 @@ pub mod model;
 pub mod value;
 pub mod web;
 
-use web::application;
+use web::handler;
 use web::template;
-use web::application::{language::Language, theme::Theme};
+use web::extractor::{language::Language, theme::Theme};
 use axum::{
     RequestExt, Router,
     body::Body,
@@ -82,69 +82,69 @@ async fn main() {
     create_user_if_necessary(&app_state.pool).await;
 
     let router = Router::new()
-        .route("/", get(application::entry::redirect))
-        .route("/healthz", get(application::health::check))
+        .route("/", get(handler::entry::redirect))
+        .route("/healthz", get(handler::health::check))
 
         // Authentication
-        .typed_get(application::authentication::view_login_form)
-        .typed_post(application::authentication::login)
-        .typed_post(application::authentication::logout)
+        .typed_get(handler::authentication::view_login_form)
+        .typed_post(handler::authentication::login)
+        .typed_post(handler::authentication::logout)
 
         // Settings
-        .typed_get(application::settings::view)
-        .typed_get(application::settings::view_appearance_form)
-        .typed_post(application::settings::update_appearance)
+        .typed_get(handler::settings::view)
+        .typed_get(handler::settings::view_appearance_form)
+        .typed_post(handler::settings::update_appearance)
 
         // User
-        .typed_get(application::user::view_list)
-        .typed_get(application::user::view_create_form)
-        .typed_post(application::user::create)
-        .typed_get(application::user::view_detail)
-        .typed_get(application::user::view_update_form)
-        .typed_post(application::user::update)
-        .typed_post(application::user::delete)
-        .typed_post(application::user::restore)
+        .typed_get(handler::user::view_list)
+        .typed_get(handler::user::view_create_form)
+        .typed_post(handler::user::create)
+        .typed_get(handler::user::view_detail)
+        .typed_get(handler::user::view_update_form)
+        .typed_post(handler::user::update)
+        .typed_post(handler::user::delete)
+        .typed_post(handler::user::restore)
 
         // Chore List
-        .typed_get(application::chore_list::view_list)
-        .typed_get(application::chore_list::view_create_form)
-        .typed_post(application::chore_list::create)
-        .typed_get(application::chore_list::view_settings)
-        .typed_get(application::chore_list::view_update_form)
-        .typed_post(application::chore_list::update)
-        .typed_post(application::chore_list::delete)
-        .typed_post(application::chore_list::restore)
+        .typed_get(handler::chore_list::view_list)
+        .typed_get(handler::chore_list::view_create_form)
+        .typed_post(handler::chore_list::create)
+        .typed_get(handler::chore_list::view_settings)
+        .typed_get(handler::chore_list::view_update_form)
+        .typed_post(handler::chore_list::update)
+        .typed_post(handler::chore_list::delete)
+        .typed_post(handler::chore_list::restore)
 
         // Chore
-        .typed_get(application::chore::view_list)
-        .typed_get(application::chore::view_create_form)
-        .typed_post(application::chore::create)
-        .typed_get(application::chore::view_detail)
-        .typed_get(application::chore::view_update_form)
-        .typed_post(application::chore::update)
-        .typed_post(application::chore::delete)
-        .typed_post(application::chore::restore)
-        .typed_get(application::chore::view_activity_list)
+        .typed_get(handler::chore::view_list)
+        .typed_get(handler::chore::view_create_form)
+        .typed_post(handler::chore::create)
+        .typed_get(handler::chore::view_detail)
+        .typed_get(handler::chore::view_update_form)
+        .typed_post(handler::chore::update)
+        .typed_post(handler::chore::delete)
+        .typed_post(handler::chore::restore)
+        .typed_get(handler::chore::view_activity_list)
 
         // Chore Activity
-        .typed_get(application::chore_activity::view_list)
-        .typed_get(application::chore_activity::view_create_form)
-        .typed_post(application::chore_activity::create)
-        .typed_get(application::chore_activity::view_detail)
-        .typed_get(application::chore_activity::view_update_form)
-        .typed_post(application::chore_activity::update)
-        .typed_post(application::chore_activity::delete)
-        .typed_post(application::chore_activity::restore)
+        .typed_get(handler::chore_activity::view_list)
+        .typed_get(handler::chore_activity::view_create_form)
+        .typed_post(handler::chore_activity::create)
+        .typed_get(handler::chore_activity::view_detail)
+        .typed_get(handler::chore_activity::view_update_form)
+        .typed_post(handler::chore_activity::update)
+        .typed_post(handler::chore_activity::delete)
+        .typed_post(handler::chore_activity::restore)
 
         // Chore List User
-        .typed_get(application::chore_list_user::view_list)
-        .typed_get(application::chore_list_user::view_detail)
-        .typed_get(application::chore_list_user::view_activity_list)
+        .typed_get(handler::chore_list_user::view_list)
+        .typed_get(handler::chore_list_user::view_detail)
+        .typed_get(handler::chore_list_user::view_activity_list)
 
         // Legal
-        .typed_get(application::legal::view_privacy_policy)
+        .typed_get(handler::legal::view_privacy_policy)
 
-        .fallback_service(get(application::assets::serve))
+        .fallback_service(get(handler::assets::serve))
         .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
             let request_id = request.headers().get("x-request-id")
                 .map(|v| v.to_str().unwrap().to_string());

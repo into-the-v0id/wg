@@ -1,9 +1,9 @@
 use maud::{html, Markup};
-use crate::web::application::chore_activity::ChoreActivityDetailPath;
-use crate::web::application::chore_list::ChoreListIndexPath;
-use crate::web::application::chore_list_user::ChoreListUserActivitiesPath;
-use crate::web::application::chore_list_user::ChoreListUserDetailPath;
-use crate::web::application::chore_list_user::ChoreListUserIndexPath;
+use crate::web::handler::chore_activity::ChoreActivityDetailPath;
+use crate::web::handler::chore_list::ChoreListIndexPath;
+use crate::web::handler::chore_list_user::ChoreListUserActivitiesPath;
+use crate::web::handler::chore_list_user::ChoreListUserDetailPath;
+use crate::web::handler::chore_list_user::ChoreListUserIndexPath;
 use crate::model::chore_list;
 use crate::model::chore_activity;
 use crate::model::chore;
