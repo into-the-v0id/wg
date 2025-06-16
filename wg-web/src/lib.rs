@@ -27,7 +27,7 @@ use axum::{
     routing::get,
 };
 use axum_extra::routing::RouterExt;
-use tokio::task_local;
+use tokio::{net::TcpListener, task_local};
 use wg_core::model::{authentication_session::AuthenticationSession};
 use std::{any::Any, sync::Arc};
 use tower_http::{
@@ -251,4 +251,31 @@ pub fn make_router(state: AppState) -> Router {
             ).into_response()
         }))
         .with_state(state)
+}
+
+pub async fn start(listener: TcpListener, router: Router) {
+    axum::serve(listener, router)
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .unwrap();
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
 }

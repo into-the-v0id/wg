@@ -15,7 +15,6 @@
 use wg_core::model::user::UserId;
 use sqlx::migrate::MigrateDatabase;
 use wg_core::value::{DateTime, PasswordHash};
-use tokio::signal;
 use tracing_subscriber::EnvFilter;
 use wg_core::MIGRATOR;
 
@@ -43,30 +42,7 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
     println!("Listening on http://{} ...", listener.local_addr().unwrap());
 
-    axum::serve(listener, web_router)
-        .with_graceful_shutdown(shutdown_signal())
-        .await
-        .unwrap();
-}
-
-async fn shutdown_signal() {
-    let ctrl_c = async {
-        signal::ctrl_c()
-            .await
-            .expect("failed to install Ctrl+C handler");
-    };
-
-    let terminate = async {
-        signal::unix::signal(signal::unix::SignalKind::terminate())
-            .expect("failed to install signal handler")
-            .recv()
-            .await;
-    };
-
-    tokio::select! {
-        _ = ctrl_c => {},
-        _ = terminate => {},
-    }
+    wg_web::start(listener, web_router).await
 }
 
 async fn create_db_pool() -> sqlx::sqlite::SqlitePool {

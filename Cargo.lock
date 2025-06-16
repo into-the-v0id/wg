@@ -2954,7 +2954,6 @@ dependencies = [
 name = "wg"
 version = "0.1.0"
 dependencies = [
- "axum",
  "const-hex",
  "futures",
  "getrandom 0.2.16",
