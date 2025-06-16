@@ -1,5 +1,11 @@
-.git/
-data/
-target/
-node_modules/
+*
+!assets/
+!migrations/
+!src/
+!static/
 static/css/
+!translations/
+!Cargo.lock
+!Cargo.toml
+!package.json
+!package-lock.json
