@@ -2954,9 +2954,8 @@ dependencies = [
 name = "wg"
 version = "0.1.0"
 dependencies = [
- "const-hex",
  "futures",
- "getrandom 0.2.16",
+ "secrecy",
  "sqlx",
  "tokio",
  "tracing",
@@ -2971,6 +2970,7 @@ version = "0.1.0"
 dependencies = [
  "argon2",
  "chrono",
+ "const-hex",
  "getrandom 0.2.16",
  "rand_core 0.6.4",
  "secrecy",

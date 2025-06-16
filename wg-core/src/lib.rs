@@ -14,6 +14,7 @@
 
 pub mod value;
 pub mod model;
+pub mod service;
 
 use sqlx::migrate::Migrator;
 

@@ -12,9 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use wg_core::model::user::UserId;
+use secrecy::ExposeSecret;
+use wg_core::service;
 use sqlx::migrate::MigrateDatabase;
-use wg_core::value::{DateTime, PasswordHash};
 use tracing_subscriber::EnvFilter;
 use wg_core::MIGRATOR;
 
@@ -29,7 +29,14 @@ async fn main() {
 
     MIGRATOR.run(&pool).await.unwrap();
 
-    create_user_if_necessary(&pool).await;
+    if !service::user::exists_any_user(&pool).await {
+        let (admin_user, admin_password) = service::user::create_default_admin_user(&pool).await;
+
+        println!(
+            "Created user with handle '{}' and password '{}'",
+            admin_user.handle, admin_password.expose_secret()
+        );
+    }
 
     let web_router = wg_web::make_router(wg_web::AppState {
         pool: pool,
@@ -55,32 +62,4 @@ async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
     }
 
     sqlx::sqlite::SqlitePool::connect(&db_url).await.unwrap()
-}
-
-/// If no users exist, create a user and print ist credentials.
-/// Mainly used for new-installs without an existing DB.
-async fn create_user_if_necessary(pool: &sqlx::sqlite::SqlitePool) {
-    let users = wg_core::model::user::get_all(pool).await.unwrap();
-    if !users.is_empty() {
-        return;
-    }
-
-    let mut plain_password_buf = [0u8; 8];
-    getrandom::getrandom(&mut plain_password_buf).unwrap();
-    let plain_password = const_hex::encode(plain_password_buf);
-
-    let user = wg_core::model::user::User {
-        id: UserId::new(),
-        name: "Admin".to_string(),
-        handle: "admin".to_string(),
-        password_hash: PasswordHash::from_plain_password(plain_password.clone().into()),
-        date_created: DateTime::now(),
-        date_deleted: None,
-    };
-    wg_core::model::user::create(pool, &user).await.unwrap();
-
-    println!(
-        "Created user with handle '{}' and password '{}'",
-        user.handle, plain_password
-    );
 }
