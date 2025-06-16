@@ -1,12 +1,14 @@
 use crate::domain::authentication_session::AuthenticationSession;
 use crate::domain::chore;
+use crate::domain::chore::ChoreId;
 use crate::domain::chore_activity;
 use crate::domain::chore_list;
+use crate::domain::chore_list::ChoreListId;
 use crate::domain::user;
 use crate::templates;
 use crate::{
     AppState,
-    domain::value::{Date, DateTime, Uuid},
+    domain::value::{Date, DateTime},
 };
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
@@ -25,7 +27,7 @@ use std::sync::Arc;
 
 #[derive(Debug, Copy, Clone, serde::Deserialize)]
 struct ChorePathData {
-    chore_id: Uuid,
+    chore_id: ChoreId,
 }
 
 impl FromRequestParts<Arc<AppState>> for chore::Chore {
@@ -53,7 +55,7 @@ impl FromRequestParts<Arc<AppState>> for chore::Chore {
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/chores")]
 pub struct ChoreIndexPath {
-    pub chore_list_id: Uuid,
+    pub chore_list_id: ChoreListId,
 }
 
 pub async fn view_list(
@@ -74,8 +76,8 @@ pub async fn view_list(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}")]
 pub struct ChoreDetailPath {
-    pub chore_list_id: Uuid,
-    pub chore_id: Uuid,
+    pub chore_list_id: ChoreListId,
+    pub chore_id: ChoreId,
 }
 
 pub async fn view_detail(
@@ -94,7 +96,7 @@ pub async fn view_detail(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/chores/create")]
 pub struct ChoreCreatePath {
-    pub chore_list_id: Uuid,
+    pub chore_list_id: ChoreListId,
 }
 
 pub async fn view_create_form(
@@ -135,7 +137,7 @@ pub async fn create(
     });
 
     let chore = chore::Chore {
-        id: Uuid::new(),
+        id: ChoreId::new(),
         chore_list_id: chore_list.id,
         name: payload.name,
         points: payload.points,
@@ -160,8 +162,8 @@ pub async fn create(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}/update")]
 pub struct ChoreUpdatePath {
-    pub chore_list_id: Uuid,
-    pub chore_id: Uuid,
+    pub chore_list_id: ChoreListId,
+    pub chore_id: ChoreId,
 }
 
 pub async fn view_update_form(
@@ -228,8 +230,8 @@ pub async fn update(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}/delete")]
 pub struct ChoreDeletePath {
-    pub chore_list_id: Uuid,
-    pub chore_id: Uuid,
+    pub chore_list_id: ChoreListId,
+    pub chore_id: ChoreId,
 }
 
 pub async fn delete(
@@ -259,8 +261,8 @@ pub async fn delete(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}/restore")]
 pub struct ChoreRestorePath {
-    pub chore_list_id: Uuid,
-    pub chore_id: Uuid,
+    pub chore_list_id: ChoreListId,
+    pub chore_id: ChoreId,
 }
 
 pub async fn restore(
@@ -290,8 +292,8 @@ pub async fn restore(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/chores/{chore_id}/activities")]
 pub struct ChoreActivitiesPath {
-    pub chore_list_id: Uuid,
-    pub chore_id: Uuid,
+    pub chore_list_id: ChoreListId,
+    pub chore_id: ChoreId,
 }
 
 pub async fn view_activity_list(

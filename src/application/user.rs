@@ -1,11 +1,11 @@
 use crate::domain::authentication_session::AuthenticationSession;
-use crate::domain::user;
+use crate::domain::user::{self, UserId};
 use crate::templates;
 use crate::{
     AppState,
     domain::{
         authentication_session,
-        value::{DateTime, PasswordHash, Uuid},
+        value::{DateTime, PasswordHash},
     },
 };
 use axum::extract::FromRequestParts;
@@ -25,7 +25,7 @@ use super::settings::SettingsIndexPath;
 
 #[derive(Debug, Copy, Clone, serde::Deserialize)]
 struct UserPathData {
-    user_id: Uuid,
+    user_id: UserId,
 }
 
 impl FromRequestParts<Arc<AppState>> for user::User {
@@ -71,7 +71,7 @@ pub async fn view_list(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/users/{user_id}")]
 pub struct UserDetailPath {
-    pub user_id: Uuid,
+    pub user_id: UserId,
 }
 
 pub async fn view_detail(
@@ -107,7 +107,7 @@ pub async fn create(
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
     let user = user::User {
-        id: Uuid::new(),
+        id: UserId::new(),
         name: payload.name,
         handle: payload.handle,
         password_hash: PasswordHash::from_plain_password(payload.password),
@@ -125,7 +125,7 @@ pub async fn create(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/users/{user_id}/update")]
 pub struct UserUpdatePath {
-    pub user_id: Uuid,
+    pub user_id: UserId,
 }
 
 pub async fn view_update_form(
@@ -181,7 +181,7 @@ pub async fn update(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/users/{user_id}/delete")]
 pub struct UserDeletePath {
-    pub user_id: Uuid,
+    pub user_id: UserId,
 }
 
 pub async fn delete(
@@ -215,7 +215,7 @@ pub async fn delete(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/users/{user_id}/restore")]
 pub struct UserRestorePath {
-    pub user_id: Uuid,
+    pub user_id: UserId,
 }
 
 pub async fn restore(

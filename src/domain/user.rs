@@ -1,8 +1,10 @@
-use super::value::{DateTime, PasswordHash, Uuid};
+use super::value::{DateTime, PasswordHash, Tagged, Uuid};
+
+pub type UserId = Tagged<Uuid, User>;
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct User {
-    pub id: Uuid,
+    pub id: UserId,
     pub name: String,
     pub handle: String,
     pub password_hash: PasswordHash,
@@ -16,7 +18,7 @@ impl User {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<User, sqlx::Error> {
+pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &UserId) -> Result<User, sqlx::Error> {
     sqlx::query_as("SELECT * FROM users WHERE id = ?")
         .bind(id)
         .fetch_one(pool)

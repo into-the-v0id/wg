@@ -28,8 +28,7 @@ use axum::{
 };
 use axum_extra::routing::RouterExt;
 use domain::{
-    authentication_session::AuthenticationSession,
-    value::{DateTime, PasswordHash, Uuid},
+    authentication_session::AuthenticationSession, user::UserId, value::{DateTime, PasswordHash}
 };
 use sqlx::migrate::MigrateDatabase;
 use std::{any::Any, sync::Arc};
@@ -327,7 +326,7 @@ async fn create_user_if_necessary(pool: &sqlx::sqlite::SqlitePool) {
     let plain_password = const_hex::encode(plain_password_buf);
 
     let user = domain::user::User {
-        id: Uuid::new(),
+        id: UserId::new(),
         name: "Admin".to_string(),
         handle: "admin".to_string(),
         password_hash: PasswordHash::from_plain_password(plain_password.clone().into()),

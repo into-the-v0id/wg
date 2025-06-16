@@ -1,9 +1,9 @@
 use crate::domain::authentication_session::AuthenticationSession;
-use crate::domain::chore_list;
+use crate::domain::chore_list::{self, ChoreListId};
 use crate::templates;
 use crate::{
     AppState,
-    domain::value::{DateTime, Uuid},
+    domain::value::{DateTime},
 };
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
@@ -22,7 +22,7 @@ use super::chore_activity::ChoreActivityIndexPath;
 
 #[derive(Debug, Copy, Clone, serde::Deserialize)]
 struct ChoreListPathData {
-    chore_list_id: Uuid,
+    chore_list_id: ChoreListId,
 }
 
 impl FromRequestParts<Arc<AppState>> for chore_list::ChoreList {
@@ -90,7 +90,7 @@ pub async fn create(
     Form(payload): Form<CreatePayload>,
 ) -> Redirect {
     let chore_list = chore_list::ChoreList {
-        id: Uuid::new(),
+        id: ChoreListId::new(),
         name: payload.name,
         description: match payload.description.trim() {
             "" => None,
@@ -111,7 +111,7 @@ pub async fn create(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/update")]
 pub struct ChoreListUpdatePath {
-    pub chore_list_id: Uuid,
+    pub chore_list_id: ChoreListId,
 }
 
 pub async fn view_update_form(
@@ -161,7 +161,7 @@ pub async fn update(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/delete")]
 pub struct ChoreListDeletePath {
-    pub chore_list_id: Uuid,
+    pub chore_list_id: ChoreListId,
 }
 
 pub async fn delete(
@@ -186,7 +186,7 @@ pub async fn delete(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/restore")]
 pub struct ChoreListRestorePath {
-    pub chore_list_id: Uuid,
+    pub chore_list_id: ChoreListId,
 }
 
 pub async fn restore(
@@ -211,7 +211,7 @@ pub async fn restore(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/settings")]
 pub struct ChoreListSettingsPath {
-    pub chore_list_id: Uuid,
+    pub chore_list_id: ChoreListId,
 }
 
 pub async fn view_settings(

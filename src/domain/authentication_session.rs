@@ -1,10 +1,14 @@
-use super::value::{DateTime, Uuid};
+use crate::domain::value::Tagged;
+
+use super::{user::UserId, value::{DateTime, Uuid}};
+
+pub type AuthenticationSessionId = Tagged<Uuid, AuthenticationSession>;
 
 #[derive(Clone, sqlx::FromRow)]
 pub struct AuthenticationSession {
-    pub id: Uuid,
+    pub id: AuthenticationSessionId,
     pub token: String,
-    pub user_id: Uuid,
+    pub user_id: UserId,
     pub date_expires: DateTime,
     pub date_created: DateTime,
 }
@@ -17,7 +21,7 @@ impl AuthenticationSession {
 
 pub async fn get_by_id(
     pool: &sqlx::sqlite::SqlitePool,
-    id: &Uuid,
+    id: &AuthenticationSessionId,
 ) -> Result<AuthenticationSession, sqlx::Error> {
     sqlx::query_as("SELECT * FROM authentication_sessions WHERE id = ?")
         .bind(id)
@@ -45,7 +49,7 @@ pub async fn get_all(
 
 pub async fn get_all_for_user(
     pool: &sqlx::sqlite::SqlitePool,
-    user_id: &Uuid,
+    user_id: &UserId,
 ) -> Result<Vec<AuthenticationSession>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM authentication_sessions WHERE user_id = ?")
         .bind(user_id)

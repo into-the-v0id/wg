@@ -1,10 +1,14 @@
-use super::value::{Date, DateTime, Uuid};
+use crate::domain::{chore::ChoreId, chore_list::ChoreListId, value::Tagged};
+
+use super::{user::UserId, value::{Date, DateTime, Uuid}};
+
+pub type ChoreActivityId = Tagged<Uuid, ChoreActivity>;
 
 #[derive(Debug, sqlx::FromRow, Clone)]
 pub struct ChoreActivity {
-    pub id: Uuid,
-    pub chore_id: Uuid,
-    pub user_id: Uuid,
+    pub id: ChoreActivityId,
+    pub chore_id: ChoreId,
+    pub user_id: UserId,
     pub date: Date,
     pub comment: Option<String>,
     pub date_created: DateTime,
@@ -19,7 +23,7 @@ impl ChoreActivity {
 
 pub async fn get_by_id(
     pool: &sqlx::sqlite::SqlitePool,
-    id: &Uuid,
+    id: &ChoreActivityId,
 ) -> Result<ChoreActivity, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_activities WHERE id = ?")
         .bind(id)
@@ -35,7 +39,7 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreActivit
 
 pub async fn get_all_for_chore(
     pool: &sqlx::sqlite::SqlitePool,
-    chore_id: &Uuid,
+    chore_id: &ChoreId,
 ) -> Result<Vec<ChoreActivity>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? ORDER BY date DESC, date_created DESC")
         .bind(chore_id)
@@ -45,7 +49,7 @@ pub async fn get_all_for_chore(
 
 pub async fn get_latest_not_deleted_for_chore(
     pool: &sqlx::sqlite::SqlitePool,
-    chore_id: &Uuid,
+    chore_id: &ChoreId,
 ) -> Result<ChoreActivity, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_activities WHERE chore_id = ? AND date_deleted IS NULL ORDER BY date DESC, date_created DESC LIMIT 1")
         .bind(chore_id)
@@ -55,7 +59,7 @@ pub async fn get_latest_not_deleted_for_chore(
 
 pub async fn get_all_for_chore_list(
     pool: &sqlx::sqlite::SqlitePool,
-    chore_list_id: &Uuid,
+    chore_list_id: &ChoreListId,
 ) -> Result<Vec<ChoreActivity>, sqlx::Error> {
     sqlx::query_as("
         SELECT chore_activities.* FROM chore_activities
@@ -70,8 +74,8 @@ pub async fn get_all_for_chore_list(
 
 pub async fn get_all_for_chore_list_and_user(
     pool: &sqlx::sqlite::SqlitePool,
-    chore_list_id: &Uuid,
-    user_id: &Uuid,
+    chore_list_id: &ChoreListId,
+    user_id: &UserId,
 ) -> Result<Vec<ChoreActivity>, sqlx::Error> {
     sqlx::query_as("
         SELECT chore_activities.* FROM chore_activities

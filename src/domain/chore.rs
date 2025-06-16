@@ -1,12 +1,16 @@
 use chrono::Days;
 
+use crate::domain::chore_list::ChoreListId;
+use crate::domain::value::Tagged;
 use super::chore_activity;
 use super::value::{Date, DateTime, Uuid};
 
+pub type ChoreId = Tagged<Uuid, Chore>;
+
 #[derive(Debug, sqlx::FromRow)]
 pub struct Chore {
-    pub id: Uuid,
-    pub chore_list_id: Uuid,
+    pub id: ChoreId,
+    pub chore_list_id: ChoreListId,
     pub name: String,
     pub points: u32,
     pub interval_days: Option<u32>,
@@ -22,7 +26,7 @@ impl Chore {
     }
 }
 
-pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &Uuid) -> Result<Chore, sqlx::Error> {
+pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &ChoreId) -> Result<Chore, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chores WHERE id = ?")
         .bind(id)
         .fetch_one(pool)
@@ -37,7 +41,7 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<Chore>, sqlx
 
 pub async fn get_all_for_chore_list(
     pool: &sqlx::sqlite::SqlitePool,
-    chore_list_id: &Uuid,
+    chore_list_id: &ChoreListId,
 ) -> Result<Vec<Chore>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chores WHERE chore_list_id = ? ORDER BY points")
         .bind(chore_list_id)

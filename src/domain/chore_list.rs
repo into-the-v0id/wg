@@ -1,5 +1,9 @@
+use crate::domain::{user::UserId, value::Tagged};
+
 use super::value::{DateTime, Uuid};
 use chrono::{Datelike, Days, Months};
+
+pub type ChoreListId = Tagged<Uuid, ChoreList>;
 
 #[derive(
     Debug,
@@ -37,7 +41,7 @@ impl ScoreResetInterval {
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct ChoreList {
-    pub id: Uuid,
+    pub id: ChoreListId,
     pub name: String,
     pub description: Option<String>,
     pub score_reset_interval: ScoreResetInterval,
@@ -53,7 +57,7 @@ impl ChoreList {
 
 pub async fn get_by_id(
     pool: &sqlx::sqlite::SqlitePool,
-    id: &Uuid,
+    id: &ChoreListId,
 ) -> Result<ChoreList, sqlx::Error> {
     sqlx::query_as("SELECT * FROM chore_lists WHERE id = ?")
         .bind(id)
@@ -70,7 +74,7 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<ChoreList>, 
 pub async fn get_score_per_user(
     pool: &sqlx::sqlite::SqlitePool,
     chore_list: &ChoreList,
-) -> Result<Vec<(Uuid, i32)>, sqlx::Error> {
+) -> Result<Vec<(UserId, i32)>, sqlx::Error> {
     let mut interval_start_date = None;
     let mut interval_end_date = None;
 
@@ -89,7 +93,7 @@ pub async fn get_score_per_user(
         );
     }
 
-    sqlx::query_as::<_, (Uuid, i32)>("
+    sqlx::query_as::<_, (UserId, i32)>("
         SELECT users.id as user_id, COALESCE(total_score, 0) as total_score
         FROM (
             SELECT users.id as user_id, SUM(chores.points) as total_score

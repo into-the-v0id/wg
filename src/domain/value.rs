@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::{Debug, Display}, hash::{Hash, Hasher}, marker::PhantomData};
 
 use argon2::{
     Argon2, PasswordVerifier,
@@ -58,6 +58,107 @@ impl<'q> Encode<'q, Sqlite> for Uuid {
 impl Decode<'_, Sqlite> for Uuid {
     fn decode(value: SqliteValueRef<'_>) -> Result<Self, BoxDynError> {
         <uuid::fmt::Hyphenated as Decode<Sqlite>>::decode(value).map(|uuid| Uuid(uuid.into_uuid()))
+    }
+}
+
+pub struct Tagged<D, T> {
+    inner: D,
+    tag: PhantomData<T>,
+}
+
+impl<D: Copy, T> Copy for Tagged<D, T> { }
+
+impl<D: Clone, T> Clone for Tagged<D, T> {
+    fn clone(&self) -> Tagged<D, T> {
+        Self {
+            inner: self.inner.clone(),
+            tag: self.tag,
+        }
+    }
+}
+
+impl<D: Display, T> Display for Tagged<D, T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(&self.inner, f)
+    }
+}
+
+impl<D: Debug, T> Debug for Tagged<D, T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(&self.inner, f)
+    }
+}
+
+impl<D, T> From<D> for Tagged<D, T> {
+    fn from(value: D) -> Self {
+        Self {
+            inner: value,
+            tag: PhantomData,
+        }
+    }
+}
+
+impl<D, T> AsRef<D> for Tagged<D, T> {
+    fn as_ref(&self) -> &D {
+        &self.inner
+    }
+}
+
+impl<D: PartialEq, T> PartialEq for Tagged<D, T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.inner.eq(&other.inner)
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.inner.ne(&other.inner)
+    }
+}
+
+impl<D: Eq, T> Eq for Tagged<D, T> { }
+
+impl<D: Hash, T: Hash> Hash for Tagged<D, T> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.tag.hash(state);
+        self.inner.hash(state);
+    }
+}
+
+impl<D: serde::Serialize, T> serde::Serialize for Tagged<D, T> {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        D::serialize(&self.inner, serializer)
+    }
+}
+
+impl<'a, D: serde::Deserialize<'a>, T> serde::Deserialize<'a> for Tagged<D, T> {
+    fn deserialize<U: serde::Deserializer<'a>>(deserializer: U) -> Result<Self, U::Error> {
+        D::deserialize(deserializer).map(Tagged::from)
+    }
+}
+
+impl<D: Type<Sqlite>, T> Type<Sqlite> for Tagged<D, T> {
+    fn type_info() -> SqliteTypeInfo {
+        D::type_info()
+    }
+}
+
+impl<'a, D: Encode<'a, Sqlite>, T> Encode<'a, Sqlite> for Tagged<D, T> {
+    fn encode_by_ref(
+        &self,
+        args: &mut Vec<SqliteArgumentValue<'a>>,
+    ) -> Result<IsNull, BoxDynError> {
+        D::encode_by_ref(&self.inner, args)
+    }
+}
+
+impl<'a, D: Decode<'a, Sqlite>, T> Decode<'a, Sqlite> for Tagged<D, T> {
+    fn decode(value: SqliteValueRef<'a>) -> Result<Self, BoxDynError> {
+        D::decode(value).map(Tagged::from)
+    }
+}
+
+impl<T> Tagged<Uuid, T> {
+    pub fn new() -> Self {
+        Tagged::from(Uuid::new())
     }
 }
 

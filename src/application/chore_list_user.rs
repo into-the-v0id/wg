@@ -2,8 +2,9 @@ use crate::domain::authentication_session::AuthenticationSession;
 use crate::domain::chore;
 use crate::domain::chore_activity;
 use crate::domain::chore_list;
+use crate::domain::chore_list::ChoreListId;
 use crate::domain::user;
-use crate::domain::value::Uuid;
+use crate::domain::user::UserId;
 use crate::templates;
 use crate::AppState;
 use axum::{
@@ -17,7 +18,7 @@ use std::sync::Arc;
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/users")]
 pub struct ChoreListUserIndexPath {
-    pub chore_list_id: Uuid,
+    pub chore_list_id: ChoreListId,
 }
 
 pub async fn view_list(
@@ -46,8 +47,8 @@ pub async fn view_list(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/users/{user_id}")]
 pub struct ChoreListUserDetailPath {
-    pub chore_list_id: Uuid,
-    pub user_id: Uuid,
+    pub chore_list_id: ChoreListId,
+    pub user_id: UserId,
 }
 
 pub async fn view_detail(
@@ -62,8 +63,8 @@ pub async fn view_detail(
 #[derive(TypedPath, serde::Deserialize)]
 #[typed_path("/chore-lists/{chore_list_id}/users/{user_id}/activities")]
 pub struct ChoreListUserActivitiesPath {
-    pub chore_list_id: Uuid,
-    pub user_id: Uuid,
+    pub chore_list_id: ChoreListId,
+    pub user_id: UserId,
 }
 
 pub async fn view_activity_list(

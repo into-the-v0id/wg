@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
+use crate::domain::authentication_session::AuthenticationSessionId;
 use crate::templates;
 use crate::domain::user;
 use crate::{
     AppState,
     domain::{
         authentication_session::{self, AuthenticationSession},
-        value::{DateTime, Uuid},
+        value::DateTime,
     },
 };
 use axum::{
@@ -125,7 +126,7 @@ pub async fn login(
     let token = const_hex::encode(token_buf);
 
     let auth_session = AuthenticationSession {
-        id: Uuid::new(),
+        id: AuthenticationSessionId::new(),
         token,
         user_id: user.id,
         date_expires: DateTime::from(DateTime::now().as_ref().clone() + Days::new(30)),

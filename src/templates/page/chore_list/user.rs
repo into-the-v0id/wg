@@ -8,8 +8,8 @@ use crate::domain::chore_list;
 use crate::domain::chore_activity;
 use crate::domain::chore;
 use crate::domain::user;
+use crate::domain::user::UserId;
 use crate::domain::value::Date;
-use crate::domain::value::Uuid;
 use crate::templates::helper::format_date_long;
 use crate::templates::helper::format_date_long_simple;
 use crate::templates::helper::t;
@@ -21,7 +21,7 @@ pub fn list(
     chore_list: chore_list::ChoreList,
     users: Vec<user::User>,
     deleted_users: Vec<user::User>,
-    scores_by_user: Vec<(Uuid, i32)>,
+    scores_by_user: Vec<(UserId, i32)>,
 ) -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
