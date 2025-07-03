@@ -209,10 +209,7 @@ pub fn create(
                     option selected disabled hidden value="" { }
                     @for chore in chores {
                         @if !chore.is_deleted() {
-                            option value=(chore.id) {
-                                (chore.name)
-                                " (" (chore.points) "P)"
-                            }
+                            option value=(chore.id) { (chore.name) }
                         }
                     }
                 }
@@ -255,10 +252,7 @@ pub fn update(
                     option disabled hidden value="" { }
                     @for chore in chores {
                         @if !chore.is_deleted() {
-                            option value=(chore.id) selected[chore.id == activity.chore_id] {
-                                (chore.name)
-                                " (" (chore.points) "P)"
-                            }
+                            option value=(chore.id) selected[chore.id == activity.chore_id] { (chore.name) }
                         }
                     }
                 }
