@@ -38,6 +38,12 @@ pub async fn get_low_score_users(pool: &crate::db::Pool) -> HashMap<UserId, Vec<
         }
 
         let score_per_user = chore_list::get_score_per_user(pool, &chore_list).await.unwrap();
+
+        // Ignore lists with none or only one user
+        if score_per_user.len() <= 1 {
+            continue;
+        }
+
         let scores = score_per_user.iter().map(|(_, score)| score).cloned().collect::<Vec<i32>>();
 
         let min_score = match scores.iter().min() {
