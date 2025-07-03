@@ -165,9 +165,8 @@ impl<D: PartialEq, T> PartialEq for Tagged<D, T> {
 
 impl<D: Eq, T> Eq for Tagged<D, T> { }
 
-impl<D: Hash, T: Hash> Hash for Tagged<D, T> {
+impl<D: Hash, T> Hash for Tagged<D, T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.tag.hash(state);
         self.inner.hash(state);
     }
 }
