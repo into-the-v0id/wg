@@ -120,6 +120,7 @@ pub fn detail(
     user: user::User,
     auth_session: AuthenticationSession,
     allow_edit: bool,
+    allow_delete_restore: bool,
 ) -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
@@ -130,16 +131,22 @@ pub fn detail(
             .back_url(ChoreActivityIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .meta_actions(html! {
                 @if activity.is_deleted() {
-                    button.link.secondary.subtle.mb-0 type="submit" form="activity_restore" { "↻ " (t().restore_action()) }
-                    form #activity_restore method="post" action=(ChoreActivityRestorePath {chore_list_id:chore_list.id, chore_activity_id: activity.id }) { }
+                    @if allow_delete_restore {
+                        button.link.secondary.subtle.mb-0 type="submit" form="activity_restore" { "↻ " (t().restore_action()) }
+                        form #activity_restore method="post" action=(ChoreActivityRestorePath {chore_list_id:chore_list.id, chore_activity_id: activity.id }) { }
+                    }
                 } @else if !chore.is_deleted() && !chore_list.is_deleted() && activity.user_id == auth_session.user_id {
-                    button.link.secondary.subtle.mb-0 type="submit" form="activity_delete" { "✗ " (t().delete_action()) }
+                    @if allow_delete_restore {
+                        button.link.secondary.subtle.mb-0 type="submit" form="activity_delete" { "✗ " (t().delete_action()) }
+                    }
 
                     @if allow_edit {
                         a.secondary.subtle href=(ChoreActivityUpdatePath {chore_list_id:chore_list.id, chore_activity_id: activity.id }) style="margin-left: 1.25rem;" { "✎ " (t().edit_action()) }
                     }
 
-                    form #activity_delete method="post" action=(ChoreActivityDeletePath {chore_list_id:chore_list.id, chore_activity_id: activity.id }) { }
+                    @if allow_delete_restore {
+                        form #activity_delete method="post" action=(ChoreActivityDeletePath {chore_list_id:chore_list.id, chore_activity_id: activity.id }) { }
+                    }
                 }
             })
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))

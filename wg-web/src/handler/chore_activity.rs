@@ -76,8 +76,8 @@ pub async fn view_detail(
         return Err(StatusCode::NOT_FOUND);
     }
 
-    let min_date = (chrono::Utc::now() - Days::new(2)).date_naive();
-    let allow_edit = activity.date.as_ref() >= &min_date;
+    let allow_edit = activity.date.as_ref() >= &(chrono::Utc::now() - Days::new(2)).date_naive();
+    let allow_delete_restore = activity.date.as_ref() >= &(chrono::Utc::now() - Days::new(4)).date_naive();
 
     Ok(template::page::chore_list::activity::detail(
         activity,
@@ -86,6 +86,7 @@ pub async fn view_detail(
         user,
         auth_session,
         allow_edit,
+        allow_delete_restore,
     ))
 }
 
@@ -332,6 +333,11 @@ pub async fn delete(
         return Err(StatusCode::NOT_FOUND);
     }
 
+    let min_date = (chrono::Utc::now() - Days::new(4)).date_naive();
+    if activity.date.as_ref() < &min_date {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
     activity.date_deleted = Some(DateTime::now());
 
     chore_activity::update(&state.pool, &activity)
@@ -374,6 +380,11 @@ pub async fn restore(
     }
     if chore.chore_list_id != chore_list.id {
         return Err(StatusCode::NOT_FOUND);
+    }
+
+    let min_date = (chrono::Utc::now() - Days::new(4)).date_naive();
+    if activity.date.as_ref() < &min_date {
+        return Err(StatusCode::FORBIDDEN);
     }
 
     activity.date_deleted = None;
