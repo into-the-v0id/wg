@@ -19,6 +19,7 @@ pub async fn create_default_admin_user(pool: &crate::db::Pool) -> (User, SecretS
         name: "Admin".to_string(),
         email: "admin@localhost".to_string(),
         password_hash: PasswordHash::from_plain_password(plain_password.clone()),
+        last_used_language: None,
         date_created: DateTime::now(),
         date_deleted: None,
     };

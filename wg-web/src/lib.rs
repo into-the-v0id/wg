@@ -129,6 +129,27 @@ pub fn make_router(state: AppState) -> Router {
         .typed_get(handler::legal::view_privacy_policy)
 
         .fallback_service(get(handler::assets::serve))
+        .layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            async |State(state): State<Arc<AppState>>, mut request: axum::extract::Request, next: Next| -> Response {
+                if let Some(auth_session_extractor) = request.extract_parts_with_state::<Option<AuthSession>, _>(&state).await.unwrap() {
+                    let AuthSession(mut auth_session) = auth_session_extractor;
+                    let extractor::language::Language(language) = request.extract_parts::<extractor::language::Language>().await.unwrap();
+
+                    if auth_session.last_used_language != Some(language) {
+                        auth_session.last_used_language = Some(language);
+                        wg_core::model::authentication_session::update(&state.pool, &auth_session).await.unwrap();
+
+                        let mut user = wg_core::model::user::get_by_id(&state.pool, &auth_session.user_id).await.unwrap();
+
+                        user.last_used_language = Some(language);
+                        wg_core::model::user::update(&state.pool, &user).await.unwrap();
+                    }
+                }
+
+                next.run(request).await
+            }),
+        )
         .layer(axum::middleware::from_fn(async |request: axum::extract::Request, next: Next| -> Response {
             let request_id = request.headers().get("x-request-id")
                 .map(|v| v.to_str().unwrap().to_string());

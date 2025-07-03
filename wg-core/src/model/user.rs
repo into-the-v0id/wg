@@ -1,4 +1,4 @@
-use crate::value::{DateTime, PasswordHash, Tagged, Uuid};
+use crate::value::{DateTime, Language, PasswordHash, Tagged, Uuid};
 
 pub type UserId = Tagged<Uuid, User>;
 
@@ -8,6 +8,7 @@ pub struct User {
     pub name: String,
     pub email: String,
     pub password_hash: PasswordHash,
+    pub last_used_language: Option<Language>,
     pub date_created: DateTime,
     pub date_deleted: Option<DateTime>,
 }
@@ -42,11 +43,12 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<User>, sqlx:
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
     tracing::info!(user = ?user, "Creating user");
 
-    sqlx::query("INSERT INTO users (id, name, email, password_hash, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
+    sqlx::query("INSERT INTO users (id, name, email, password_hash, last_used_language, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?, ?)")
         .bind(user.id)
         .bind(&user.name)
         .bind(&user.email)
         .bind(&user.password_hash)
+        .bind(&user.last_used_language)
         .bind(user.date_created)
         .bind(user.date_deleted)
         .execute(pool)
@@ -57,10 +59,11 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
     tracing::info!(user = ?user, "Updating user");
 
-    sqlx::query("UPDATE users SET name = ?, email = ?, password_hash = ?, date_deleted = ? WHERE id = ?")
+    sqlx::query("UPDATE users SET name = ?, email = ?, password_hash = ?, last_used_language = ?, date_deleted = ? WHERE id = ?")
         .bind(&user.name)
         .bind(&user.email)
         .bind(&user.password_hash)
+        .bind(&user.last_used_language)
         .bind(user.date_deleted)
         .bind(user.id)
         .execute(pool)

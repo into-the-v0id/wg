@@ -1,4 +1,4 @@
-use std::{fmt::{Debug, Display}, hash::{Hash, Hasher}, marker::PhantomData};
+use std::{fmt::{Debug, Display}, hash::{Hash, Hasher}, marker::PhantomData, str::FromStr};
 
 use argon2::{
     Argon2, PasswordVerifier,
@@ -28,6 +28,37 @@ pub enum Language {
     EN,
     #[strum(serialize = "de")]
     DE
+}
+
+impl Type<Sqlite> for Language {
+    fn type_info() -> SqliteTypeInfo {
+        <String as Type<Sqlite>>::type_info()
+    }
+}
+
+impl<'q> Encode<'q, Sqlite> for Language {
+    fn encode_by_ref(
+        &self,
+        args: &mut Vec<SqliteArgumentValue<'q>>,
+    ) -> Result<IsNull, BoxDynError> {
+        <String as Encode<Sqlite>>::encode_by_ref(&self.to_string(), args)
+    }
+}
+
+impl Decode<'_, Sqlite> for Language {
+    fn decode(value: SqliteValueRef<'_>) -> Result<Self, BoxDynError> {
+        let raw_lang = match <String as Decode<Sqlite>>::decode(value) {
+            Ok(raw_lang) => raw_lang,
+            Err(err) => return Err(err),
+        };
+
+        let lang = match Language::from_str(&raw_lang) {
+            Ok(lang) => lang,
+            Err(err) => return Err(Box::new(err)),
+        };
+
+        Ok(lang)
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]

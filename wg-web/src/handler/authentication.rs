@@ -67,6 +67,7 @@ pub async fn login(
         id: AuthenticationSessionId::new(),
         token,
         user_id: user.id,
+        last_used_language: user.last_used_language,
         date_expires: DateTime::from(DateTime::now().as_ref().clone() + Days::new(30)),
         date_created: DateTime::now(),
     };

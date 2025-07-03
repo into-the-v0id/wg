@@ -1,4 +1,4 @@
-use crate::value::{DateTime, Uuid, Tagged};
+use crate::value::{DateTime, Language, Tagged, Uuid};
 
 use super::user::UserId;
 
@@ -9,6 +9,7 @@ pub struct AuthenticationSession {
     pub id: AuthenticationSessionId,
     pub token: String,
     pub user_id: UserId,
+    pub last_used_language: Option<Language>,
     pub date_expires: DateTime,
     pub date_created: DateTime,
 }
@@ -61,10 +62,11 @@ pub async fn create(
     pool: &sqlx::sqlite::SqlitePool,
     auth_session: &AuthenticationSession,
 ) -> Result<(), sqlx::Error> {
-    sqlx::query("INSERT INTO authentication_sessions (id, token, user_id, date_expires, date_created) VALUES (?, ?, ?, ?, ?)")
+    sqlx::query("INSERT INTO authentication_sessions (id, token, user_id, last_used_language, date_expires, date_created) VALUES (?, ?, ?, ?, ?, ?)")
         .bind(auth_session.id)
         .bind(&auth_session.token)
         .bind(auth_session.user_id)
+        .bind(auth_session.last_used_language)
         .bind(auth_session.date_expires)
         .bind(auth_session.date_created)
         .execute(pool)
@@ -76,9 +78,10 @@ pub async fn update(
     pool: &sqlx::sqlite::SqlitePool,
     auth_session: &AuthenticationSession,
 ) -> Result<(), sqlx::Error> {
-    sqlx::query("UPDATE authentication_sessions SET token = ?, user_id = ?, date_expires = ? WHERE id = ?")
+    sqlx::query("UPDATE authentication_sessions SET token = ?, user_id = ?, last_used_language = ?, date_expires = ? WHERE id = ?")
         .bind(&auth_session.token)
         .bind(auth_session.user_id)
+        .bind(auth_session.last_used_language)
         .bind(auth_session.date_expires)
         .bind(auth_session.id)
         .execute(pool)

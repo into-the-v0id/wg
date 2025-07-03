@@ -78,6 +78,7 @@ pub async fn create(
         name: payload.name,
         email: payload.email,
         password_hash: PasswordHash::from_plain_password(payload.password),
+        last_used_language: None,
         date_created: DateTime::now(),
         date_deleted: None,
     };
