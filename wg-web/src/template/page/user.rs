@@ -135,7 +135,7 @@ pub fn update(user: user::User) -> Markup {
                 }
                 input #password name="password" type="password" minlength="5" autocomplete="new-password" value="";
 
-                button type="submit" { (t().update_action()) }
+                button type="submit" { (t().save_action()) }
             }
         },
     )

@@ -242,7 +242,7 @@ pub fn update(
                 }
                 small #interval_days-help-text { (t().chore_interval_help_text()) }
 
-                button type="submit" { (t().update_action()) }
+                button type="submit" { (t().save_action()) }
             }
         },
     )

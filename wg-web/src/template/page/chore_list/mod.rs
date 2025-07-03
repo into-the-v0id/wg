@@ -154,7 +154,7 @@ pub fn update(chore_list: chore_list::ChoreList) -> Markup {
                 }
                 small #score_reset_interval-help-text { (t().score_reset_interval_help_text()) }
 
-                button type="submit" { (t().update_action()) }
+                button type="submit" { (t().save_action()) }
             }
         },
     )

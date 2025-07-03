@@ -277,7 +277,7 @@ pub fn update(
                     }
                 }
 
-                button type="submit" { (t().update_action()) }
+                button type="submit" { (t().save_action()) }
             }
         },
     )
