@@ -49,6 +49,11 @@ pub async fn get_low_score_users(pool: &crate::db::Pool) -> HashMap<UserId, Vec<
             None => continue,
         };
 
+        // Ignore lists without any activity (dead/unstarted chore lists)
+        if max_score == &0 {
+            continue;
+        }
+
         let score_delta = max_score - min_score;
         let score_threshold = min_score + (score_delta as f32 * 0.25).ceil() as i32;
 

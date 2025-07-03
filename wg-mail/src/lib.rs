@@ -29,6 +29,8 @@ pub use lettre;
 )]
 pub struct Translations;
 
+pub const DEFAULT_LANGAGE: wg_core::value::Language = wg_core::value::Language::EN;
+
 pub enum MailTransport {
     Smtp(AsyncSmtpTransport<Tokio1Executor>),
     Sendmail(AsyncSendmailTransport<Tokio1Executor>),

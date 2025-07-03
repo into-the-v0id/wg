@@ -19,6 +19,7 @@ pub fn default(
                             width: 100%;
                             height: 100%;
                             box-sizing: border-box;
+                            font-family: system-ui, sans-serif;
                             padding: 1em;
                             margin: 0;
                         }

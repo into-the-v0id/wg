@@ -21,6 +21,10 @@ pub struct Chore {
 }
 
 impl Chore {
+    pub fn is_due(&self) -> Option<bool> {
+        self.next_due_date.map(|date| date.is_today() || date.is_in_past())
+    }
+
     pub fn is_deleted(&self) -> bool {
         self.date_deleted.is_some()
     }
