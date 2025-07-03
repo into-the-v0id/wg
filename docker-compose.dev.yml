@@ -1,0 +1,50 @@
+x-templates:
+  default-variables: &default-variables
+    TZ: UTC
+  default-service: &default-service
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    init: true
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    environment:
+      <<: *default-variables
+  as-current-user: &as-current-user
+    user: ${DOCKER_UID:-1000}:${DOCKER_GID:-1000}
+
+services:
+
+  # WG
+  app:
+    <<:
+      - *default-service
+      - *as-current-user
+    image: wg
+    build: .
+    container_name: wg-app
+    environment:
+      RUST_LOG: debug
+      PORT: 80
+      SMTP_URL: smtp://mailpit:1025
+      # LOW_SCORE_REMINDER_CRON: */30 * * * * *
+    volumes:
+      - ./data:/data
+    ports:
+      - "80:80"
+    networks:
+      - app
+
+  # Local SMTP server
+  mailpit:
+    <<: *default-service
+    image: axllent/mailpit:latest
+    container_name: wg-mailpit
+    ports:
+      - "8025:8025"
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
