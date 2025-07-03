@@ -63,7 +63,7 @@ pub async fn view_create_form(
 #[derive(serde::Deserialize, Debug)]
 pub struct CreatePayload {
     name: String,
-    handle: String,
+    email: String,
     password: SecretString,
 }
 
@@ -76,7 +76,7 @@ pub async fn create(
     let user = user::User {
         id: UserId::new(),
         name: payload.name,
-        handle: payload.handle,
+        email: payload.email,
         password_hash: PasswordHash::from_plain_password(payload.password),
         date_created: DateTime::now(),
         date_deleted: None,
@@ -114,7 +114,7 @@ pub async fn view_update_form(
 #[derive(serde::Deserialize, Debug)]
 pub struct UpdatePayload {
     name: String,
-    handle: String,
+    email: String,
     password: SecretString,
 }
 
@@ -134,7 +134,7 @@ pub async fn update(
     }
 
     user.name = payload.name;
-    user.handle = payload.handle;
+    user.email = payload.email;
 
     if !payload.password.expose_secret().trim().is_empty() {
         user.password_hash = PasswordHash::from_plain_password(payload.password);

@@ -36,8 +36,8 @@ async fn main() {
         let (admin_user, admin_password) = service::user::create_default_admin_user(&pool).await;
 
         println!(
-            "Created user with handle '{}' and password '{}'",
-            admin_user.handle, admin_password.expose_secret()
+            "Created user with email '{}' and password '{}'",
+            admin_user.email, admin_password.expose_secret()
         );
     }
 

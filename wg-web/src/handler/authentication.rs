@@ -35,7 +35,7 @@ pub async fn view_login_form(
 
 #[derive(serde::Deserialize, Debug)]
 pub struct LoginPayload {
-    handle: String,
+    email: String,
     password: SecretString,
 }
 
@@ -45,7 +45,7 @@ pub async fn login(
     cookie_jar: CookieJar,
     Form(payload): Form<LoginPayload>,
 ) -> Result<(CookieJar, Redirect), StatusCode> {
-    let user = match user::get_by_handle(&state.pool, &payload.handle).await {
+    let user = match user::get_by_email(&state.pool, &payload.email).await {
         Ok(user) => user,
         Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
         Err(err) => panic!("{}", err),

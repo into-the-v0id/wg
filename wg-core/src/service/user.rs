@@ -17,7 +17,7 @@ pub async fn create_default_admin_user(pool: &crate::db::Pool) -> (User, SecretS
     let user = User {
         id: UserId::new(),
         name: "Admin".to_string(),
-        handle: "admin".to_string(),
+        email: "admin@localhost".to_string(),
         password_hash: PasswordHash::from_plain_password(plain_password.clone()),
         date_created: DateTime::now(),
         date_deleted: None,

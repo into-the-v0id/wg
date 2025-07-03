@@ -6,7 +6,7 @@ pub type UserId = Tagged<Uuid, User>;
 pub struct User {
     pub id: UserId,
     pub name: String,
-    pub handle: String,
+    pub email: String,
     pub password_hash: PasswordHash,
     pub date_created: DateTime,
     pub date_deleted: Option<DateTime>,
@@ -25,12 +25,12 @@ pub async fn get_by_id(pool: &sqlx::sqlite::SqlitePool, id: &UserId) -> Result<U
         .await
 }
 
-pub async fn get_by_handle(
+pub async fn get_by_email(
     pool: &sqlx::sqlite::SqlitePool,
-    handle: &str,
+    email: &str,
 ) -> Result<User, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM users WHERE handle = ?")
-        .bind(handle)
+    sqlx::query_as("SELECT * FROM users WHERE email = ?")
+        .bind(email)
         .fetch_one(pool)
         .await
 }
@@ -42,10 +42,10 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<User>, sqlx:
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
     tracing::info!(user = ?user, "Creating user");
 
-    sqlx::query("INSERT INTO users (id, name, handle, password_hash, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
+    sqlx::query("INSERT INTO users (id, name, email, password_hash, date_created, date_deleted) VALUES (?, ?, ?, ?, ?, ?)")
         .bind(user.id)
         .bind(&user.name)
-        .bind(&user.handle)
+        .bind(&user.email)
         .bind(&user.password_hash)
         .bind(user.date_created)
         .bind(user.date_deleted)
@@ -57,9 +57,9 @@ pub async fn create(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), 
 pub async fn update(pool: &sqlx::sqlite::SqlitePool, user: &User) -> Result<(), sqlx::Error> {
     tracing::info!(user = ?user, "Updating user");
 
-    sqlx::query("UPDATE users SET name = ?, handle = ?, password_hash = ?, date_deleted = ? WHERE id = ?")
+    sqlx::query("UPDATE users SET name = ?, email = ?, password_hash = ?, date_deleted = ? WHERE id = ?")
         .bind(&user.name)
-        .bind(&user.handle)
+        .bind(&user.email)
         .bind(&user.password_hash)
         .bind(user.date_deleted)
         .bind(user.id)

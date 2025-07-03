@@ -10,8 +10,8 @@ pub fn login() -> Markup {
             .build(),
         html! {
             form method="post" {
-                label for="handle" { (t().username()) }
-                input #handle name="handle" type="text" required autocomplete="username" autofocus;
+                label for="email" { (t().email_address()) }
+                input #email name="email" type="email" required autocomplete="email" autofocus;
 
                 label for="password" { (t().password()) }
                 input #password name="password" type="password" required autocomplete="current-password";

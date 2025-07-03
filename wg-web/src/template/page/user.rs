@@ -99,8 +99,8 @@ pub fn create() -> Markup {
                 label for="name" { (t().name()) }
                 input #name name="name" type="text" required autocomplete="given-name";
 
-                label for="handle" { (t().username()) }
-                input #handle name="handle" type="text" required autocomplete="username";
+                label for="email" { (t().email_address()) }
+                input #email name="email" type="email" required autocomplete="email";
 
                 label for="password" { (t().password()) }
                 input #password name="password" type="password" required minlength="5" autocomplete="current-password";
@@ -125,8 +125,8 @@ pub fn update(user: user::User) -> Markup {
                 label for="name" { (t().name()) }
                 input #name name="name" type="text" required autocomplete="given-name" value=(user.name);
 
-                label for="handle" { (t().username()) }
-                input #handle name="handle" type="text" required autocomplete="username" value=(user.handle);
+                label for="email" { (t().email_address()) }
+                input #email name="email" type="email" required autocomplete="email" value=(user.email);
 
                 label for="password" {
                     (t().new_password())
