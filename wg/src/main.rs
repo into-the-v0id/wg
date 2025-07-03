@@ -12,11 +12,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+use lettre::{AsyncSendmailTransport, AsyncSmtpTransport, Tokio1Executor};
 use secrecy::ExposeSecret;
 use tokio_util::sync::CancellationToken;
 use tokio_util::task::TaskTracker;
 use wg_core::{db::Pool, service};
 use tracing_subscriber::EnvFilter;
+use wg_scheduler::MailTransport;
 
 #[tokio::main]
 async fn main() {
@@ -81,8 +83,17 @@ async fn start_web_server(pool: Pool, cancel_token: CancellationToken) -> () {
 async fn start_scheduler(pool: Pool, cancel_token: CancellationToken) -> () {
     tracing::debug!("Starting scheduler");
 
+    let mail_transport = if let Ok(url) = std::env::var("SMTP_URL") {
+        MailTransport::Smtp(AsyncSmtpTransport::<Tokio1Executor>::from_url(&url).unwrap().build())
+    } else if let Ok(command) = std::env::var("SENDMAIL_COMMAND") {
+        MailTransport::Sendmail(AsyncSendmailTransport::<Tokio1Executor>::new_with_command(command))
+    } else {
+        MailTransport::Sendmail(AsyncSendmailTransport::<Tokio1Executor>::new())
+    };
+
     let state = wg_scheduler::AppState {
         pool: pool,
+        mail_transport,
     };
 
     wg_scheduler::start(state, cancel_token).await

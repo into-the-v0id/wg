@@ -16,14 +16,30 @@ mod job;
 
 use std::{str::FromStr, sync::Arc};
 
+use lettre::{AsyncSendmailTransport, AsyncSmtpTransport, AsyncTransport, Tokio1Executor};
 use tracing::Instrument;
 use chrono::Utc;
 use cron::Schedule;
 use tokio::time::Instant;
 use tokio_util::{sync::CancellationToken, task::TaskTracker};
 
+pub enum MailTransport {
+    Smtp(AsyncSmtpTransport<Tokio1Executor>),
+    Sendmail(AsyncSendmailTransport<Tokio1Executor>),
+}
+
+impl MailTransport {
+    async fn send(&self, message: lettre::Message) {
+        match self {
+            Self::Smtp(transport) => { transport.send(message).await.unwrap(); },
+            Self::Sendmail(transport) => { transport.send(message).await.unwrap(); },
+        };
+    }
+}
+
 pub struct AppState {
     pub pool: wg_core::db::Pool,
+    pub mail_transport: MailTransport,
 }
 
 pub async fn start(state: AppState, cancel_token: CancellationToken) {
@@ -65,8 +81,7 @@ async fn start_cron<F, R, S>(
 
     let job = Arc::new(job);
 
-    let mut dates = schedule.upcoming(Utc);
-    while let Some(next_date) = dates.next() {
+    while let Some(next_date) = schedule.upcoming(Utc).next() {
         tracing::debug!(name = name, next_run = %next_date, "Next run scheduled");
 
         let next_instant = Instant::now() + next_date.signed_duration_since(Utc::now()).to_std().unwrap();
