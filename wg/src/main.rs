@@ -50,8 +50,8 @@ async fn main() {
 
     let tracker = TaskTracker::new();
 
-    tracker.spawn(start_web_server(pool, cancel_token.clone()));
-    tracker.spawn(wg_scheduler::start(cancel_token.clone()));
+    tracker.spawn(start_web_server(pool.clone(), cancel_token.clone()));
+    tracker.spawn(start_scheduler(pool.clone(), cancel_token.clone()));
 
     tracker.close();
 
@@ -71,6 +71,14 @@ async fn start_web_server(pool: Pool, cancel_token: CancellationToken) -> () {
     println!("Listening on http://{} ...", listener.local_addr().unwrap());
 
     wg_web::start(listener, web_router, cancel_token).await
+}
+
+async fn start_scheduler(pool: Pool, cancel_token: CancellationToken) -> () {
+    let state = wg_scheduler::AppState {
+        pool: pool,
+    };
+
+    wg_scheduler::start(state, cancel_token).await
 }
 
 async fn shutdown_signal() {

@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+mod job;
+
 use std::{str::FromStr, sync::Arc};
 
 use chrono::Utc;
@@ -19,28 +21,23 @@ use cron::Schedule;
 use tokio::time::Instant;
 use tokio_util::{sync::CancellationToken, task::TaskTracker};
 
-pub async fn start(cancel_token: CancellationToken) {
+pub struct AppState {
+    pub pool: wg_core::db::Pool,
+}
+
+pub async fn start(state: AppState, cancel_token: CancellationToken) {
+    let state = Arc::new(state);
+
     let tracker = TaskTracker::new();
 
-    tracker.spawn(start_cron(
-        Schedule::from_str("*/3 * * * * *").unwrap(),
-        async |()| {
-            println!("Hello World 01");
-            // panic!("EEEEEEEE");
-        },
-        (),
-        cancel_token.clone(),
-    ));
-
-    tracker.spawn(start_cron(
-        Schedule::from_str("*/10 * * * * *").unwrap(),
-        async |()| {
-            println!("Hello World 02");
-            // panic!("EEEEEEEE");
-        },
-        (),
-        cancel_token.clone(),
-    ));
+    if let Ok(cron) = std::env::var("LOW_SCORE_REMINDER_CRON") {
+        tracker.spawn(start_cron(
+            Schedule::from_str(&cron).unwrap(),
+            job::low_score_reminder,
+            state.clone(),
+            cancel_token.clone(),
+        ));
+    }
 
     tracker.close();
 
