@@ -18,7 +18,6 @@ use tokio_util::sync::CancellationToken;
 use tokio_util::task::TaskTracker;
 use wg_core::{db::Pool, service};
 use tracing_subscriber::EnvFilter;
-use wg_scheduler::MailTransport;
 
 #[tokio::main]
 async fn main() {
@@ -84,11 +83,11 @@ async fn start_scheduler(pool: Pool, cancel_token: CancellationToken) -> () {
     tracing::debug!("Starting scheduler");
 
     let mail_transport = if let Ok(url) = std::env::var("SMTP_URL") {
-        MailTransport::Smtp(AsyncSmtpTransport::<Tokio1Executor>::from_url(&url).unwrap().build())
+        wg_mail::MailTransport::Smtp(AsyncSmtpTransport::<Tokio1Executor>::from_url(&url).unwrap().build())
     } else if let Ok(command) = std::env::var("SENDMAIL_COMMAND") {
-        MailTransport::Sendmail(AsyncSendmailTransport::<Tokio1Executor>::new_with_command(command))
+        wg_mail::MailTransport::Sendmail(AsyncSendmailTransport::<Tokio1Executor>::new_with_command(command))
     } else {
-        MailTransport::Sendmail(AsyncSendmailTransport::<Tokio1Executor>::new())
+        wg_mail::MailTransport::Sendmail(AsyncSendmailTransport::<Tokio1Executor>::new())
     };
 
     let state = wg_scheduler::AppState {
