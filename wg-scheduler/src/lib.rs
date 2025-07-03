@@ -16,6 +16,7 @@ mod job;
 
 use std::{str::FromStr, sync::Arc};
 
+use tracing::Instrument;
 use chrono::Utc;
 use cron::Schedule;
 use tokio::time::Instant;
@@ -32,6 +33,7 @@ pub async fn start(state: AppState, cancel_token: CancellationToken) {
 
     if let Ok(cron) = std::env::var("LOW_SCORE_REMINDER_CRON") {
         tracker.spawn(start_cron(
+            "low_score_reminder",
             Schedule::from_str(&cron).unwrap(),
             job::low_score_reminder,
             state.clone(),
@@ -41,19 +43,32 @@ pub async fn start(state: AppState, cancel_token: CancellationToken) {
 
     tracker.close();
 
+    tracing::debug!("Scheduler started");
+
     tracker.wait().await;
+
+    tracing::debug!("Scheduler stopped");
 }
 
-async fn start_cron<F, R, S>(schedule: Schedule, job: F, state: S, cancel_token: CancellationToken)
-where
+async fn start_cron<F, R, S>(
+    name: &str,
+    schedule: Schedule,
+    job: F,
+    state: S,
+    cancel_token: CancellationToken
+) where
     F: Fn(S) -> R + Send + Sync + 'static,
     R: Future<Output = ()> + Send,
     S: Clone + Send + 'static,
 {
+    tracing::debug!(name = name, schedule = %schedule, "Registered cron job");
+
     let job = Arc::new(job);
 
     let mut dates = schedule.upcoming(Utc);
     while let Some(next_date) = dates.next() {
+        tracing::debug!(name = name, next_run = %next_date, "Next run scheduled");
+
         let next_instant = Instant::now() + next_date.signed_duration_since(Utc::now()).to_std().unwrap();
 
         tokio::select! {
@@ -63,11 +78,18 @@ where
             },
         };
 
+        let span = tracing::error_span!(
+            "cron_job",
+            name = name,
+        );
+
+        tracing::debug!(name = name, "Running cron job");
+
         let job_clone = job.clone();
         let state_clone = state.clone();
 
         let job_result = tokio::spawn(async move {
-            job_clone(state_clone).await;
+            job_clone(state_clone).instrument(span).await;
         }).await;
 
         if let Err(err) = job_result {
@@ -80,6 +102,8 @@ where
                     tracing::error!("Cron job panicked but unable to downcast the panic info");
                 }
             }
+        } else {
+            tracing::debug!(name = name, "Finished running cron job");
         }
     }
 }

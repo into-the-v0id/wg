@@ -45,6 +45,9 @@ async fn main() {
     let cancel_token_shutdown = cancel_token.clone();
     tokio::spawn(async move {
         shutdown_signal().await;
+
+        tracing::debug!("Abort signal recieved. Shutting down.");
+
         cancel_token_shutdown.cancel();
     });
 
@@ -59,6 +62,8 @@ async fn main() {
 }
 
 async fn start_web_server(pool: Pool, cancel_token: CancellationToken) -> () {
+    tracing::debug!("Starting web server");
+
     let web_router = wg_web::make_router(wg_web::AppState {
         pool: pool,
     });
@@ -74,6 +79,8 @@ async fn start_web_server(pool: Pool, cancel_token: CancellationToken) -> () {
 }
 
 async fn start_scheduler(pool: Pool, cancel_token: CancellationToken) -> () {
+    tracing::debug!("Starting scheduler");
+
     let state = wg_scheduler::AppState {
         pool: pool,
     };
