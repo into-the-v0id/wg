@@ -14,6 +14,7 @@
 
 use secrecy::ExposeSecret;
 use tokio_util::sync::CancellationToken;
+use tokio_util::task::TaskTracker;
 use wg_core::service;
 use sqlx::migrate::MigrateDatabase;
 use tracing_subscriber::EnvFilter;
@@ -47,9 +48,14 @@ async fn main() {
         cancel_token_shutdown.cancel();
     });
 
-    let web_future = tokio::spawn(start_web_server(pool, cancel_token.clone()));
+    let tracker = TaskTracker::new();
 
-    web_future.await.unwrap();
+    tracker.spawn(start_web_server(pool, cancel_token.clone()));
+    tracker.spawn(wg_scheduler::start(cancel_token.clone()));
+
+    tracker.close();
+
+    tracker.wait().await;
 }
 
 async fn create_db_pool() -> sqlx::sqlite::SqlitePool {

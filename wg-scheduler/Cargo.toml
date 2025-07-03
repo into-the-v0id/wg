@@ -1,0 +1,15 @@
+[package]
+name = "wg_scheduler"
+version = "0.1.0"
+edition = "2024"
+authors = ["Oliver Amann"]
+license = "AGPL-3.0-only"
+
+[dependencies]
+chrono = "0.4.41"
+cron = "0.15.0"
+futures = "0.3.31"
+tokio = { version = "1.43.0", features = ["full"] }
+tokio-util = "0.7.15"
+tracing = "0.1.41"
+wg_core = { path = "../wg-core" }

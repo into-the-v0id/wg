@@ -10,11 +10,12 @@ futures = "0.3.31"
 secrecy = "0.10.3"
 sqlx = { version = "0.8.3", features = ["runtime-tokio", "sqlite"] }
 tokio = { version = "1.43.0", features = ["full"] }
-tokio-util = "0.7.15"
+tokio-util = { version = "0.7.15", features = ["rt"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 wg_core = { path = "../wg-core" }
 wg_web = { path = "../wg-web" }
+wg_scheduler = { path = "../wg-scheduler" }
 
 [profile.release]
 lto = "fat"
