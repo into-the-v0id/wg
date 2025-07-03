@@ -3632,8 +3632,10 @@ name = "wg_mail"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "fluent-static",
  "futures",
  "lettre",
+ "maud",
  "tokio",
  "tracing",
  "wg_core",

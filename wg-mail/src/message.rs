@@ -1,26 +1,25 @@
-// Copyright (C) Oliver Amann
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License version 3 as
-// published by the Free Software Foundation.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+use fluent_static::MessageBundle;
 use lettre::{message::{header::ContentType, Mailbox}, Message};
+use maud::html;
 use wg_core::model::user::User;
-use crate::message_builder;
+use crate::{layout, message_builder, Translations};
 
 pub fn low_score_reminder(user: &User) -> Message {
+    let t = Translations::get("en").unwrap();
+
+    let html = layout::default(
+        &t.message_low_score_reminder_title(),
+        html! {
+            "Hi " (user.name) ","
+            br;br;
+            (t.message_low_score_reminder_content())
+        },
+    ).into_string();
+
     message_builder()
         .to(Mailbox::new(Some(user.name.clone()), "user@local.local".parse().unwrap()))
-        .subject("Test Subject")
-        .header(ContentType::TEXT_PLAIN)
-        .body("Test Body".to_string())
+        .subject(t.message_low_score_reminder_title().to_string())
+        .header(ContentType::TEXT_HTML)
+        .body(html)
         .unwrap()
 }

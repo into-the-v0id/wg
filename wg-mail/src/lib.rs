@@ -13,10 +13,21 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 pub mod message;
+mod layout;
 
 use std::io;
+use fluent_static::message_bundle;
 use lettre::{address::Envelope, message::{Mailbox, MessageBuilder}, AsyncSendmailTransport, AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor};
 pub use lettre;
+
+#[message_bundle(
+    resources = [
+        ("translations/en.ftl", "en"),
+        ("translations/de.ftl", "de"),
+    ],
+    default_language = "en",
+)]
+pub struct Translations;
 
 pub enum MailTransport {
     Smtp(AsyncSmtpTransport<Tokio1Executor>),
