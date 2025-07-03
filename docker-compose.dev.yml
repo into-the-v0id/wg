@@ -27,6 +27,7 @@ services:
       RUST_LOG: debug
       PORT: 80
       SMTP_URL: smtp://mailpit:1025
+      MAIL_FROM: test@localhost
       # LOW_SCORE_REMINDER_CRON: "*/30 * * * * *"
     volumes:
       - ./data:/data
