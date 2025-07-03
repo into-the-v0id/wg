@@ -2982,7 +2982,6 @@ version = "0.1.0"
 dependencies = [
  "futures",
  "secrecy",
- "sqlx",
  "tokio",
  "tokio-util",
  "tracing",
@@ -3046,7 +3045,6 @@ dependencies = [
  "secrecy",
  "serde",
  "serde_with",
- "sqlx",
  "strum",
  "time",
  "tokio",

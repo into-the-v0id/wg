@@ -29,7 +29,7 @@ use axum::{
 use axum_extra::routing::RouterExt;
 use tokio::{net::TcpListener, task_local};
 use tokio_util::sync::CancellationToken;
-use wg_core::model::{authentication_session::AuthenticationSession};
+use wg_core::{db::Pool, model::authentication_session::AuthenticationSession};
 use std::{any::Any, sync::Arc};
 use tower_http::{
     catch_panic::CatchPanicLayer,
@@ -59,7 +59,7 @@ task_local! {
 }
 
 pub struct AppState {
-    pub pool: sqlx::sqlite::SqlitePool,
+    pub pool: Pool,
 }
 
 pub fn make_router(state: AppState) -> Router {

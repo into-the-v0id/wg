@@ -25,7 +25,6 @@ rust-embed = "8.6.0"
 secrecy = { version = "0.10.3", features = ["serde"] }
 serde = { version = "1.0.217", features = ["derive"] }
 serde_with = "3.12.0"
-sqlx = { version = "0.8.3", features = ["runtime-tokio", "sqlite", "derive", "uuid", "chrono", "time"] }
 strum = { version = "0.26.3", features = ["derive"] }
 time = "0.3.41"
 tokio = { version = "1.43.0", features = ["full"] }

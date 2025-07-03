@@ -15,10 +15,8 @@
 use secrecy::ExposeSecret;
 use tokio_util::sync::CancellationToken;
 use tokio_util::task::TaskTracker;
-use wg_core::service;
-use sqlx::migrate::MigrateDatabase;
+use wg_core::{db::Pool, service};
 use tracing_subscriber::EnvFilter;
-use wg_core::MIGRATOR;
 
 #[tokio::main]
 async fn main() {
@@ -27,9 +25,11 @@ async fn main() {
         .json()
         .init();
 
-    let pool = create_db_pool().await;
+    let db_file = std::env::var("DB_FILE")
+        .unwrap_or(String::from("./data/sqlite.db"));
+    let pool = wg_core::db::create_pool(db_file).await;
 
-    MIGRATOR.run(&pool).await.unwrap();
+    wg_core::db::MIGRATOR.run(&pool).await.unwrap();
 
     if !service::user::exists_any_user(&pool).await {
         let (admin_user, admin_password) = service::user::create_default_admin_user(&pool).await;
@@ -58,19 +58,7 @@ async fn main() {
     tracker.wait().await;
 }
 
-async fn create_db_pool() -> sqlx::sqlite::SqlitePool {
-    let db_file = std::env::var("DB_FILE").unwrap_or(String::from("./data/sqlite.db"));
-    let db_url = format!("sqlite:{}", db_file);
-
-    if !sqlx::Sqlite::database_exists(&db_url).await.unwrap() {
-        tracing::info!("Creating database {}", &db_url);
-        sqlx::Sqlite::create_database(&db_url).await.unwrap();
-    }
-
-    sqlx::sqlite::SqlitePool::connect(&db_url).await.unwrap()
-}
-
-async fn start_web_server(pool: sqlx::sqlite::SqlitePool, cancel_token: CancellationToken) -> () {
+async fn start_web_server(pool: Pool, cancel_token: CancellationToken) -> () {
     let web_router = wg_web::make_router(wg_web::AppState {
         pool: pool,
     });

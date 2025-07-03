@@ -47,7 +47,7 @@ pub async fn login(
 ) -> Result<(CookieJar, Redirect), StatusCode> {
     let user = match user::get_by_handle(&state.pool, &payload.handle).await {
         Ok(user) => user,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
+        Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
         Err(err) => panic!("{}", err),
     };
     if user.is_deleted() {

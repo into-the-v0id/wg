@@ -141,7 +141,7 @@ pub async fn create(
 
     let mut chore = match chore::get_by_id(&state.pool, &payload.chore_id).await {
         Ok(chore) => chore,
-        Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNPROCESSABLE_ENTITY),
+        Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::UNPROCESSABLE_ENTITY),
         Err(err) => panic!("{}", err),
     };
     if chore.is_deleted() {

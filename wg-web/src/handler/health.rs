@@ -1,6 +1,6 @@
 use crate::AppState;
 use axum::{extract::State, http::StatusCode};
-use sqlx::Connection;
+use wg_core::db::sqlx::Connection;
 use std::sync::Arc;
 
 pub async fn check(State(state): State<Arc<AppState>>) -> StatusCode {

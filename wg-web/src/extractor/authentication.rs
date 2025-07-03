@@ -37,7 +37,7 @@ impl FromRequestParts<Arc<AppState>> for AuthSession {
         let auth_session = match authentication_session::get_by_token(&state.pool, auth_token).await
         {
             Ok(auth_session) => auth_session,
-            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
+            Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::UNAUTHORIZED),
             Err(err) => panic!("{}", err),
         };
         if auth_session.is_expired() {

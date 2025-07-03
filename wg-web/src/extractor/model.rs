@@ -37,7 +37,7 @@ impl FromRequestParts<Arc<AppState>> for Chore {
 
         let chore = match chore::get_by_id(&state.pool, &path_data.chore_id).await {
             Ok(chore) => chore,
-            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+            Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
             Err(err) => panic!("{}", err),
         };
 
@@ -66,7 +66,7 @@ impl FromRequestParts<Arc<AppState>> for ChoreActivity {
 
         let activity = match chore_activity::get_by_id(&state.pool, &path_data.chore_activity_id).await {
             Ok(activity) => activity,
-            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+            Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
             Err(err) => panic!("{}", err),
         };
 
@@ -95,7 +95,7 @@ impl FromRequestParts<Arc<AppState>> for ChoreList {
 
         let chore_list = match chore_list::get_by_id(&state.pool, &path_data.chore_list_id).await {
             Ok(chore_list) => chore_list,
-            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+            Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
             Err(err) => panic!("{}", err),
         };
 
@@ -124,7 +124,7 @@ impl FromRequestParts<Arc<AppState>> for User {
 
         let user = match user::get_by_id(&state.pool, &path_data.user_id).await {
             Ok(user) => user,
-            Err(sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+            Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
             Err(err) => panic!("{}", err),
         };
 
