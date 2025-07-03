@@ -4,6 +4,7 @@ use wg_core::model::chore_activity;
 use wg_core::model::chore_activity::ChoreActivityId;
 use wg_core::model::chore_list::ChoreListId;
 use wg_core::model::user;
+use wg_core::service;
 use crate::extractor::authentication::AuthSession;
 use crate::extractor::model::ChoreActivity;
 use crate::extractor::model::ChoreList;
@@ -176,7 +177,7 @@ pub async fn create(
         .await
         .unwrap();
 
-    chore::update_next_due_date(&mut chore, &state.pool, true)
+    service::chore::update_next_due_date(&mut chore, &state.pool, true)
         .await
         .unwrap();
 
@@ -291,7 +292,7 @@ pub async fn update(
         .await
         .unwrap();
 
-    chore::update_next_due_date(&mut chore, &state.pool, true)
+    service::chore::update_next_due_date(&mut chore, &state.pool, true)
         .await
         .unwrap();
 
@@ -344,7 +345,7 @@ pub async fn delete(
         .await
         .unwrap();
 
-    chore::update_next_due_date(&mut chore, &state.pool, true)
+    service::chore::update_next_due_date(&mut chore, &state.pool, true)
         .await
         .unwrap();
 
@@ -393,7 +394,7 @@ pub async fn restore(
         .await
         .unwrap();
 
-    chore::update_next_due_date(&mut chore, &state.pool, true)
+    service::chore::update_next_due_date(&mut chore, &state.pool, true)
         .await
         .unwrap();
 

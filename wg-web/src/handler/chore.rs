@@ -3,6 +3,7 @@ use wg_core::model::chore::ChoreId;
 use wg_core::model::chore_activity;
 use wg_core::model::chore_list::ChoreListId;
 use wg_core::model::user;
+use wg_core::service;
 use crate::extractor::authentication::AuthSession;
 use crate::extractor::model::Chore;
 use crate::extractor::model::ChoreList;
@@ -184,7 +185,7 @@ pub async fn update(
         description => Some(description.to_string()),
     };
 
-    chore::update_next_due_date(&mut chore, &state.pool, false)
+    service::chore::update_next_due_date(&mut chore, &state.pool, false)
         .await
         .unwrap();
 
