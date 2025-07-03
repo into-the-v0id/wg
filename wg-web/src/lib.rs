@@ -16,7 +16,7 @@ pub mod template;
 pub mod handler;
 pub mod extractor;
 
-use extractor::{language::Language, theme::Theme};
+use extractor::{theme::Theme};
 use axum::{
     RequestExt, Router,
     body::Body,
@@ -29,7 +29,7 @@ use axum::{
 use axum_extra::routing::RouterExt;
 use tokio::{net::TcpListener, task_local};
 use tokio_util::sync::CancellationToken;
-use wg_core::{db::Pool, model::authentication_session::AuthenticationSession};
+use wg_core::{db::Pool, model::authentication_session::AuthenticationSession, value::Language};
 use std::{any::Any, sync::Arc};
 use tower_http::{
     catch_panic::CatchPanicLayer,
@@ -41,7 +41,7 @@ use tracing::Instrument;
 use tracing::Level;
 use fluent_static::{message_bundle, MessageBundle};
 
-use crate::extractor::authentication::AuthSession;
+use crate::extractor::{authentication::AuthSession};
 
 #[message_bundle(
     resources = [
@@ -158,7 +158,7 @@ pub fn make_router(state: AppState) -> Router {
             THEME.scope(theme, next.run(request)).await
         }))
         .layer(axum::middleware::from_fn(async |mut request: axum::extract::Request, next: Next| -> Response {
-            let language = request.extract_parts::<Language>().await.unwrap();
+            let extractor::language::Language(language) = request.extract_parts::<extractor::language::Language>().await.unwrap();
             LANGUAGE.scope(language, async {
                 let translations = Translations::get(&language.to_string()).unwrap();
                 TRANSLATIONS.scope(translations, async {

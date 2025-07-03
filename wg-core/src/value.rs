@@ -12,6 +12,24 @@ use sqlx::{
     sqlite::{SqliteArgumentValue, SqliteTypeInfo, SqliteValueRef},
 };
 
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    strum::EnumString,
+    strum::Display,
+    strum::AsRefStr,
+    strum::IntoStaticStr,
+    strum::EnumIter,
+)]
+pub enum Language {
+    #[strum(serialize = "en")]
+    EN,
+    #[strum(serialize = "de")]
+    DE
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 #[repr(transparent)]
 pub struct Uuid(uuid::Uuid);

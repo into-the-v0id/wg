@@ -1,7 +1,7 @@
 use maud::{html, Markup};
 use strum::IntoEnumIterator;
+use wg_core::value::Language;
 use crate::handler::authentication::LogoutPath;
-use crate::extractor::language::Language;
 use crate::extractor::language::LanguageSelection;
 use crate::handler::legal::PrivacyPolicyPath;
 use crate::handler::settings::SettingsAppearancePath;

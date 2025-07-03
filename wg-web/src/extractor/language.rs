@@ -5,39 +5,24 @@ use axum::RequestPartsExt;
 use axum_extra::extract::CookieJar;
 use std::str::FromStr;
 
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    strum::EnumString,
-    strum::Display,
-    strum::AsRefStr,
-    strum::IntoStaticStr,
-    strum::EnumIter,
-)]
-pub enum Language {
-    #[strum(serialize = "en")]
-    EN,
-    #[strum(serialize = "de")]
-    DE
-}
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Language(pub wg_core::value::Language);
 
-pub const DEFAULT_LANGAGE: Language = Language::EN;
+pub const DEFAULT_LANGAGE: wg_core::value::Language = wg_core::value::Language::EN;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum LanguageSelection {
     Auto,
-    Language(Language),
+    Language(wg_core::value::Language),
 }
 
 impl FromStr for LanguageSelection {
-    type Err = <Language as FromStr>::Err;
+    type Err = <wg_core::value::Language as FromStr>::Err;
 
     fn from_str(string: &str) -> Result<Self, Self::Err> {
         match string {
             "auto" => Ok(LanguageSelection::Auto),
-            _ => Language::from_str(string).map(LanguageSelection::Language),
+            _ => wg_core::value::Language::from_str(string).map(LanguageSelection::Language),
         }
     }
 }
@@ -92,31 +77,31 @@ where
         let selection = parts.extract::<LanguageSelection>().await.unwrap();
 
         if let LanguageSelection::Language(language) = selection {
-            return Ok(language);
+            return Ok(Language(language));
         }
 
         let accept_language_header = parts.headers.get(header::ACCEPT_LANGUAGE)
             .and_then(|value| value.to_str().ok());
         let accept_language_header = match accept_language_header {
             Some(accept_language_header) => accept_language_header,
-            None => return Ok(DEFAULT_LANGAGE),
+            None => return Ok(Language(DEFAULT_LANGAGE)),
         };
 
         let requested_languages = accept_language::parse_with_quality(accept_language_header);
         let matching_languages = requested_languages.into_iter()
-            .filter_map(|(req_langauge, quality)| match Language::from_str(&req_langauge) {
+            .filter_map(|(req_langauge, quality)| match wg_core::value::Language::from_str(&req_langauge) {
                 Ok(available_language) => Some((available_language, quality)),
                 Err(_) => None,
             })
-            .collect::<Vec<(Language, f32)>>();
+            .collect::<Vec<(wg_core::value::Language, f32)>>();
         let best_language = matching_languages.into_iter()
             .max_by(|a, b| a.1.total_cmp(&b.1))
             .map(|(language, _)| language);
         let best_language = match best_language {
             Some(best_language) => best_language,
-            None => return Ok(DEFAULT_LANGAGE),
+            None => return Ok(Language(DEFAULT_LANGAGE)),
         };
 
-        Ok(best_language)
+        Ok(Language(best_language))
     }
 }
