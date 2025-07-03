@@ -13,6 +13,7 @@ pub fn low_score_reminder(
     let t = Translations::get(&language.to_string()).unwrap();
 
     let html = layout::default(
+        &language,
         &t.message_low_score_reminder_title(),
         html! {
             p { (t.greeting(&user.name)) }
