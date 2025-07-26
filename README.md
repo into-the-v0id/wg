@@ -43,6 +43,16 @@ The following environment variables can be used for configuration:
 | `DB_FILE`  | ./data/sqlite.db |
 | `RUST_LOG` | error            |
 
+### Mails
+
+Either set the environment variable `SMTP_URL` as per [docs](https://docs.rs/lettre/0.11.17/lettre/transport/smtp/struct.SmtpTransport.html#method.from_url). Or set the `SENDMAIL_COMMAND` environment variable to specify a custom sendmail command. If neither are set, the `sendmail` command in your `$PATH` is used.
+
+Then set `MAIL_FROM` and optionally `MAIL_REPLY_TO`.
+
+### Cron Jobs
+
+To periodically send reminders to users with a low score, specify a cron expression in the `LOW_SCORE_REMINDER_CRON` environment variable as per [docs](https://docs.rs/cron/0.15.0/cron/index.html#example).
+
 ## FAQ
 
 ### How do the points and score work?
