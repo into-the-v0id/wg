@@ -28,7 +28,6 @@ pub fn list(
         layout::DefaultLayoutOptions::builder()
             .emoji("🏖️")
             .title(&t().absences())
-            .headline(&format!("🏖️ {}", t().absences()))
             .meta_actions(html! {
                 a.secondary.subtle href=(AbsenceCreatePath) { "+ " (t().add_action()) }
             })
@@ -165,7 +164,6 @@ pub fn detail(
         layout::DefaultLayoutOptions::builder()
             .emoji("🏖️")
             .title(&t().absence())
-            .headline(&format!("🏖️ {}", t().absence()))
             .back_url(AbsenceIndexPath.to_string().as_str())
             .meta_actions(html! {
                 @if absence.is_deleted() {
@@ -242,7 +240,6 @@ pub fn create(
         layout::DefaultLayoutOptions::builder()
             .emoji("🏖️")
             .title(&t().create_absence())
-            .headline(&format!("🏖️ {}", t().create_absence()))
             .back_url(AbsenceIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Absences)))
             .build(),
@@ -279,7 +276,6 @@ pub fn update(
         layout::DefaultLayoutOptions::builder()
             .emoji("🏖️")
             .title(&t().edit_absence())
-            .headline(&format!("🏖️ {}", t().edit_absence()))
             .back_url(AbsenceDetailPath { absence_id: absence.id }.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Absences)))
             .build(),

@@ -27,7 +27,6 @@ pub fn list(
         layout::DefaultLayoutOptions::builder()
             .emoji("👤")
             .title(&t().users())
-            .headline(&format!("👤 {}", t().users()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(ChoreListIndexPath.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
@@ -80,7 +79,6 @@ pub fn detail(
         layout::DefaultLayoutOptions::builder()
             .emoji("👤")
             .title(&user.name)
-            .headline(&format!("👤 {}", user.name))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(ChoreListUserIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Users)))
@@ -118,7 +116,6 @@ pub fn list_activities(
         layout::DefaultLayoutOptions::builder()
             .emoji("✅")
             .title(&t().activities())
-            .headline(&format!("✅ {}", t().activities()))
             .teaser(&t().of_x_in_y(
                 format!("👤 {}", user.name),
                 format!("📋 {}", chore_list.name)

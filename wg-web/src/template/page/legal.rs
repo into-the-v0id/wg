@@ -6,7 +6,6 @@ pub fn privacy_policy() -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .title(&t().privacy_policy())
-            .headline(&t().privacy_policy())
             .back_url("/")
             .build(),
         html! {

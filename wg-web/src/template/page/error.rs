@@ -11,7 +11,6 @@ pub fn http_error(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .title(error_name)
-            .headline(error_name)
             .teaser(&format!("ERROR {}", status_code.as_u16()))
             .back_url("/")
             .head(html! {

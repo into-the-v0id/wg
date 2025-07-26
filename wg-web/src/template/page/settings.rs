@@ -20,7 +20,6 @@ pub fn settings(auth_session: AuthenticationSession) -> Markup {
         layout::DefaultLayoutOptions::builder()
             .emoji("⚙️")
             .title(&t().settings())
-            .headline(&format!("⚙️ {}", t().settings()))
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
         html! {
@@ -73,8 +72,8 @@ pub fn appearence(
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("✨")
+            .display_emoji(false)
             .title(&t().appearance())
-            .headline(&t().appearance())
             .back_url(SettingsIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),

@@ -30,7 +30,6 @@ pub fn list(
         layout::DefaultLayoutOptions::builder()
             .emoji("🧹")
             .title(&t().chores())
-            .headline(&format!("🧹 {}", t().chores()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(ChoreListIndexPath.to_string().as_str())
             .meta_actions(html! {
@@ -90,7 +89,6 @@ pub fn detail(
         layout::DefaultLayoutOptions::builder()
             .emoji("🧹")
             .title(&chore.name)
-            .headline(&format!("🧹 {}", chore.name))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(ChoreIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .meta_actions(html! {
@@ -164,7 +162,6 @@ pub fn create(
         layout::DefaultLayoutOptions::builder()
             .emoji("🧹")
             .title(&t().create_chore())
-            .headline(&format!("🧹 {}", t().create_chore()))
             .back_url(ChoreIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),
@@ -208,7 +205,6 @@ pub fn update(
         layout::DefaultLayoutOptions::builder()
             .emoji("🧹")
             .title(&t().edit_chore())
-            .headline(&format!("🧹 {}", t().edit_chore()))
             .back_url(ChoreDetailPath { chore_list_id: chore_list.id, chore_id: chore.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Chores)))
             .build(),
@@ -259,7 +255,6 @@ pub fn list_activities(
         layout::DefaultLayoutOptions::builder()
             .emoji("✅")
             .title(&t().activities())
-            .headline(&format!("✅ {}", t().activities()))
             .teaser(&t().of_x(format!("🧹 {}", chore.name)))
             .back_url(ChoreDetailPath { chore_list_id: chore_list.id, chore_id: chore.id }.to_string().as_str())
             .meta_actions(html! {

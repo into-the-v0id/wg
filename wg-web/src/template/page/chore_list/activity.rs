@@ -33,7 +33,6 @@ pub fn list(
         layout::DefaultLayoutOptions::builder()
             .emoji("✅")
             .title(&t().activities())
-            .headline(&format!("✅ {}", t().activities()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(ChoreListIndexPath.to_string().as_str())
             .meta_actions(html! {
@@ -126,7 +125,6 @@ pub fn detail(
         layout::DefaultLayoutOptions::builder()
             .emoji("✅")
             .title(&t().activity())
-            .headline(&format!("✅ {}", t().activity()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(ChoreActivityIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .meta_actions(html! {
@@ -198,7 +196,6 @@ pub fn create(
         layout::DefaultLayoutOptions::builder()
             .emoji("✅")
             .title(&t().create_activity())
-            .headline(&format!("✅ {}", t().create_activity()))
             .back_url(ChoreActivityIndexPath { chore_list_id: chore_list.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),
@@ -241,7 +238,6 @@ pub fn update(
         layout::DefaultLayoutOptions::builder()
             .emoji("✅")
             .title(&t().edit_activity())
-            .headline(&format!("✅ {}", t().edit_activity()))
             .back_url(ChoreActivityDetailPath { chore_list_id: chore_list.id, chore_activity_id: activity.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Activities)))
             .build(),

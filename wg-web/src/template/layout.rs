@@ -75,8 +75,9 @@ pub fn blank(
 #[derive(Builder)]
 pub struct DefaultLayoutOptions<'a> {
     emoji: Option<&'a str>,
+    #[builder(default = true)]
+    display_emoji: bool,
     title: &'a str,
-    headline: &'a str,
     teaser: Option<&'a str>,
     back_url: Option<&'a str>,
     meta_actions: Option<Markup>,
@@ -121,11 +122,23 @@ pub fn default(
 
                     @if let Some(teaser) = options.teaser {
                         hgroup {
-                            h1 { (options.headline) }
+                            h1 {
+                                @if let Some(emoji) = options.emoji && options.display_emoji {
+                                    (emoji) " "
+                                }
+
+                                (options.title)
+                            }
                             p style="margin-top: 0.25rem;" { (teaser) }
                         }
                     } @else {
-                        h1 { (options.headline) }
+                        h1 {
+                            @if let Some(emoji) = options.emoji && options.display_emoji {
+                                (emoji) " "
+                            }
+
+                            (options.title)
+                        }
                     }
                 }
                 div.layout-right { }

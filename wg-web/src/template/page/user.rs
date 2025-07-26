@@ -19,7 +19,6 @@ pub fn list(
         layout::DefaultLayoutOptions::builder()
             .emoji("👤")
             .title(&t().users())
-            .headline(&format!("👤 {}", t().users()))
             .back_url(SettingsIndexPath.to_string().as_str())
             .meta_actions(html! {
                 a.secondary.subtle href=(UserCreatePath) { "+ " (t().add_action()) }
@@ -62,7 +61,6 @@ pub fn detail(user: user::User) -> Markup {
         layout::DefaultLayoutOptions::builder()
             .emoji("👤")
             .title(&user.name)
-            .headline(&format!("👤 {}", user.name))
             .back_url(UserIndexPath.to_string().as_str())
             .meta_actions(html! {
                 @if user.is_deleted() {
@@ -90,7 +88,6 @@ pub fn create() -> Markup {
         layout::DefaultLayoutOptions::builder()
             .emoji("👤")
             .title(&t().create_user())
-            .headline(&format!("👤 {}", t().create_user()))
             .back_url(UserIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),
@@ -115,8 +112,8 @@ pub fn update(user: user::User) -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .emoji("🪪")
+            .display_emoji(false)
             .title(&t().edit_profile())
-            .headline(&t().edit_profile())
             .back_url(SettingsIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::Settings)))
             .build(),

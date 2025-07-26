@@ -6,7 +6,6 @@ pub fn login() -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
             .title(&t().login())
-            .headline(&t().login())
             .build(),
         html! {
             form method="post" {

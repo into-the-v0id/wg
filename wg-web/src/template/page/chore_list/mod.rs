@@ -27,7 +27,6 @@ pub fn list(
         layout::DefaultLayoutOptions::builder()
             .emoji("📋")
             .title(&t().chore_lists())
-            .headline(&format!("📋 {}", t().chore_lists()))
             .meta_actions(html! {
                 a.secondary.subtle href=(ChoreListCreatePath) { "+ " (t().add_action()) }
             })
@@ -73,7 +72,6 @@ pub fn create() -> Markup {
         layout::DefaultLayoutOptions::builder()
             .emoji("📋")
             .title(&t().create_chore_list())
-            .headline(&format!("📋 {}", t().create_chore_list()))
             .back_url(ChoreListIndexPath.to_string().as_str())
             .navigation(partial::navigation::global(Some(GlobalNavigationItem::ChoreLists)))
             .build(),
@@ -117,7 +115,6 @@ pub fn update(chore_list: chore_list::ChoreList) -> Markup {
         layout::DefaultLayoutOptions::builder()
             .emoji("📋")
             .title(&t().edit_chore_list())
-            .headline(&format!("📋 {}", t().edit_chore_list()))
             .back_url(ChoreListSettingsPath { chore_list_id: chore_list.id }.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Settings)))
             .build(),
@@ -165,7 +162,6 @@ pub fn settings(chore_list: chore_list::ChoreList) -> Markup {
         layout::DefaultLayoutOptions::builder()
             .emoji("⚙️")
             .title(&t().settings())
-            .headline(&format!("⚙️ {}", t().settings()))
             .teaser(&t().of_x(format!("📋 {}", chore_list.name)))
             .back_url(ChoreListIndexPath.to_string().as_str())
             .navigation(partial::navigation::chore_list(&chore_list, Some(ChoreListNavigationItem::Settings)))
