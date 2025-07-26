@@ -8,45 +8,29 @@ Track chores of a shared household
 
 [More](./docs/img/screenshots/)
 
-## Build
+## Setup
 
 ### Docker
 
 ```bash
 docker build -t wg .
-```
-
-### Cargo
-
-```bash
-cargo build --release
-```
-
-## Run
-
-### Docker
-
-```bash
-docker run -p 3000:3000 -v "$(pwd)/data:/data" --rm wg
+docker run -p 3000:3000 -v "$(pwd)/data:/data" --name wg --rm wg
 ```
 
 ### Docker Compose
 
-```yaml
-services:
-  wg:
-    image: wg
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./data:/data
+```bash
+docker compose -f ./docker-compose.prod.yml up
 ```
 
-### Binary
+### Manual
 
 ```bash
-wg
+cd ./wg-web/
+npm install
+npm run build:sass
+cd ..
+cargo run --release
 ```
 
 ## Configuration
