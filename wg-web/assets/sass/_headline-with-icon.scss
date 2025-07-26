@@ -1,0 +1,13 @@
+.headline-with-icon {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75em;
+
+    .icon {
+        flex-grow: 0;
+    }
+
+    .headline {
+        flex-grow: 1;
+    }
+}

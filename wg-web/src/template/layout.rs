@@ -120,25 +120,17 @@ pub fn default(
 
                     br;
 
-                    @if let Some(teaser) = options.teaser {
-                        hgroup {
-                            h1 {
-                                @if let Some(emoji) = options.emoji && options.display_emoji {
-                                    (emoji) " "
-                                }
-
-                                (options.title)
-                            }
-                            p style="margin-top: 0.25rem;" { (teaser) }
+                    @if let Some(emoji) = options.emoji && options.display_emoji {
+                        div.headline-with-icon {
+                            span.icon.h1.mb-0 { (emoji) }
+                            h1.headline.mb-0 { (options.title) }
                         }
                     } @else {
-                        h1 {
-                            @if let Some(emoji) = options.emoji && options.display_emoji {
-                                (emoji) " "
-                            }
+                        h1.mb-0 { (options.title) }
+                    }
 
-                            (options.title)
-                        }
+                    @if let Some(teaser) = options.teaser {
+                        p.text-muted.mb-0 style="margin-top: 0.25rem;" { (teaser) }
                     }
                 }
                 div.layout-right { }
