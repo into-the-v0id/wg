@@ -50,6 +50,13 @@ pub async fn get_all_for_chore_list(
         .await
 }
 
+pub async fn get_all_due(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<Chore>, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM chores WHERE next_due_date IS NOT NULL AND next_due_date <= ? ORDER BY points")
+        .bind(Date::now())
+        .fetch_all(pool)
+        .await
+}
+
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, chore: &Chore) -> Result<(), sqlx::Error> {
     tracing::info!(chore = ?chore, "Creating chore");
 

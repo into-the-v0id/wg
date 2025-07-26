@@ -5,11 +5,11 @@ use wg_core::model::{self, chore::Chore, chore_list::ChoreList};
 use crate::AppState;
 
 pub async fn low_score_reminder(state: Arc<AppState>) {
-    let (all_users, active_absences, all_chore_lists, all_chores, low_score_users) = tokio::try_join!(
+    let (all_users, active_absences, all_chore_lists, all_due_chores, low_score_users) = tokio::try_join!(
         model::user::get_all(&state.pool),
         model::absence::get_active(&state.pool),
         model::chore_list::get_all(&state.pool),
-        model::chore::get_all(&state.pool),
+        model::chore::get_all_due(&state.pool),
         wg_core::service::user::get_low_score_users(&state.pool).map(|r| Ok(r)),
     ).unwrap();
 
@@ -28,8 +28,8 @@ pub async fn low_score_reminder(state: Arc<AppState>) {
             .filter(|cl| chore_list_ids.contains(&cl.id))
             .collect::<Vec<&ChoreList>>();
 
-        let due_chores = all_chores.iter()
-            .filter(|c| chore_list_ids.contains(&c.chore_list_id) && c.is_due().unwrap_or(false))
+        let due_chores = all_due_chores.iter()
+            .filter(|c| chore_list_ids.contains(&c.chore_list_id))
             .collect::<Vec<&Chore>>();
 
         let mail_message = wg_mail::message::low_score_reminder(user, &chore_lists, &due_chores);
