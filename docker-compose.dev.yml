@@ -21,10 +21,14 @@ services:
       - *default-service
       - *as-current-user
     image: wg
-    build: .
+    build:
+      context: .
+      args:
+        CARGO_BUILD_ARGS: "" # disable release build and use debug build instead
     container_name: wg-app
     environment:
       RUST_LOG: debug
+      RUST_BACKTRACE: 1
       PORT: 80
       SMTP_URL: smtp://mailpit:1025
       MAIL_FROM: test@localhost

@@ -1,0 +1,16 @@
+services:
+  wg:
+    image: wg
+    build: .
+    container_name: wg
+    restart: unless-stopped
+    environment:
+      RUST_LOG: info
+      # PORT: 3000
+      # SMTP_URL: smtp://username:password@host:port?tls=required
+      # MAIL_FROM: wg@wg.wg
+      # LOW_SCORE_REMINDER_CRON: "0 0 17 * * 2"
+    volumes:
+      - ./data:/data
+    ports:
+      - "3000:3000"

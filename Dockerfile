@@ -22,7 +22,8 @@ COPY . .
 COPY --from=assets /app/wg-web/static /app/wg-web/static
 
 # Build app
-RUN --mount=type=cache,target=/app/target --mount=type=cache,target=/root/.cargo cd wg/ && cargo build --release && cp /app/target/release/wg /app/wg/wg
+ARG CARGO_BUILD_ARGS="--release"
+RUN --mount=type=cache,target=/app/target --mount=type=cache,target=/root/.cargo cd wg/ && cargo build $CARGO_BUILD_ARGS && cp /app/target/release/wg /app/wg/wg
 
 FROM debian:stable-slim
 
