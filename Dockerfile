@@ -9,7 +9,7 @@ COPY wg-web/static/ ./static/
 
 RUN --mount=type=cache,target=/app/wg-web/node_modules npm install && npm run build:sass
 
-FROM rustlang/rust:nightly-slim AS build
+FROM rust:1-slim AS build
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
