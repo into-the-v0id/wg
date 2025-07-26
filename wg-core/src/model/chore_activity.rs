@@ -51,7 +51,14 @@ pub async fn get_oldest_not_deleted_for_chore_list(
     pool: &sqlx::sqlite::SqlitePool,
     chore_list_id: &ChoreListId,
 ) -> Result<ChoreActivity, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM chore_activities WHERE chore_list_id = ? AND date_deleted IS NULL ORDER BY date ASC, date_created ASC LIMIT 1")
+    sqlx::query_as("
+        SELECT chore_activities.*
+        FROM chore_activities
+        INNER JOIN chores ON chore_activities.chore_id = chores.id
+        WHERE chores.chore_list_id = ? AND chore_activities.date_deleted IS NULL
+        ORDER BY date ASC, date_created ASC
+        LIMIT 1
+    ")
         .bind(chore_list_id)
         .fetch_one(pool)
         .await
