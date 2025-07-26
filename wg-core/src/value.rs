@@ -4,6 +4,7 @@ use argon2::{
     Argon2, PasswordVerifier,
     password_hash::{PasswordHasher, SaltString, rand_core::OsRng},
 };
+use chrono::ParseError;
 use secrecy::{ExposeSecret, SecretString};
 use sqlx::{
     Decode, Encode, Sqlite, Type,
@@ -255,6 +256,15 @@ impl From<chrono::DateTime<chrono::Utc>> for DateTime {
     }
 }
 
+impl FromStr for DateTime {
+    type Err = ParseError;
+
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
+        chrono::DateTime::parse_from_rfc3339(string)
+            .map(|datetime| DateTime(datetime.to_utc()))
+    }
+}
+
 impl AsRef<chrono::DateTime<chrono::Utc>> for DateTime {
     fn as_ref(&self) -> &chrono::DateTime<chrono::Utc> {
         &self.0
@@ -291,8 +301,16 @@ impl Date {
         self.0 < chrono::Utc::now().date_naive()
     }
 
+    pub fn is_in_past_or_today(&self) -> bool {
+        self.0 <= chrono::Utc::now().date_naive()
+    }
+
     pub fn is_today(&self) -> bool {
         self.0 == chrono::Utc::now().date_naive()
+    }
+
+    pub fn is_in_future_or_today(&self) -> bool {
+        self.0 >= chrono::Utc::now().date_naive()
     }
 
     pub fn is_in_future(&self) -> bool {
@@ -321,6 +339,14 @@ impl From<chrono::NaiveDate> for Date {
 impl From<chrono::NaiveDateTime> for Date {
     fn from(value: chrono::NaiveDateTime) -> Self {
         Self(value.date())
+    }
+}
+
+impl FromStr for Date {
+    type Err = ParseError;
+
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
+        chrono::NaiveDate::parse_from_str(string, "%Y-%m-%d").map(Date)
     }
 }
 

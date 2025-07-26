@@ -1,4 +1,5 @@
 use maud::{html, Markup};
+use crate::handler::absence::AbsenceIndexPath;
 use crate::handler::chore::ChoreIndexPath;
 use crate::handler::chore_activity::ChoreActivityIndexPath;
 use crate::handler::chore_list::{ChoreListIndexPath, ChoreListSettingsPath};
@@ -10,6 +11,7 @@ use wg_core::model::chore_list;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum GlobalNavigationItem {
     ChoreLists,
+    Absences,
     Settings,
 }
 
@@ -20,6 +22,12 @@ pub fn global(active_item: Option<GlobalNavigationItem>) -> Markup {
                 a href=(ChoreListIndexPath) aria-current=[if active_item == Some(GlobalNavigationItem::ChoreLists) { Some("page") } else { None }] {
                     div.icon { "📋" }
                     div.label { (t().chore_lists()) }
+                }
+            }
+            li {
+                a href=(AbsenceIndexPath) aria-current=[if active_item == Some(GlobalNavigationItem::Absences) { Some("page") } else { None }] {
+                    div.icon { "🏖️" }
+                    div.label { (t().absences()) }
                 }
             }
             li {

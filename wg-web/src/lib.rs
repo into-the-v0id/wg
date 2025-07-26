@@ -89,6 +89,16 @@ pub fn make_router(state: AppState) -> Router {
         .typed_post(handler::user::delete)
         .typed_post(handler::user::restore)
 
+        // Absence
+        .typed_get(handler::absence::view_list)
+        .typed_get(handler::absence::view_create_form)
+        .typed_post(handler::absence::create)
+        .typed_get(handler::absence::view_detail)
+        .typed_get(handler::absence::view_update_form)
+        .typed_post(handler::absence::update)
+        .typed_post(handler::absence::delete)
+        .typed_post(handler::absence::restore)
+
         // Chore List
         .typed_get(handler::chore_list::view_list)
         .typed_get(handler::chore_list::view_create_form)

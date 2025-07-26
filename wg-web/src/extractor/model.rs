@@ -1,3 +1,5 @@
+use wg_core::model::absence;
+use wg_core::model::absence::AbsenceId;
 use wg_core::model::user;
 use wg_core::model::chore;
 use wg_core::model::chore::ChoreId;
@@ -100,6 +102,35 @@ impl FromRequestParts<Arc<AppState>> for ChoreList {
         };
 
         Ok(ChoreList(chore_list))
+    }
+}
+
+pub struct Absence(pub absence::Absence);
+
+#[derive(Debug, Copy, Clone, serde::Deserialize)]
+struct AbsencePathData {
+    absence_id: AbsenceId,
+}
+
+impl FromRequestParts<Arc<AppState>> for Absence {
+    type Rejection = StatusCode;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &Arc<AppState>,
+    ) -> Result<Self, Self::Rejection> {
+        let path_data = match parts.extract::<Path<AbsencePathData>>().await {
+            Ok(path_data) => path_data,
+            Err(_) => return Err(StatusCode::BAD_REQUEST),
+        };
+
+        let absence = match absence::get_by_id(&state.pool, &path_data.absence_id).await {
+            Ok(absence) => absence,
+            Err(wg_core::db::sqlx::Error::RowNotFound) => return Err(StatusCode::NOT_FOUND),
+            Err(err) => panic!("{}", err),
+        };
+
+        Ok(Absence(absence))
     }
 }
 

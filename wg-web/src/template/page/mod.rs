@@ -4,3 +4,4 @@ pub mod chore_list;
 pub mod settings;
 pub mod user;
 pub mod legal;
+pub mod absence;

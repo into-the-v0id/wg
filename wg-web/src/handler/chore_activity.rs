@@ -367,9 +367,13 @@ pub async fn restore(
     ChoreList(chore_list): ChoreList,
     ChoreActivity(mut activity): ChoreActivity,
     State(state): State<Arc<AppState>>,
-    AuthSession(_auth_session): AuthSession,
+    AuthSession(auth_session): AuthSession,
 ) -> Result<Redirect, StatusCode> {
     if chore_list.is_deleted() || !activity.is_deleted() {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    if activity.user_id != auth_session.user_id {
         return Err(StatusCode::FORBIDDEN);
     }
 

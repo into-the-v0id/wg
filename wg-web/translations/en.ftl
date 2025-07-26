@@ -53,6 +53,8 @@ every_n_days = {$n ->
    *[other] every {$n} days
 }
 days = days
+duration = Duration
+unknown = unknown
 create_chore = Create Chore
 edit_chore = Edit Chore
 
@@ -102,3 +104,19 @@ create_user = Create User
 login = Login
 login_action = Login
 logout_action = Logout
+
+## Absence
+
+absences = Absences
+absence = Absence
+deleted_absences = Deleted Absences
+future_absences = Future Absences
+absence_has_been_deleted = This absence has been deleted
+create_absence = Create absence
+edit_absence = Edit absence
+absence_start_date = Date of departure
+absence_end_date = Date of return
+n_days = {$n ->
+    [one] 1 day
+   *[other] {$n} days
+}

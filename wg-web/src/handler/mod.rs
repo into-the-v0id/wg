@@ -9,3 +9,4 @@ pub mod health;
 pub mod legal;
 pub mod user;
 pub mod settings;
+pub mod absence;

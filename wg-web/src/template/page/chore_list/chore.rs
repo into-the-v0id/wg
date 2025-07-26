@@ -50,7 +50,7 @@ pub fn list(
                                 (t().points_value_short(chore.points))
 
                                 @if let Some(next_due_date) = chore.next_due_date {
-                                    @if next_due_date.is_today() || next_due_date.is_in_past() {
+                                    @if next_due_date.is_in_past_or_today() {
                                         " – "
                                         span.text-danger.fw-bold { (t().due_hint()) }
                                     }
@@ -126,7 +126,7 @@ pub fn detail(
                 }
 
                 @if let Some(next_due_date) = chore.next_due_date {
-                    @let is_due = next_due_date.is_today() || next_due_date.is_in_past();
+                    @let is_due = next_due_date.is_in_past_or_today();
                     dt { (t().next_due_date()) }
                     dd.text-danger[is_due].fw-bold[is_due] {
                         time datetime=(next_due_date.format("%Y-%m-%d")) title=(next_due_date.format("%Y-%m-%d")) {

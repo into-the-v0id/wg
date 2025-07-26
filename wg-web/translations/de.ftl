@@ -53,6 +53,8 @@ every_n_days = {$n ->
    *[other] alle {$n} Tage
 }
 days = Tage
+duration = Dauer
+unknown = unbekannt
 create_chore = Aufgabe erstellen
 edit_chore = Aufgabe bearbeiten
 
@@ -102,3 +104,19 @@ create_user = Benutzer erstellen
 login = Login
 login_action = Anmelden
 logout_action = Abmelden
+
+## Absence
+
+absences = Abwesenheiten
+absence = Abwesenheit
+deleted_absences = Gelöschte Abwesenheiten
+future_absences = Zukünftige Abwesenheiten
+absence_has_been_deleted = Diese Abwesenheit wurde gelöscht
+create_absence = Abwesenheit erstellen
+edit_absence = Abwesenheit bearbeiten
+absence_start_date = Abreisedatum
+absence_end_date = Rückreisedatum
+n_days = {$n ->
+    [one] 1 Tag
+   *[other] {$n} Tage
+}

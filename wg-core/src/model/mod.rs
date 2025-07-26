@@ -3,3 +3,4 @@ pub mod chore;
 pub mod chore_activity;
 pub mod chore_list;
 pub mod user;
+pub mod absence;
