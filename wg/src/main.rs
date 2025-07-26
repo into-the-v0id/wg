@@ -71,7 +71,7 @@ async fn start_web_server(pool: Pool, cancel_token: CancellationToken) -> () {
 
     let port = std::env::var("PORT")
         .map(|raw_port| raw_port.parse::<i32>().unwrap())
-        .unwrap_or(3000);
+        .unwrap_or(80);
     let address = format!("0.0.0.0:{}", port);
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
     println!("Listening on http://{} ...", listener.local_addr().unwrap());

@@ -14,7 +14,7 @@ Track chores of a shared household
 
 ```bash
 docker build -t wg .
-docker run -p 3000:3000 -v "$(pwd)/data:/data" --name wg --rm wg
+docker run -p 80:80 -v "$(pwd)/data:/data" --name wg --rm wg
 ```
 
 ### Docker Compose
@@ -39,7 +39,7 @@ The following environment variables can be used for configuration:
 
 | Variable   | Default          |
 | ---------- | ---------------- |
-| `PORT`     | 3000             |
+| `PORT`     | 80               |
 | `DB_FILE`  | ./data/sqlite.db |
 | `RUST_LOG` | error            |
 
