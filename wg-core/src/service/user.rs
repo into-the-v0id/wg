@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use secrecy::SecretString;
-use crate::{model::{chore_list::{self, ChoreListId}, user::{self, User, UserId}}, value::{DateTime, PasswordHash}};
+use crate::{model::{chore_list::{self, ChoreListId}, user::{self, User, UserId}}, service, value::{DateTime, PasswordHash}};
 
 pub async fn exists_any_user(pool: &crate::db::Pool) -> bool {
     let users = user::get_all(pool).await.unwrap();
@@ -37,7 +37,7 @@ pub async fn get_low_score_users(pool: &crate::db::Pool) -> HashMap<UserId, Vec<
             continue;
         }
 
-        let score_per_user = chore_list::get_score_per_user(pool, &chore_list).await.unwrap();
+        let score_per_user = service::chore_list::get_adjusted_score_per_user(pool, &chore_list).await.unwrap();
 
         // Ignore lists with none or only one user
         if score_per_user.len() <= 1 {
