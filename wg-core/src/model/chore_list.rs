@@ -1,6 +1,6 @@
 use crate::{model::user::UserId, value::Tagged};
 
-use crate::value::{DateTime, Uuid};
+use crate::value::{Date, DateTime, Uuid};
 use chrono::{Datelike, Days, Months};
 
 pub type ChoreListId = Tagged<Uuid, ChoreList>;
@@ -35,6 +35,24 @@ impl ScoreResetInterval {
             ScoreResetInterval::HalfYearly => Some(6),
             ScoreResetInterval::Yearly => Some(12),
             ScoreResetInterval::Never => None,
+        }
+    }
+
+    pub fn get_current_start_and_end_date(&self) -> Option<(Date, Date)> {
+        if let Some(duration_months) = self.as_months() {
+            let now = chrono::offset::Utc::now();
+            let current_month = now.month();
+
+            let elapsed_months = (current_month - 1) % duration_months;
+
+            let start_month = current_month - elapsed_months;
+
+            let start_date = chrono::NaiveDate::from_ymd_opt(now.year(), start_month, 1).unwrap();
+            let end_date = start_date + Months::new(duration_months) - Days::new(1);
+
+            Some((Date::from(start_date), Date::from(end_date)))
+        } else {
+            None
         }
     }
 }
@@ -75,23 +93,9 @@ pub async fn get_score_per_user(
     pool: &sqlx::sqlite::SqlitePool,
     chore_list: &ChoreList,
 ) -> Result<Vec<(UserId, i32)>, sqlx::Error> {
-    let mut interval_start_date = None;
-    let mut interval_end_date = None;
-
-    if let Some(interval_duration_months) = chore_list.score_reset_interval.as_months() {
-        let now = chrono::offset::Utc::now();
-        let current_month = now.month();
-
-        let elapsed_months = (current_month - 1) % interval_duration_months;
-
-        let interval_start_month = current_month - elapsed_months;
-
-        interval_start_date =
-            Some(chrono::NaiveDate::from_ymd_opt(now.year(), interval_start_month, 1).unwrap());
-        interval_end_date = Some(
-            interval_start_date.unwrap() + Months::new(interval_duration_months) - Days::new(1),
-        );
-    }
+    let interval_start_and_end_date = chore_list.score_reset_interval.get_current_start_and_end_date();
+    let interval_start_date = interval_start_and_end_date.map(|(start_date, _end_date)| start_date);
+    let interval_end_date = interval_start_and_end_date.map(|(_start_date, end_date)| end_date);
 
     sqlx::query_as::<_, (UserId, i32)>("
         SELECT users.id as user_id, COALESCE(total_score, 0) as total_score

@@ -21,7 +21,7 @@ pub fn list(
     chore_list: chore_list::ChoreList,
     users: Vec<user::User>,
     deleted_users: Vec<user::User>,
-    scores_by_user: Vec<(UserId, i32)>,
+    adjusted_scores_by_user: Vec<(UserId, i32)>,
 ) -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
@@ -34,13 +34,13 @@ pub fn list(
             .build(),
         html! {
             ol.card-container.collapse {
-                @for (user_id, score) in scores_by_user {
+                @for (user_id, adjusted_score) in adjusted_scores_by_user {
                     @let user = users.iter().find(|user| user.id == user_id).unwrap();
 
                     li {
                         a.card href=(ChoreListUserDetailPath { chore_list_id: chore_list.id, user_id: user.id }) {
                             div.title { (user.name) }
-                            small.text-muted { (t().score_value(score)) }
+                            small.text-muted { (t().score_value(adjusted_score)) }
                         }
                     }
                 }
