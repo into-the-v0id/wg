@@ -8,6 +8,14 @@ Track chores of a shared household
 
 [More](./docs/img/screenshots/)
 
+## Features
+
+- Collect points for doing a chore (amount of points specified on the chore)
+- Show how many points other users have
+- Send reminders to users with a low score/points
+- Display due chores (based on an interval defined on the chore)
+- Record absences (is taken into account when calculating how many points a user has)
+
 ## Setup
 
 ### Docker
@@ -57,7 +65,11 @@ To periodically send reminders to users with a low score, specify a cron express
 
 ### How do the points and score work?
 
-Each chore has a certain amount of points - you can define this yourself. Usually more difficult or work-intensive chores have more points. Once you finish a chore you gain that amount of points. There is also a view to see how many points your roommates have in comparison to you. You can configure your chore list to reset the points/score of all users in the following intervals: monthly, quaterly, half-yearly, yearly, never.
+Each chore has a certain amount of points - you can define this yourself. Usually more difficult or work-intensive chores have more points. Once you finish a chore you gain that amount of points. There is also a view to see how many points your roommates have in comparison to you.
+
+You can also have the points/score of all users automatically reset in the following intervals: monthly, quaterly, half-yearly, yearly, never.
+
+When you record an absence, your score is automatically adjusted. Since you are not around, it's not not expected of you to do any chores. Therefore you will recieve compensatory points based on how much you did while you where around.
 
 ### Whats with the name "WG"?
 
