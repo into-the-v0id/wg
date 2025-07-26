@@ -31,6 +31,7 @@ interval_half_yearly = Half-Yearly
 interval_yearly = Yearly
 interval_never = Never
 score_value = Score: {$score}
+adjusted_score_value_with_initial_score = Score: {$adjusted_score} ({$initial_score})
 create_chore_list = Create Chore List
 edit_chore_list = Edit Chore List
 delete_chore_list = Delete Chore List

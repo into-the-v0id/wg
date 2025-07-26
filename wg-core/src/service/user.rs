@@ -44,7 +44,7 @@ pub async fn get_low_score_users(pool: &crate::db::Pool) -> HashMap<UserId, Vec<
             continue;
         }
 
-        let scores = score_per_user.iter().map(|(_, score)| score).cloned().collect::<Vec<i32>>();
+        let scores = score_per_user.iter().map(|scores| scores.adjusted_score).collect::<Vec<i32>>();
 
         let min_score = match scores.iter().min() {
             Some (min) => min,
@@ -64,9 +64,8 @@ pub async fn get_low_score_users(pool: &crate::db::Pool) -> HashMap<UserId, Vec<
         let score_threshold = min_score + (score_delta as f32 * 0.25).ceil() as i32;
 
         let current_low_score_users = score_per_user.iter()
-            .filter(|(_, score)| score <= &score_threshold)
-            .map(|(user_id, _)| user_id)
-            .cloned()
+            .filter(|scores| scores.adjusted_score <= score_threshold)
+            .map(|scores| scores.user_id)
             .collect::<Vec<UserId>>();
 
         for user_id in current_low_score_users {

@@ -1,4 +1,5 @@
 use maud::{html, Markup};
+use wg_core::service::chore_list::UserScores;
 use crate::handler::chore_activity::ChoreActivityDetailPath;
 use crate::handler::chore_list::ChoreListIndexPath;
 use crate::handler::chore_list_user::ChoreListUserActivitiesPath;
@@ -8,7 +9,6 @@ use wg_core::model::chore_list;
 use wg_core::model::chore_activity;
 use wg_core::model::chore;
 use wg_core::model::user;
-use wg_core::model::user::UserId;
 use wg_core::value::Date;
 use crate::template::helper::format_date_long;
 use crate::template::helper::format_date_long_simple;
@@ -21,7 +21,7 @@ pub fn list(
     chore_list: chore_list::ChoreList,
     users: Vec<user::User>,
     deleted_users: Vec<user::User>,
-    adjusted_scores_by_user: Vec<(UserId, i32)>,
+    user_scores: Vec<UserScores>,
 ) -> Markup {
     layout::default(
         layout::DefaultLayoutOptions::builder()
@@ -34,13 +34,19 @@ pub fn list(
             .build(),
         html! {
             ol.card-container.collapse {
-                @for (user_id, adjusted_score) in adjusted_scores_by_user {
-                    @let user = users.iter().find(|user| user.id == user_id).unwrap();
+                @for scores in user_scores {
+                    @let user = users.iter().find(|user| user.id == scores.user_id).unwrap();
 
                     li {
                         a.card href=(ChoreListUserDetailPath { chore_list_id: chore_list.id, user_id: user.id }) {
                             div.title { (user.name) }
-                            small.text-muted { (t().score_value(adjusted_score)) }
+                            small.text-muted {
+                                @if scores.adjusted_score != scores.score {
+                                    (t().adjusted_score_value_with_initial_score(scores.adjusted_score, scores.score))
+                                } @else {
+                                    (t().score_value(scores.adjusted_score))
+                                }
+                            }
                         }
                     }
                 }

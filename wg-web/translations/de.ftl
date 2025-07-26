@@ -31,6 +31,7 @@ interval_half_yearly = Halbjährlich
 interval_yearly = Jährlich
 interval_never = Nie
 score_value = Punkte: {$score}
+adjusted_score_value_with_initial_score = Punkte: {$adjusted_score} ({$initial_score})
 create_chore_list = Aufgabenliste erstellen
 edit_chore_list = Aufgabenliste bearbeiten
 delete_chore_list = Aufgabenliste löschen

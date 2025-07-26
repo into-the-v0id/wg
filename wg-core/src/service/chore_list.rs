@@ -1,9 +1,15 @@
 use crate::{model::{self, absence::Absence, chore_list::ChoreList, user::UserId}, service, value::Date};
 
+pub struct UserScores {
+    pub user_id: UserId,
+    pub score: i32,
+    pub adjusted_score: i32,
+}
+
 pub async fn get_adjusted_score_per_user(
     pool: &crate::db::Pool,
     chore_list: &ChoreList,
-) -> Result<Vec<(UserId, i32)>, sqlx::Error> {
+) -> Result<Vec<UserScores>, sqlx::Error> {
     let (interval_start_date, _interval_end_date) = if let Some(interval_start_and_end_date) = chore_list.score_reset_interval.get_current_start_and_end_date() {
         interval_start_and_end_date
     } else {
@@ -21,7 +27,7 @@ pub async fn get_adjusted_score_per_user(
         model::absence::get_active_in_period(pool, interval_start_date, Date::now())
     ).unwrap();
 
-    let adjusted_score_per_user = score_per_user.iter()
+    let user_scores = score_per_user.iter()
         .map(|&(user_id, score)| {
             let user_absences = absences.iter()
                 .filter(|absence| absence.user_id == user_id)
@@ -40,9 +46,9 @@ pub async fn get_adjusted_score_per_user(
                 (score as f64 / present_num_days as f64 * interval_passed_days as f64).round() as i32
             };
 
-            (user_id, adjusted_score)
+            UserScores { user_id, score, adjusted_score }
         })
         .collect();
 
-    Ok(adjusted_score_per_user)
+    Ok(user_scores)
 }

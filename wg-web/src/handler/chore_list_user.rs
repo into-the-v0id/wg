@@ -29,7 +29,7 @@ pub async fn view_list(
     State(state): State<Arc<AppState>>,
     AuthSession(_auth_session): AuthSession,
 ) -> Result<Markup, StatusCode> {
-    let (all_users, adjusted_scores_by_user) = tokio::try_join!(
+    let (all_users, user_scores) = tokio::try_join!(
         user::get_all(&state.pool),
         service::chore_list::get_adjusted_score_per_user(&state.pool, &chore_list),
     ).unwrap();
@@ -42,7 +42,7 @@ pub async fn view_list(
         chore_list,
         users,
         deleted_users,
-        adjusted_scores_by_user,
+        user_scores,
     ))
 }
 
