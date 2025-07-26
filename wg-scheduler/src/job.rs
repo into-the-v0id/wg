@@ -5,8 +5,9 @@ use wg_core::model::{self, chore::Chore, chore_list::ChoreList};
 use crate::AppState;
 
 pub async fn low_score_reminder(state: Arc<AppState>) {
-    let (all_users, all_chore_lists, all_chores, low_score_users) = tokio::try_join!(
+    let (all_users, active_absences, all_chore_lists, all_chores, low_score_users) = tokio::try_join!(
         model::user::get_all(&state.pool),
+        model::absence::get_active(&state.pool),
         model::chore_list::get_all(&state.pool),
         model::chore::get_all(&state.pool),
         wg_core::service::user::get_low_score_users(&state.pool).map(|r| Ok(r)),
@@ -15,6 +16,11 @@ pub async fn low_score_reminder(state: Arc<AppState>) {
     for (user_id, chore_list_ids) in low_score_users.iter() {
         let user = all_users.iter().find(|u| &u.id == user_id).unwrap();
         if user.is_deleted() {
+            continue;
+        }
+
+        let is_user_absent = active_absences.iter().any(|absence| absence.user_id == user.id);
+        if is_user_absent {
             continue;
         }
 

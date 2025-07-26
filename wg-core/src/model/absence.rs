@@ -56,6 +56,16 @@ pub async fn get_all(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<Absence>, sq
         .await
 }
 
+pub async fn get_active(pool: &sqlx::sqlite::SqlitePool) -> Result<Vec<Absence>, sqlx::Error> {
+    let now = Date::now();
+
+    sqlx::query_as("SELECT * FROM absences WHERE date_start <= ? AND (date_end IS NULL OR date_end >= ?) ORDER BY date_end DESC NULLS FIRST, date_start DESC, date_created DESC")
+        .bind(now)
+        .bind(now)
+        .fetch_all(pool)
+        .await
+}
+
 pub async fn create(pool: &sqlx::sqlite::SqlitePool, absence: &Absence) -> Result<(), sqlx::Error> {
     tracing::info!(absence = ?absence, "Creating absence");
 
