@@ -4,4 +4,6 @@ members = [
   "wg",
   "wg-core",
   "wg-web",
+  "wg-scheduler",
+  "wg-mail",
 ]
