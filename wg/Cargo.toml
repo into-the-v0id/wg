@@ -17,7 +17,3 @@ wg_core = { path = "../wg-core" }
 wg_mail = { path = "../wg-mail" }
 wg_web = { path = "../wg-web" }
 wg_scheduler = { path = "../wg-scheduler" }
-
-[profile.release]
-lto = "fat"
-strip = true

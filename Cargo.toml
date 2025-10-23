@@ -7,3 +7,7 @@ members = [
   "wg-scheduler",
   "wg-mail",
 ]
+
+[profile.release]
+lto = "fat"
+strip = true
