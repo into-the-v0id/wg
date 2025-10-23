@@ -296,6 +296,15 @@ pub async fn update(
         .await
         .unwrap();
 
+    if payload.chore_id != chore.id {
+        let mut new_chore = chore::get_by_id(&state.pool, &payload.chore_id)
+            .await
+            .unwrap();
+        service::chore::update_next_due_date(&mut new_chore, &state.pool, true)
+            .await
+            .unwrap();
+    }
+
     Ok(Redirect::to(&ChoreActivityDetailPath {
         chore_list_id: chore_list.id,
         chore_activity_id: activity.id,
