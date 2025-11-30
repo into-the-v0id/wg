@@ -27,7 +27,7 @@ pub async fn get_adjusted_score_per_user(
         model::absence::get_active_in_period(pool, interval_start_date, Date::now())
     ).unwrap();
 
-    let user_scores = score_per_user.iter()
+    let mut user_scores = score_per_user.iter()
         .map(|&(user_id, score)| {
             let user_absences = absences.iter()
                 .filter(|absence| absence.user_id == user_id)
@@ -48,7 +48,10 @@ pub async fn get_adjusted_score_per_user(
 
             UserScores { user_id, score, adjusted_score }
         })
-        .collect();
+        .collect::<Vec<UserScores>>();
+
+    user_scores.sort_by_key(|user_score| user_score.adjusted_score);
+    user_scores.reverse();
 
     Ok(user_scores)
 }
